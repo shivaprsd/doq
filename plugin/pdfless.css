@@ -1,0 +1,77 @@
+:root {
+  /* Fallbacks */
+  --canvasDisplay: none;
+  --termFont: none;
+  --termColor: #f7f7f7;
+  --termBG: #242424;
+  --termHL: #b0b0b0;
+  --termMode-icon: url(../plugin/images/toolbarButton-termMode.svg);
+  --fontInput-icon: url(../plugin/images/secToolbarButton-fontInput.svg);
+  --colorInput-icon: url(../plugin/images/secToolbarButton-colorInput.svg);
+  --secToolbarWidth: 220px;
+  --secToolbarBtnPad: 36px;
+  --secToolbarIconLeft: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --termMode-icon: url(../plugin/images/toolbarButton-termMode-dark.svg);
+  --fontInput-icon: url(../plugin/images/secToolbarButton-fontInput-dark.svg);
+  --colorInput-icon: url(../plugin/images/secToolbarButton-colorInput-dark.svg);
+  }
+}
+
+#fontInput {
+  max-width: calc(100% - 92px);
+  margin-right: 2px;
+  vertical-align: top;
+}
+#colorInput {
+  width: calc(100% + 22px);
+  height: 26px;
+}
+#colorInput:focus {
+  border-color: rgba(0, 0, 0, 0.38);
+}
+#colorSelectContainer {
+  position: relative;
+  max-width: calc(var(--secToolbarWidth) / 2 - 4px);
+}
+
+.fontControls, .colorControl {
+  position: relative;
+  padding-left: var(--secToolbarBtnPad);
+  margin-bottom: 4px;
+}
+.colorControl, .imageControl {
+  display: inline-block;
+}
+.imageControl {
+  position: relative;
+  margin-left: 6px;
+  overflow: hidden;
+}
+.imageControl label {
+  display: block
+}
+.imageControl label:hover {
+  background-color: var(--button-hover-color);
+}
+.imageControl .toolbarField[type="checkbox"]:checked + .toolbarLabel {
+  background-color: var(--toggled-btn-bg-color);
+}
+
+.fontControls::before, .colorControl::before {
+  position: absolute;
+  top: 8px;
+  left: var(--secToolbarIconLeft);
+}
+.fontControls::before {
+  content: var(--fontInput-icon);
+}
+.colorControl::before {
+  content: var(--colorInput-icon);
+  color: var(--termColor) !important;
+}
+.toolbarButton.termMode::before, .secondaryToolbarButton.termMode::before {
+  content: var(--termMode-icon);
+}

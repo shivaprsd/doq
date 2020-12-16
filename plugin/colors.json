@@ -1,0 +1,23 @@
+{
+  "textColors": {
+    "Bright White": "#F7F7F7",
+    "White": "#B0B0B0",
+    "Gray": "#5D5D5D",
+    "Red": "#C75646",
+    "Green": "#8EB33B",
+    "Yellow": "#D0B03C",
+    "Blue": "#4E90A7",
+    "Magenta": "#C8A0D1",
+    "Cyan": "#218693",
+    "Bright Red": "#E09690",
+    "Bright Green": "#CDEE69",
+    "Bright Yellow": "#FFE377",
+    "Bright Blue": "#9CD9F0",
+    "Bright Magenta": "#FBB1F9",
+    "Bright Cyan": "#77DFD8"
+  },
+  "termColors": {
+    "background": "#242424",
+    "highlight": "rgba(33, 134, 147, 0.6)"
+  }
+}

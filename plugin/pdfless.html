@@ -1,0 +1,61 @@
+<template id="toolbarAddon">
+  <button id="termMode" class="toolbarButton termMode hiddenLargeView" title="Toggle Terminal Mode" tabindex="30">
+    <span>Terminal Mode</span>
+  </button>
+</template>
+
+<template id="secToolbarAddon">
+  <div class="fontControls">
+    <input id="fontInput" class="toolbarField" placeholder="Terminal Font">
+    <div class="splitToolbarButton">
+      <button id="fontReduce" class="toolbarButton zoomOut" title="Reduce Fontsize">
+        <span>A-</span>
+      </button>
+      <div class="splitToolbarButtonSeparator"></div>
+      <button id="fontEnlarge" class="toolbarButton zoomIn" title="Increase Fontsize">
+        <span>A+</span>
+       </button>
+    </div>
+  </div>
+  <div class="colorControl">
+    <div id="colorSelectContainer" class="dropdownToolbarButton">
+      <select id="colorInput" class="toolbarField" title="Text Color"></select>
+    </div>
+  </div
+  ><div class="imageControl">
+    <input type="checkbox" id="imageEnable" class="toolbarField" checked
+    ><label for="imageEnable" class="toolbarLabel">Images</label>
+  </div>
+  <div class="horizontalToolbarSeparator"></div>
+  <button id="secTermMode" class="secondaryToolbarButton termMode visibleLargeView" title="Toggle Terminal Mode" tabindex="50">
+    <span>Terminal Mode</span>
+  </button>
+</template>
+
+<style id="termModeTheme">
+  .page {
+    background-color: var(--termBG) !important;
+  }
+  .textLayer {
+    opacity: 1;
+    background-color: transparent;
+  }
+  .textLayer > span, .colorControl::before {
+    color: var(--termColor) !important;
+  }
+  .canvasWrapper {
+    display: var(--canvasDisplay);
+  }
+  ::selection, .textLayer ::selection {
+    background-color: var(--termHL);
+  }
+  ::-moz-selection {
+    background-color: var(--termHL);
+  }
+</style>
+
+<style id="termModeFont">
+  .textLayer > span {
+    font-family: var(--termFont) !important;
+  }
+</style>
