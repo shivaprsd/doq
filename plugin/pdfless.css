@@ -5,6 +5,7 @@
   --termColor: #f7f7f7;
   --termBG: #242424;
   --termHL: #b0b0b0;
+  --lightsOff-icon: url(../plugin/images/toolbarButton-lightsOff.svg);
   --termMode-icon: url(../plugin/images/toolbarButton-termMode.svg);
   --fontInput-icon: url(../plugin/images/secToolbarButton-fontInput.svg);
   --colorInput-icon: url(../plugin/images/secToolbarButton-colorInput.svg);
@@ -14,7 +15,8 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --termMode-icon: url(../plugin/images/toolbarButton-termMode-dark.svg);
+  --lightsOff-icon: url(../plugin/images/toolbarButton-lightsOff-dark.svg);
+  --termMode-icon: url(../plugin/images/toolbarButton-termMode-dark.svg);
   --fontInput-icon: url(../plugin/images/secToolbarButton-fontInput-dark.svg);
   --colorInput-icon: url(../plugin/images/secToolbarButton-colorInput-dark.svg);
   }
@@ -71,6 +73,9 @@
 .colorControl::before {
   content: var(--colorInput-icon);
   color: var(--termColor) !important;
+}
+.toolbarButton.lightsOff::before, .secondaryToolbarButton.lightsOff::before {
+  content: var(--lightsOff-icon);
 }
 .toolbarButton.termMode::before, .secondaryToolbarButton.termMode::before {
   content: var(--termMode-icon);

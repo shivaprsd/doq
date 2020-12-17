@@ -1,4 +1,7 @@
 <template id="toolbarAddon">
+  <button id="lightsOff" class="toolbarButton lightsOff hiddenLargeView" title="Toggle Lights" tabindex="29">
+    <span>Lights Off</span>
+  </button>
   <button id="termMode" class="toolbarButton termMode hiddenLargeView" title="Toggle Terminal Mode" tabindex="30">
     <span>Terminal Mode</span>
   </button>
@@ -27,10 +30,19 @@
     ><label for="imageEnable" class="toolbarLabel">Images</label>
   </div>
   <div class="horizontalToolbarSeparator"></div>
+  <button id="secLightsOff" class="secondaryToolbarButton lightsOff visibleLargeView" title="Toggle Lights" tabindex="49">
+    <span>Lights Off</span>
+  </button>
   <button id="secTermMode" class="secondaryToolbarButton termMode visibleLargeView" title="Toggle Terminal Mode" tabindex="50">
     <span>Terminal Mode</span>
   </button>
 </template>
+
+<style id="lightsOffTheme">
+  .pdfViewer {
+    filter: invert(86%);
+  }
+</style>
 
 <style id="termModeTheme">
   .page {

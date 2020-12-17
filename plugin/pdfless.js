@@ -22,6 +22,7 @@ async function pdfLessInit() {
     toolbar.prepend(docFrag.getElementById("toolbarAddon").content);
     let secToolbar = document.getElementById("secondaryToolbarButtonContainer");
     secToolbar.prepend(docFrag.getElementById("secToolbarAddon").content);
+    document.head.appendChild(docFrag.getElementById("lightsOffTheme"));
     document.head.appendChild(docFrag.getElementById("termModeTheme"));
     document.head.appendChild(docFrag.getElementById("termModeFont"));
   }
@@ -44,12 +45,14 @@ function getPdfLessConfig() {
     textColors: {},
     docStyleElem: document.documentElement.style,
     colorInputElem: document.getElementById("colorInput"),
+    lightsOffCSS: document.getElementById("lightsOffTheme"),
     termModeCSS: document.getElementById("termModeTheme"),
     termModeFontCSS: document.getElementById("termModeFont")
   };
 }
 
 function pdfLessLoad(config) {
+  config.lightsOffCSS.disabled = true;
   config.termModeCSS.disabled = config.termModeFontCSS.disabled = true;
   if (config.termColors.background) {
     config.docStyleElem.setProperty("--termBG", config.termColors.background);
@@ -99,9 +102,14 @@ function pdfLessLoad(config) {
   document.getElementById("fontEnlarge").onclick = function(e) {
     termFontResize(1 + config.fontScaleFactor);
   }
+  document.getElementById("lightsOff").onclick = toggleLightsOff;
+  document.getElementById("secLightsOff").onclick = toggleLightsOff;
   document.getElementById("termMode").onclick = toggleTermMode;
   document.getElementById("secTermMode").onclick = toggleTermMode;
 
+  function toggleLightsOff() {
+    config.lightsOffCSS.disabled = !config.lightsOffCSS.disabled;
+  }
   function toggleTermMode() {
     const toTermMode = config.termModeCSS.disabled;
     if (toTermMode) {

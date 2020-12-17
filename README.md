@@ -12,6 +12,8 @@ of (non-scanned) PDF files. Read it as if it's on a terminal screen!
 2. `cd` into the root directory and run `./install.sh`
 3. Follow onscreen instructions
 
+![Screenshot](plugin/images/screenshot.png)
+
 ## Notes
 
 Define your colors in `./plugin/colors.json` Default colors are taken from the
@@ -23,6 +25,10 @@ between Terminal mode and normal view.
 *pdfless* does not attempt text-reflow (which is hopeless in PDFs). Resizing the
 text changes only the font-size without touching their position. This may result
 in disjoint / overlapping text; **this is not a bug**.
+
+Terminal mode is not suitable for complicated PDFs (LaTeX maths, Indic scripts)
+because the text layer will mostly contain rubbish. For them as well as scanned
+PDFs use the Lights Off switch (which simply inverts the colors) as a fallback.
 
 ## Why *pdfless*?
 
