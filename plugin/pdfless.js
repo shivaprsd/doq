@@ -22,9 +22,6 @@ async function pdfLessInit() {
     toolbar.prepend(docFrag.getElementById("toolbarAddon").content);
     let secToolbar = document.getElementById("secondaryToolbarButtonContainer");
     secToolbar.prepend(docFrag.getElementById("secToolbarAddon").content);
-    document.head.appendChild(docFrag.getElementById("lightsOffTheme"));
-    document.head.appendChild(docFrag.getElementById("termModeTheme"));
-    document.head.appendChild(docFrag.getElementById("termModeFont"));
   }
 
   function linkCSS(href) {
@@ -46,15 +43,11 @@ function getPdfLessConfig() {
     compStyle: getComputedStyle(document.documentElement),
     docStyleElem: document.documentElement.style,
     colorInputElem: document.getElementById("colorInput"),
-    lightsOffCSS: document.getElementById("lightsOffTheme"),
-    termModeCSS: document.getElementById("termModeTheme"),
-    termModeFontCSS: document.getElementById("termModeFont")
+    viewerClassList: document.getElementById("viewer").classList
   };
 }
 
 function pdfLessLoad(config) {
-  config.lightsOffCSS.disabled = true;
-  config.termModeCSS.disabled = config.termModeFontCSS.disabled = true;
   if (config.termColors.background) {
     config.docStyleElem.setProperty("--termBG", config.termColors.background);
   }
@@ -75,7 +68,7 @@ function pdfLessLoad(config) {
     config.docStyleElem.setProperty("--termColor", this.value);
   }
   document.getElementById("imageEnable").onchange = function(e) {
-    const termMode = !config.termModeCSS.disabled;
+    const termMode = config.viewerClassList.contains("termMode");
     config.enableImg = this.checked;
     if (termMode) {
       if (config.enableImg) {
@@ -92,9 +85,9 @@ function pdfLessLoad(config) {
   document.getElementById("fontInput").onchange = function(e) {
     if (this.value) {
       config.docStyleElem.setProperty("--termFont", this.value);
-      config.termModeFontCSS.disabled = false;
+      config.viewerClassList.add("termFont");
     } else {
-      config.termModeFontCSS.disabled = true;
+      config.viewerClassList.remove("termFont");
     }
   }
   document.getElementById("fontReduce").onclick = function(e) {
@@ -109,10 +102,10 @@ function pdfLessLoad(config) {
   document.getElementById("secTermMode").onclick = toggleTermMode;
 
   function toggleLightsOff() {
-    config.lightsOffCSS.disabled = !config.lightsOffCSS.disabled;
+    config.viewerClassList.toggle("lightsOff");
   }
   function toggleTermMode() {
-    const toTermMode = config.termModeCSS.disabled;
+    const toTermMode = !config.viewerClassList.contains("termMode");
     if (toTermMode) {
       if (config.enableImg) {
         forceRedraw(true);
@@ -128,7 +121,7 @@ function pdfLessLoad(config) {
       }
       config.docStyleElem.setProperty("--canvasDisplay", "block");
     }
-    config.termModeCSS.disabled = !toTermMode;
+    config.viewerClassList.toggle("termMode");
   }
 
   function termFontResize(amount) {

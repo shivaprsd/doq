@@ -23,6 +23,7 @@
   }
 }
 
+/* Addons styles */
 #fontInput {
   max-width: calc(100% - 92px);
   margin-right: 2px;
@@ -80,4 +81,32 @@
 }
 .toolbarButton.termMode::before, .secondaryToolbarButton.termMode::before {
   content: var(--termMode-icon);
+}
+
+/* Customization rules */
+.pdfViewer.termMode .page {
+  background-color: var(--termBG) !important;
+}
+.pdfViewer.termMode .textLayer {
+  opacity: 1;
+  background-color: transparent;
+}
+.pdfViewer.termMode .textLayer > span {
+  color: var(--termColor) !important;
+}
+.pdfViewer.termMode .canvasWrapper {
+  display: var(--canvasDisplay);
+}
+.pdfViewer.termMode ::selection, .pdfViewer.termMode .textLayer ::selection {
+  background-color: var(--termHL);
+}
+.pdfViewer.termMode ::-moz-selection {
+  background-color: var(--termHL);
+}
+.pdfViewer.termFont .textLayer > span {
+  font-family: var(--termFont) !important;
+  transform: scale(var(--fontScale)) !important;
+}
+.pdfViewer.lightsOff {
+  filter: invert(86%);
 }

@@ -37,38 +37,3 @@
     <span>Terminal Mode</span>
   </button>
 </template>
-
-<style id="lightsOffTheme">
-  .pdfViewer {
-    filter: invert(86%);
-  }
-</style>
-
-<style id="termModeTheme">
-  .page {
-    background-color: var(--termBG) !important;
-  }
-  .textLayer {
-    opacity: 1;
-    background-color: transparent;
-  }
-  .textLayer > span, .colorControl::before {
-    color: var(--termColor) !important;
-  }
-  .canvasWrapper {
-    display: var(--canvasDisplay);
-  }
-  ::selection, .textLayer ::selection {
-    background-color: var(--termHL);
-  }
-  ::-moz-selection {
-    background-color: var(--termHL);
-  }
-</style>
-
-<style id="termModeFont">
-  .textLayer > span {
-    font-family: var(--termFont) !important;
-    transform: scale(var(--fontScale)) !important;
-  }
-</style>
