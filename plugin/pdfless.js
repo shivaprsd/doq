@@ -40,9 +40,10 @@ function getPdfLessConfig() {
   return {
     enableImg: true,
     imageMode: false,
-    fontScaleFactor: 0.05,
+    fontScaleAmt: 0.04,
     termColors: {},
     textColors: {},
+    compStyle: getComputedStyle(document.documentElement),
     docStyleElem: document.documentElement.style,
     colorInputElem: document.getElementById("colorInput"),
     lightsOffCSS: document.getElementById("lightsOffTheme"),
@@ -97,10 +98,10 @@ function pdfLessLoad(config) {
     }
   }
   document.getElementById("fontReduce").onclick = function(e) {
-    termFontResize(1 - config.fontScaleFactor);
+    termFontResize(-config.fontScaleAmt);
   }
   document.getElementById("fontEnlarge").onclick = function(e) {
-    termFontResize(1 + config.fontScaleFactor);
+    termFontResize(+config.fontScaleAmt);
   }
   document.getElementById("lightsOff").onclick = toggleLightsOff;
   document.getElementById("secLightsOff").onclick = toggleLightsOff;
@@ -130,10 +131,9 @@ function pdfLessLoad(config) {
     config.termModeCSS.disabled = !toTermMode;
   }
 
-  function termFontResize(scaleFactor) {
-    document.querySelectorAll(".textLayer > span").forEach(function(node) {
-      node.style.fontSize = parseFloat(node.style.fontSize) * scaleFactor + "px";
-    });
+  function termFontResize(amount) {
+    let scale = config.compStyle.getPropertyValue("--fontScale");
+    config.docStyleElem.setProperty("--fontScale", parseFloat(scale) + amount);
   }
 
   const ctxProto = CanvasRenderingContext2D.prototype;

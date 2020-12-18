@@ -2,6 +2,7 @@
   /* Fallbacks */
   --canvasDisplay: none;
   --termFont: none;
+  --fontScale: 1;
   --termColor: #f7f7f7;
   --termBG: #242424;
   --termHL: #b0b0b0;
