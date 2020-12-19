@@ -1,39 +1,39 @@
 <template id="toolbarAddon">
-  <button id="lightsOff" class="toolbarButton lightsOff hiddenLargeView" title="Toggle Lights" tabindex="29">
+  <button id="lightsOff" class="toolbarButton lightsOff hiddenSmallView" title="Toggle Lights" tabindex="29">
     <span>Lights Off</span>
   </button>
-  <button id="termMode" class="toolbarButton termMode hiddenLargeView" title="Toggle Terminal Mode" tabindex="30">
+  <button id="termMode" class="toolbarButton termMode hiddenSmallView" title="Toggle Terminal Mode" tabindex="30">
     <span>Terminal Mode</span>
   </button>
 </template>
 
 <template id="secToolbarAddon">
   <div class="fontControls">
-    <input id="fontInput" class="toolbarField" placeholder="Terminal Font">
+    <input id="fontInput" class="toolbarField" placeholder="Terminal Font" tabindex="44">
     <div class="splitToolbarButton">
-      <button id="fontReduce" class="toolbarButton zoomOut" title="Reduce Fontsize">
+      <button id="fontReduce" class="toolbarButton zoomOut" title="Reduce Fontsize" tabindex="45">
         <span>A-</span>
       </button>
       <div class="splitToolbarButtonSeparator"></div>
-      <button id="fontEnlarge" class="toolbarButton zoomIn" title="Increase Fontsize">
+      <button id="fontEnlarge" class="toolbarButton zoomIn" title="Increase Fontsize" tabindex="46">
         <span>A+</span>
        </button>
     </div>
   </div>
   <div class="colorControl">
     <div id="colorSelectContainer" class="dropdownToolbarButton">
-      <select id="colorInput" class="toolbarField" title="Text Color"></select>
+      <select id="colorInput" class="toolbarField" title="Text Color" tabindex="47"></select>
     </div>
   </div
   ><div class="imageControl">
-    <input type="checkbox" id="imageEnable" class="toolbarField" checked
+    <input type="checkbox" id="imageEnable" class="toolbarField" checked tabindex="48"
     ><label for="imageEnable" class="toolbarLabel">Images</label>
   </div>
   <div class="horizontalToolbarSeparator"></div>
-  <button id="secLightsOff" class="secondaryToolbarButton lightsOff visibleLargeView" title="Toggle Lights" tabindex="49">
+  <button id="secLightsOff" class="secondaryToolbarButton lightsOff visibleSmallView" title="Toggle Lights" tabindex="49">
     <span>Lights Off</span>
   </button>
-  <button id="secTermMode" class="secondaryToolbarButton termMode visibleLargeView" title="Toggle Terminal Mode" tabindex="50">
+  <button id="secTermMode" class="secondaryToolbarButton termMode visibleSmallView" title="Toggle Terminal Mode" tabindex="50">
     <span>Terminal Mode</span>
   </button>
 </template>

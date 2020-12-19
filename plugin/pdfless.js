@@ -43,7 +43,7 @@ function getPdfLessConfig() {
     compStyle: getComputedStyle(document.documentElement),
     docStyleElem: document.documentElement.style,
     colorInputElem: document.getElementById("colorInput"),
-    viewerClassList: document.getElementById("viewer").classList
+    viewerClassList: document.getElementById("mainContainer").classList
   };
 }
 

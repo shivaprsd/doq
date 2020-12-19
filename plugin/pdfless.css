@@ -25,7 +25,7 @@
 
 /* Addons styles */
 #fontInput {
-  max-width: calc(100% - 92px);
+  max-width: calc(var(--secToolbarWidth) / 2 - 18px);
   margin-right: 2px;
   vertical-align: top;
 }
@@ -57,9 +57,10 @@
 .imageControl label {
   display: block
 }
-.imageControl label:hover {
+.imageControl label:hover, .imageControl input:focus + label {
   background-color: var(--button-hover-color);
 }
+.termMode button.termMode, .lightsOff button.lightsOff,
 .imageControl .toolbarField[type="checkbox"]:checked + .toolbarLabel {
   background-color: var(--toggled-btn-bg-color);
 }
@@ -84,29 +85,29 @@
 }
 
 /* Customization rules */
-.pdfViewer.termMode .page {
+.termMode .pdfViewer .page {
   background-color: var(--termBG) !important;
 }
-.pdfViewer.termMode .textLayer {
+.termMode .pdfViewer .textLayer {
   opacity: 1;
   background-color: transparent;
 }
-.pdfViewer.termMode .textLayer > span {
+.termMode .pdfViewer .textLayer > span {
   color: var(--termColor) !important;
 }
-.pdfViewer.termMode .canvasWrapper {
+.termMode .pdfViewer .canvasWrapper {
   display: var(--canvasDisplay);
 }
-.pdfViewer.termMode ::selection, .pdfViewer.termMode .textLayer ::selection {
+.termMode .pdfViewer ::selection, .termMode .pdfViewer .textLayer ::selection {
   background-color: var(--termHL);
 }
-.pdfViewer.termMode ::-moz-selection {
+.termMode .pdfViewer ::-moz-selection {
   background-color: var(--termHL);
 }
-.pdfViewer.termFont .textLayer > span {
+.termFont .pdfViewer .textLayer > span {
   font-family: var(--termFont) !important;
   transform: scale(var(--fontScale)) !important;
 }
-.pdfViewer.lightsOff {
+.lightsOff .pdfViewer {
   filter: invert(86%);
 }
