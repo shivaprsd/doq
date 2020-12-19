@@ -15,7 +15,6 @@ async function pdfLessInit() {
       config.textColors = colors.textColors;
       pdfLessLoad(config);
     });
-
   function addHTML(html) {
     let docFrag = document.createRange().createContextualFragment(html);
     let toolbar = document.getElementById("toolbarViewerRight");
@@ -23,7 +22,6 @@ async function pdfLessInit() {
     let secToolbar = document.getElementById("secondaryToolbarButtonContainer");
     secToolbar.prepend(docFrag.getElementById("secToolbarAddon").content);
   }
-
   function linkCSS(href) {
     let link = document.createElement("link");
     link.rel = "stylesheet";
@@ -41,31 +39,31 @@ function getPdfLessConfig() {
     termColors: {},
     textColors: {},
     compStyle: getComputedStyle(document.documentElement),
-    docStyleElem: document.documentElement.style,
-    colorInputElem: document.getElementById("colorInput"),
+    docStyle: document.documentElement.style,
+    colorSelectElem: document.getElementById("colorSelect"),
     viewerClassList: document.getElementById("mainContainer").classList
   };
 }
 
 function pdfLessLoad(config) {
   if (config.termColors.background) {
-    config.docStyleElem.setProperty("--termBG", config.termColors.background);
+    config.docStyle.setProperty("--termBG", config.termColors.background);
   }
   if (config.termColors.highlight) {
-    config.docStyleElem.setProperty("--termHL", config.termColors.highlight);
+    config.docStyle.setProperty("--termHL", config.termColors.highlight);
   }
   for (let col in config.textColors) {
-    config.colorInputElem.innerHTML +=
+    config.colorSelectElem.innerHTML +=
       `<option value="${config.textColors[col]}">${col}</option>`;
   }
   if (parseFloat(pdfjsLib.version) < 2.6) {
-    config.docStyleElem.setProperty("--secToolbarWidth", "200px");
-    config.docStyleElem.setProperty("--secToolbarBtnPad", "24px");
-    config.docStyleElem.setProperty("--secToolbarIconLeft", "4px");
+    config.docStyle.setProperty("--secToolbarWidth", "200px");
+    config.docStyle.setProperty("--secToolbarBtnPad", "24px");
+    config.docStyle.setProperty("--secToolbarIconLeft", "4px");
   }
 
-  config.colorInputElem.onchange = function(e) {
-    config.docStyleElem.setProperty("--termColor", this.value);
+  config.colorSelectElem.onchange = function(e) {
+    config.docStyle.setProperty("--termColor", this.value);
   }
   document.getElementById("imageEnable").onchange = function(e) {
     const termMode = config.viewerClassList.contains("termMode");
@@ -76,15 +74,15 @@ function pdfLessLoad(config) {
           forceRedraw(true);
           config.imageMode = true;
         }
-        config.docStyleElem.setProperty("--canvasDisplay", "block");
+        config.docStyle.setProperty("--canvasDisplay", "block");
       } else {
-        config.docStyleElem.setProperty("--canvasDisplay", "none");
+        config.docStyle.setProperty("--canvasDisplay", "none");
       }
     }
   }
   document.getElementById("fontInput").onchange = function(e) {
     if (this.value) {
-      config.docStyleElem.setProperty("--termFont", this.value);
+      config.docStyle.setProperty("--termFont", this.value);
       config.viewerClassList.add("termFont");
     } else {
       config.viewerClassList.remove("termFont");
@@ -113,24 +111,23 @@ function pdfLessLoad(config) {
       if (config.enableImg) {
         forceRedraw(true);
         config.imageMode = true;
-        config.docStyleElem.setProperty("--canvasDisplay", "block");
+        config.docStyle.setProperty("--canvasDisplay", "block");
       } else {
-        config.docStyleElem.setProperty("--canvasDisplay", "none");
+        config.docStyle.setProperty("--canvasDisplay", "none");
       }
     } else {
       if (config.imageMode) {
         forceRedraw(false);
         config.imageMode = false;
       }
-      config.docStyleElem.setProperty("--canvasDisplay", "block");
+      config.docStyle.setProperty("--canvasDisplay", "block");
     }
     config.viewerClassList.toggle("termMode");
     config.viewerClassList.remove("lightsOff");
   }
-
   function termFontResize(amount) {
     let scale = config.compStyle.getPropertyValue("--fontScale");
-    config.docStyleElem.setProperty("--fontScale", parseFloat(scale) + amount);
+    config.docStyle.setProperty("--fontScale", parseFloat(scale) + amount);
   }
 
   const ctxProto = CanvasRenderingContext2D.prototype;

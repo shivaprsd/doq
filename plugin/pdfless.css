@@ -9,7 +9,7 @@
   --lightsOff-icon: url(../plugin/images/toolbarButton-lightsOff.svg);
   --termMode-icon: url(../plugin/images/toolbarButton-termMode.svg);
   --fontInput-icon: url(../plugin/images/secToolbarButton-fontInput.svg);
-  --colorInput-icon: url(../plugin/images/secToolbarButton-colorInput.svg);
+  --colorSelect-icon: url(../plugin/images/secToolbarButton-colorSelect.svg);
   --secToolbarWidth: 220px;
   --secToolbarBtnPad: 36px;
   --secToolbarIconLeft: 12px;
@@ -19,7 +19,7 @@
   --lightsOff-icon: url(../plugin/images/toolbarButton-lightsOff-dark.svg);
   --termMode-icon: url(../plugin/images/toolbarButton-termMode-dark.svg);
   --fontInput-icon: url(../plugin/images/secToolbarButton-fontInput-dark.svg);
-  --colorInput-icon: url(../plugin/images/secToolbarButton-colorInput-dark.svg);
+  --colorSelect-icon: url(../plugin/images/secToolbarButton-colorSelect-dark.svg);
   }
 }
 
@@ -29,18 +29,17 @@
   margin-right: 2px;
   vertical-align: top;
 }
-#colorInput {
+#colorSelect {
   width: calc(100% + 22px);
   height: 26px;
 }
-#colorInput:focus {
+#colorSelect:focus {
   border-color: rgba(0, 0, 0, 0.38);
 }
 #colorSelectContainer {
   position: relative;
   max-width: calc(var(--secToolbarWidth) / 2 - 4px);
 }
-
 .fontControls, .colorControl {
   position: relative;
   padding-left: var(--secToolbarBtnPad);
@@ -64,7 +63,6 @@
 .imageControl .toolbarField[type="checkbox"]:checked + .toolbarLabel {
   background-color: var(--toggled-btn-bg-color);
 }
-
 .fontControls::before, .colorControl::before {
   position: absolute;
   top: 8px;
@@ -74,7 +72,7 @@
   content: var(--fontInput-icon);
 }
 .colorControl::before {
-  content: var(--colorInput-icon);
+  content: var(--colorSelect-icon);
   color: var(--termColor) !important;
 }
 .toolbarButton.lightsOff::before, .secondaryToolbarButton.lightsOff::before {
