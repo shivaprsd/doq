@@ -102,6 +102,9 @@ function pdfLessLoad(config) {
   document.getElementById("secTermMode").onclick = toggleTermMode;
 
   function toggleLightsOff() {
+    if (config.viewerClassList.contains("termMode")) {
+      toggleTermMode();
+    }
     config.viewerClassList.toggle("lightsOff");
   }
   function toggleTermMode() {
@@ -122,6 +125,7 @@ function pdfLessLoad(config) {
       config.docStyleElem.setProperty("--canvasDisplay", "block");
     }
     config.viewerClassList.toggle("termMode");
+    config.viewerClassList.remove("lightsOff");
   }
 
   function termFontResize(amount) {
