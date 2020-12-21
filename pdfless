@@ -69,5 +69,5 @@ fi
 
 port=60656  # Random port in private range
 nc -z localhost $port >/dev/null 2>&1 || start_server $port "$exepath"
-$1 "http://localhost:$port/web/viewer.html?file=$fpath"
+$1 "http://localhost:$port/web/viewer.html?enc=false&file=$fpath"
 wait

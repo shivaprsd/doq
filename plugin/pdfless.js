@@ -1,3 +1,8 @@
+;
+if (location.search.startsWith("?enc=false")) {
+  const encFilePath = encodeURIComponent(location.search.substring(16));
+  history.replaceState(null, "", "?file=" + encFilePath);
+}
 if (document.readyState === "interactive" || document.readyState === "complete") {
   pdfLessInit();
 } else {
