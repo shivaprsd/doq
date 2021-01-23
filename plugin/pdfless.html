@@ -14,15 +14,7 @@
 <template id="secToolbarAddon">
   <div class="fontControls">
     <input id="fontInput" class="toolbarField" placeholder="Terminal Font" tabindex="44">
-    <div class="splitToolbarButton">
-      <button id="fontReduce" class="toolbarButton zoomOut" title="Reduce Fontsize" tabindex="45">
-        <span>A-</span>
-      </button>
-      <div class="splitToolbarButtonSeparator"></div>
-      <button id="fontEnlarge" class="toolbarButton zoomIn" title="Increase Fontsize" tabindex="46">
-        <span>A+</span>
-       </button>
-    </div>
+    <input id="fontResize" class="toolbarField" type="range" min="0.2" max="1.8" step="0.005" tabindex="45" title="Resize Font">
   </div>
   <div class="colorControl">
     <div id="colorSelectContainer" class="dropdownToolbarButton">

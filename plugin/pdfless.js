@@ -33,7 +33,6 @@ function getPdfLessConfig() {
   return {
     enableImg: true,
     imageMode: false,
-    fontScaleAmt: 0.04,
     termColors: {},
     textColors: {},
     compStyle: getComputedStyle(document.documentElement),
@@ -98,11 +97,8 @@ function pdfLessLoad(config) {
       config.viewerClassList.remove("termFont");
     }
   }
-  document.getElementById("fontReduce").onclick = function(e) {
-    termFontResize(-config.fontScaleAmt);
-  }
-  document.getElementById("fontEnlarge").onclick = function(e) {
-    termFontResize(+config.fontScaleAmt);
+  document.getElementById("fontResize").oninput = function(e) {
+    config.docStyle.setProperty("--fontScale", this.value);
   }
   document.getElementById("lightsOff").onclick = toggleLightsOff;
   document.getElementById("secLightsOff").onclick = toggleLightsOff;
@@ -134,10 +130,6 @@ function pdfLessLoad(config) {
     }
     config.viewerClassList.toggle("termMode");
     config.viewerClassList.remove("lightsOff");
-  }
-  function termFontResize(amount) {
-    let scale = config.compStyle.getPropertyValue("--fontScale");
-    config.docStyle.setProperty("--fontScale", parseFloat(scale) + amount);
   }
 
   const ctxProto = CanvasRenderingContext2D.prototype;

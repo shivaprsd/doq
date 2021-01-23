@@ -26,8 +26,13 @@
 /* Addons styles */
 #fontInput {
   max-width: calc(var(--secToolbarWidth) / 2 - 18px);
-  margin-right: 2px;
+  margin-right: 3px;
   vertical-align: top;
+}
+#fontResize {
+  max-width: 57px;
+  padding-left: 0;
+  padding-right: 0;
 }
 #colorSelect {
   width: calc(100% + 22px);
