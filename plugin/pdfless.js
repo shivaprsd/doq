@@ -60,6 +60,18 @@ function pdfLessLoad(config) {
     config.docStyle.setProperty("--secToolbarIconLeft", "4px");
   }
 
+  document.getElementById("viewerContainer").ondblclick = function(e) {
+    if (!("ontouchstart" in window) && !e.altKey)
+      return;
+    /* Click location: map [left, center, right] to [-1, 0, 1] */
+    let loc = Math.floor(e.clientX / window.innerWidth * 3) - 1;
+    if (loc === 0) {  /* Toggle toolbar */
+      this.style.top = Math.abs(this.offsetTop - 32) + "px";
+      document.getElementById("toolbarContainer").classList.toggle("hidden");
+    } else {
+      this.scrollBy(0, loc * this.clientHeight);
+    }
+  }
   config.colorSelectElem.onchange = function(e) {
     config.docStyle.setProperty("--termColor", this.value);
   }
