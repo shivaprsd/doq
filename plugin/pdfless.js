@@ -10,7 +10,6 @@ if (document.readyState === "interactive" || document.readyState === "complete")
 }
 
 async function pdfLessInit() {
-  linkCSS("../plugin/pdfless.css");
   const colors = await fetch("../plugin/colors.json").then(resp => resp.json());
   fetch("../plugin/pdfless.html")
     .then(response => response.text()).then(addHTML)
@@ -26,13 +25,7 @@ async function pdfLessInit() {
     toolbar.prepend(docFrag.getElementById("toolbarAddon").content);
     let secToolbar = document.getElementById("secondaryToolbarButtonContainer");
     secToolbar.prepend(docFrag.getElementById("secToolbarAddon").content);
-  }
-  function linkCSS(href) {
-    let link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.type = "text/css";
-    link.href = href;
-    document.head.appendChild(link);
+    document.head.append(docFrag.getElementById("headAddon").content);
   }
 }
 
