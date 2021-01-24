@@ -92,6 +92,7 @@
 }
 .termMode .pdfViewer .textLayer > span {
   color: var(--termColor) !important;
+  -webkit-text-size-adjust: none;
 }
 .termMode .pdfViewer .canvasWrapper {
   display: var(--canvasDisplay);
