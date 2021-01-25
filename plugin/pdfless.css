@@ -6,6 +6,7 @@
   --termColor: #f7f7f7;
   --termBG: #242424;
   --termHL: #b0b0b0;
+  --swatchN: 1;
   --lightsOff-icon: url(../plugin/images/toolbarButton-lightsOff.svg);
   --termMode-icon: url(../plugin/images/toolbarButton-termMode.svg);
   --fontInput-icon: url(../plugin/images/secToolbarButton-fontInput.svg);
@@ -44,6 +45,27 @@
 #colorSelectContainer {
   position: relative;
   max-width: calc(var(--secToolbarWidth) / 2 - 4px);
+}
+#colorPicker {
+  padding: 2px;
+  margin: 4px 8px 10px;
+  border: 1px solid var(--field-border-color);
+  border-radius: 4px;
+  list-style-type: none;
+  text-align: center;
+}
+.colorSwatch {
+  display: inline-block;
+  vertical-align: middle;
+  box-sizing: border-box;
+  margin: 2px;
+  height: 16px;
+  width: calc(100% / var(--swatchN) - 4px);
+  background-color: var(--termColor);
+  cursor: pointer;
+}
+.colorSwatch.selected {
+  border: 1px solid var(--outline-color);
 }
 .fontControls, .colorControl {
   position: relative;

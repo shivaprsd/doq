@@ -15,8 +15,7 @@ async function pdfLessInit() {
     .then(response => response.text()).then(addHTML)
     .then(function() {
       const config = getPdfLessConfig();
-      config.termColors = colors.termColors;
-      config.textColors = colors.textColors;
+      config.colorSch = colors;
       pdfLessLoad(config);
     });
   function addHTML(html) {
@@ -31,33 +30,27 @@ async function pdfLessInit() {
 
 function getPdfLessConfig() {
   return {
+    colorSch: [],
     enableImg: true,
     imageMode: false,
-    termColors: {},
-    textColors: {},
     compStyle: getComputedStyle(document.documentElement),
     docStyle: document.documentElement.style,
     colorSelectElem: document.getElementById("colorSelect"),
+    colorPickElem: document.getElementById("colorPicker"),
     viewerClassList: document.getElementById("mainContainer").classList
   };
 }
 
 function pdfLessLoad(config) {
-  if (config.termColors.background) {
-    config.docStyle.setProperty("--termBG", config.termColors.background);
-  }
-  if (config.termColors.highlight) {
-    config.docStyle.setProperty("--termHL", config.termColors.highlight);
-  }
-  for (let col in config.textColors) {
-    config.colorSelectElem.innerHTML +=
-      `<option value="${config.textColors[col]}">${col}</option>`;
-  }
   if (parseFloat(pdfjsLib.version) < 2.6) {
     config.docStyle.setProperty("--secToolbarWidth", "200px");
     config.docStyle.setProperty("--secToolbarBtnPad", "24px");
     config.docStyle.setProperty("--secToolbarIconLeft", "4px");
   }
+  config.colorSch.forEach(function(scheme) {
+    config.colorSelectElem.innerHTML += `<option>${scheme.name}</option>`;
+  });
+  config.colorSch[0] && updateColorScheme(config.colorSch[0]);
 
   document.getElementById("viewerContainer").ondblclick = function(e) {
     if (!("ontouchstart" in window) && !e.altKey)
@@ -71,8 +64,9 @@ function pdfLessLoad(config) {
       this.scrollBy(0, loc * this.clientHeight);
     }
   }
+  config.colorPickElem.onclick = updateTermColor;
   config.colorSelectElem.onchange = function(e) {
-    config.docStyle.setProperty("--termColor", this.value);
+    updateColorScheme(config.colorSch[this.selectedIndex]);
   }
   document.getElementById("imageEnable").onchange = function(e) {
     const termMode = config.viewerClassList.contains("termMode");
@@ -105,6 +99,28 @@ function pdfLessLoad(config) {
   document.getElementById("termMode").onclick = toggleTermMode;
   document.getElementById("secTermMode").onclick = toggleTermMode;
 
+  function updateColorScheme(sch) {
+    sch.background && config.docStyle.setProperty("--termBG", sch.background);
+    sch.highlight && config.docStyle.setProperty("--termHL", sch.highlight);
+    if (!sch.termColors || !(n = Object.keys(sch.termColors).length))
+      return;
+    config.colorPickElem.innerHTML = "";
+    for (let c in sch.termColors) {
+      config.colorPickElem.innerHTML += `<li class="colorSwatch" title="${c}"
+        style="background: ${sch.termColors[c]}"></li>`
+    }
+    config.docStyle.setProperty("--swatchN", Math.ceil(n / Math.ceil(n / 8)));
+    setTimeout(() => config.colorPickElem.firstElementChild.click(), 10);
+  }
+  function updateTermColor(e) {
+    if (e.target.tagName !== "LI")
+      return;
+    config.docStyle.setProperty("--termColor", e.target.style.backgroundColor);
+    if (sel = this.querySelector(".selected")) {
+      sel.classList.remove("selected");
+    }
+    e.target.classList.add("selected");
+  }
   function toggleLightsOff() {
     if (config.viewerClassList.contains("termMode")) {
       toggleTermMode();
