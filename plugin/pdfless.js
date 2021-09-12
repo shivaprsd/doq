@@ -14,9 +14,9 @@ async function pdfLessInit() {
   fetch("../plugin/pdfless.html")
     .then(response => response.text()).then(addHTML)
     .then(function() {
-      const config = getPdfLessConfig();
-      config.colorSch = colors;
-      pdfLessLoad(config);
+      const appConfig = window.PDFViewerApplication.appConfig;
+      window.PDFLessPlugin = PDFLessPlugin;
+      PDFLessPlugin.load(appConfig, colors);
     });
   function addHTML(html) {
     let docFrag = document.createRange().createContextualFragment(html);
@@ -28,62 +28,47 @@ async function pdfLessInit() {
   }
 }
 
-function getPdfLessConfig() {
-  return {
-    colorSch: [],
-    enableImg: true,
-    imageMode: false,
-    compStyle: getComputedStyle(document.documentElement),
-    docStyle: document.documentElement.style,
-    colorSelectElem: document.getElementById("colorSelect"),
-    colorPickElem: document.getElementById("colorPicker"),
-    viewerClassList: document.getElementById("mainContainer").classList
-  };
-}
+const PDFLessPlugin = {
+  config: {},
+  appConfig: {},
+  colorSchemes: [],
+  flags: { imageMode: false },
 
-function pdfLessLoad(config) {
-  if (parseFloat(pdfjsLib.version) < 2.6) {
-    config.docStyle.setProperty("--secToolbarWidth", "200px");
-    config.docStyle.setProperty("--secToolbarBtnPad", "24px");
-    config.docStyle.setProperty("--secToolbarIconLeft", "4px");
-  }
-  config.colorSch.forEach(function(scheme) {
-    config.colorSelectElem.innerHTML += `<option>${scheme.name}</option>`;
-  });
-  config.colorSch[0] && updateColorScheme(config.colorSch[0]);
+  getPdfLessConfig() {
+    return {
+      compStyle: getComputedStyle(document.documentElement),
+      docStyle: document.documentElement.style,
+      lightsOff: document.getElementById("lightsOff"),
+      termMode: document.getElementById("termMode"),
+      secTermMode: document.getElementById("secTermMode"),
+      schemeSelector: document.getElementById("colorSelect"),
+      colorPicker: document.getElementById("colorPicker"),
+      imageToggle: document.getElementById("imageEnable"),
+      viewerClassList: document.getElementById("mainContainer").classList
+    };
+  },
 
-  document.getElementById("viewerContainer").ondblclick = function(e) {
-    if (!("ontouchstart" in window) && !e.altKey)
-      return;
-    /* Click location: map [left, center, right] to [-1, 0, 1] */
-    let loc = Math.floor(e.clientX / window.innerWidth * 3) - 1;
-    if (loc === 0) {  /* Toggle toolbar */
-      this.style.top = Math.abs(this.offsetTop - 32) + "px";
-      document.getElementById("toolbarContainer").classList.toggle("hidden");
-    } else {
-      this.scrollBy(0, loc * this.clientHeight);
+  load(appConfig, colorSchemes) {
+    this.config = this.getPdfLessConfig();
+    this.appConfig = appConfig;
+    this.colorSchemes = colorSchemes;
+    if (parseFloat(pdfjsLib.version) < 2.6) {
+      this.config.docStyle.setProperty("--secToolbarWidth", "200px");
+      this.config.docStyle.setProperty("--secToolbarBtnPad", "24px");
+      this.config.docStyle.setProperty("--secToolbarIconLeft", "4px");
     }
-  }
-  config.colorPickElem.onclick = updateTermColor;
-  config.colorSelectElem.onchange = function(e) {
-    updateColorScheme(config.colorSch[this.selectedIndex]);
-  }
-  document.getElementById("imageEnable").onchange = function(e) {
-    const termMode = config.viewerClassList.contains("termMode");
-    config.enableImg = this.checked;
-    if (termMode) {
-      if (config.enableImg) {
-        if (!config.imageMode) {
-          forceRedraw(true);
-          config.imageMode = true;
-        }
-        config.docStyle.setProperty("--canvasDisplay", "block");
-      } else {
-        config.docStyle.setProperty("--canvasDisplay", "none");
-      }
-    }
-  }
-  document.getElementById("fontInput").onchange = function(e) {
+    colorSchemes.forEach(scheme => {
+      this.config.schemeSelector.innerHTML += `<option>${scheme.name}</option>`;
+    });
+    colorSchemes[0] && this.updateColorScheme(colorSchemes[0]);
+
+    appConfig.mainContainer.ondblclick = e => this.scroll(e);
+    this.config.colorPicker.onclick = e => this.updateTermColor(e);
+    this.config.schemeSelector.onchange = e => {
+      this.updateColorScheme(this.colorSchemes[e.target.selectedIndex]);
+    };
+    this.config.imageToggle.onchange = e => this.toggleImgMode(e.target.checked);
+  /*document.getElementById("fontInput").onchange = function(e) {
     if (this.value) {
       config.docStyle.setProperty("--termFont", this.value);
       config.viewerClassList.add("termFont");
@@ -93,65 +78,93 @@ function pdfLessLoad(config) {
   }
   document.getElementById("fontResize").oninput = function(e) {
     config.docStyle.setProperty("--fontScale", this.value);
-  }
-  document.getElementById("lightsOff").onclick = toggleLightsOff;
-  document.getElementById("secLightsOff").onclick = toggleLightsOff;
-  document.getElementById("termMode").onclick = toggleTermMode;
-  document.getElementById("secTermMode").onclick = toggleTermMode;
+  }*/
+    this.config.lightsOff.onclick = e => this.toggleLightsOff();
+    this.config.termMode.onclick = this.config.secTermMode.onclick = e => this.toggleTermMode();
+  },
 
-  function updateColorScheme(sch) {
-    sch.background && config.docStyle.setProperty("--termBG", sch.background);
-    sch.highlight && config.docStyle.setProperty("--termHL", sch.highlight);
+  scroll(e) {
+    if (!("ontouchstart" in window) && !e.altKey)
+      return;
+    /* Click location: map [left, center, right] to [-1, 0, 1] */
+    const loc = Math.floor(e.clientX / window.innerWidth * 3) - 1;
+    const viewer = e.target;
+    if (loc === 0) {  /* Toggle toolbar */
+      viewer.style.top = Math.abs(viewer.offsetTop - 32) + "px";
+      this.appConfig.toolbar.toolbarContainer.classList.toggle("hidden");
+    } else {
+      viewer.scrollBy(0, loc * viewer.clientHeight);
+    }
+  },
+
+  updateColorScheme(sch) {
+    sch.background && this.config.docStyle.setProperty("--termBG", sch.background);
+    sch.highlight && this.config.docStyle.setProperty("--termHL", sch.highlight);
     if (!sch.termColors || !(n = Object.keys(sch.termColors).length))
       return;
-    config.colorPickElem.innerHTML = "";
+    this.config.colorPicker.innerHTML = "";
     for (let c in sch.termColors) {
-      config.colorPickElem.innerHTML += `<li class="colorSwatch" title="${c}"
-        style="background: ${sch.termColors[c]}"></li>`
+      this.config.colorPicker.innerHTML += `<li class="colorSwatch" title="${c}"
+        style="background: ${sch.termColors[c]}"></li>`;
     }
-    config.docStyle.setProperty("--swatchN", Math.ceil(n / Math.ceil(n / 8)));
-    setTimeout(() => config.colorPickElem.firstElementChild.click(), 10);
-  }
-  function updateTermColor(e) {
+    this.config.docStyle.setProperty("--swatchN", Math.ceil(n / Math.ceil(n / 8)));
+    setTimeout(() => this.config.colorPicker.firstElementChild.click(), 10);
+  },
+
+  updateTermColor(e) {
     if (e.target.tagName !== "LI")
       return;
-    config.docStyle.setProperty("--termColor", e.target.style.backgroundColor);
-    if (sel = this.querySelector(".selected")) {
+    this.config.docStyle.setProperty("--termColor", e.target.style.backgroundColor);
+    if (sel = this.config.colorPicker.querySelector(".selected")) {
       sel.classList.remove("selected");
     }
     e.target.classList.add("selected");
-  }
-  function toggleLightsOff() {
-    if (config.viewerClassList.contains("termMode")) {
-      toggleTermMode();
+  },
+
+  toggleLightsOff() {
+    if (this.config.viewerClassList.contains("termMode")) {
+      this.toggleTermMode();
     }
-    config.viewerClassList.toggle("lightsOff");
-  }
-  function toggleTermMode() {
-    const toTermMode = !config.viewerClassList.contains("termMode");
+    this.config.viewerClassList.toggle("lightsOff");
+  },
+  toggleTermMode() {
+    const toTermMode = !this.config.viewerClassList.contains("termMode");
+    const imageOn = this.config.imageToggle.checked;
     if (toTermMode) {
-      if (config.enableImg) {
-        forceRedraw(true);
-        config.imageMode = true;
-        config.docStyle.setProperty("--canvasDisplay", "block");
+      if (imageOn) {
+        this.forceRedraw(true);
+        this.flags.imageMode = true;
+        this.config.docStyle.setProperty("--canvasDisplay", "block");
       } else {
-        config.docStyle.setProperty("--canvasDisplay", "none");
+        this.config.docStyle.setProperty("--canvasDisplay", "none");
       }
     } else {
-      if (config.imageMode) {
-        forceRedraw(false);
-        config.imageMode = false;
+      if (this.flags.imageMode) {
+        this.forceRedraw(false);
+        this.flags.imageMode = false;
       }
-      config.docStyle.setProperty("--canvasDisplay", "block");
+      this.config.docStyle.setProperty("--canvasDisplay", "block");
     }
-    config.viewerClassList.toggle("termMode");
-    config.viewerClassList.remove("lightsOff");
-  }
+    this.config.viewerClassList.toggle("termMode");
+    this.config.viewerClassList.remove("lightsOff");
+  },
 
-  const ctxProto = CanvasRenderingContext2D.prototype;
-  const ctxProtoArr = [ctxProto.fillText, ctxProto.strokeText,
-                       ctxProto.fillRect, ctxProto.strokeRect];
-  function forceRedraw(imageMode) {
+  toggleImgMode(enable) {
+    const termMode = this.config.viewerClassList.contains("termMode");
+    if (termMode) {
+      if (enable) {
+        if (!this.flags.imageMode) {
+          this.forceRedraw(true);
+          this.flags.imageMode = true;
+        }
+        this.config.docStyle.setProperty("--canvasDisplay", "block");
+      } else {
+        this.config.docStyle.setProperty("--canvasDisplay", "none");
+      }
+    }
+  },
+
+  forceRedraw(imageMode) {
     if (imageMode) {
       ctxProto.fillText = ctxProto.strokeText = function() {};
       ctxProto.fillRect = ctxProto.strokeRect = function() {};
@@ -170,3 +183,6 @@ function pdfLessLoad(config) {
     pdfViewer.forceRendering();
   }
 }
+  const ctxProto = CanvasRenderingContext2D.prototype;
+  const ctxProtoArr = [ctxProto.fillText, ctxProto.strokeText,
+                       ctxProto.fillRect, ctxProto.strokeRect];
