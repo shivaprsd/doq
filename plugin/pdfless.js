@@ -39,8 +39,8 @@ const PDFLessPlugin = {
       compStyle: getComputedStyle(document.documentElement),
       docStyle: document.documentElement.style,
       lightsOff: document.getElementById("lightsOff"),
-      termMode: document.getElementById("termMode"),
-      secTermMode: document.getElementById("secTermMode"),
+      reader: document.getElementById("reader"),
+      secReader: document.getElementById("secReader"),
       schemeSelector: document.getElementById("colorSelect"),
       colorPicker: document.getElementById("colorPicker"),
       imageToggle: document.getElementById("imageEnable"),
@@ -63,24 +63,13 @@ const PDFLessPlugin = {
     colorSchemes[0] && this.updateColorScheme(colorSchemes[0]);
 
     appConfig.mainContainer.ondblclick = e => this.scroll(e);
-    this.config.colorPicker.onclick = e => this.updateTermColor(e);
+    this.config.colorPicker.onclick = e => this.updateReaderColors(e);
     this.config.schemeSelector.onchange = e => {
       this.updateColorScheme(this.colorSchemes[e.target.selectedIndex]);
     };
     this.config.imageToggle.onchange = e => this.toggleImgMode(e.target.checked);
-  /*document.getElementById("fontInput").onchange = function(e) {
-    if (this.value) {
-      config.docStyle.setProperty("--termFont", this.value);
-      config.viewerClassList.add("termFont");
-    } else {
-      config.viewerClassList.remove("termFont");
-    }
-  }
-  document.getElementById("fontResize").oninput = function(e) {
-    config.docStyle.setProperty("--fontScale", this.value);
-  }*/
     this.config.lightsOff.onclick = e => this.toggleLightsOff();
-    this.config.termMode.onclick = this.config.secTermMode.onclick = e => this.toggleTermMode();
+    this.config.reader.onclick = this.config.secReader.onclick = e => this.toggleReader();
   },
 
   scroll(e) {
@@ -98,8 +87,7 @@ const PDFLessPlugin = {
   },
 
   updateColorScheme(sch) {
-    sch.background && this.config.docStyle.setProperty("--termBG", sch.background);
-    sch.highlight && this.config.docStyle.setProperty("--termHL", sch.highlight);
+    /*sch.background && this.config.docStyle.setProperty("--readerBG", sch.background);
     if (!sch.termColors || !(n = Object.keys(sch.termColors).length))
       return;
     this.config.colorPicker.innerHTML = "";
@@ -108,13 +96,12 @@ const PDFLessPlugin = {
         style="background: ${sch.termColors[c]}"></li>`;
     }
     this.config.docStyle.setProperty("--swatchN", Math.ceil(n / Math.ceil(n / 8)));
-    setTimeout(() => this.config.colorPicker.firstElementChild.click(), 10);
+    setTimeout(() => this.config.colorPicker.firstElementChild.click(), 10);*/
   },
 
-  updateTermColor(e) {
+  updateReaderColors(e) {
     if (e.target.tagName !== "LI")
       return;
-    this.config.docStyle.setProperty("--termColor", e.target.style.backgroundColor);
     if (sel = this.config.colorPicker.querySelector(".selected")) {
       sel.classList.remove("selected");
     }
@@ -122,44 +109,41 @@ const PDFLessPlugin = {
   },
 
   toggleLightsOff() {
-    if (this.config.viewerClassList.contains("termMode")) {
-      this.toggleTermMode();
+    if (this.config.viewerClassList.contains("reader")) {
+      this.toggleReader();
     }
     this.config.viewerClassList.toggle("lightsOff");
+    this.config.lightsOff.classList.toggle("toggled");
   },
-  toggleTermMode() {
-    const toTermMode = !this.config.viewerClassList.contains("termMode");
+  toggleReader() {
+    const toReader = !this.config.viewerClassList.contains("reader");
     const imageOn = this.config.imageToggle.checked;
-    if (toTermMode) {
+    if (toReader) {
       if (imageOn) {
         this.forceRedraw(true);
         this.flags.imageMode = true;
-        this.config.docStyle.setProperty("--canvasDisplay", "block");
-      } else {
-        this.config.docStyle.setProperty("--canvasDisplay", "none");
       }
     } else {
       if (this.flags.imageMode) {
         this.forceRedraw(false);
         this.flags.imageMode = false;
       }
-      this.config.docStyle.setProperty("--canvasDisplay", "block");
     }
-    this.config.viewerClassList.toggle("termMode");
+    this.config.viewerClassList.toggle("reader");
     this.config.viewerClassList.remove("lightsOff");
+    this.config.reader.classList.toggle("toggled");
+    this.config.lightsOff.classList.remove("toggled");
   },
 
   toggleImgMode(enable) {
-    const termMode = this.config.viewerClassList.contains("termMode");
-    if (termMode) {
+    const reader = this.config.viewerClassList.contains("reader");
+    if (reader) {
       if (enable) {
         if (!this.flags.imageMode) {
           this.forceRedraw(true);
           this.flags.imageMode = true;
         }
-        this.config.docStyle.setProperty("--canvasDisplay", "block");
       } else {
-        this.config.docStyle.setProperty("--canvasDisplay", "none");
       }
     }
   },

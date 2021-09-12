@@ -1,15 +1,9 @@
 :root {
   /* Fallbacks */
-  --canvasDisplay: none;
-  --termFont: none;
-  --fontScale: 1;
-  --termColor: #f7f7f7;
-  --termBG: #242424;
-  --termHL: #b0b0b0;
+  --readerBG: #F8F1E3;
   --swatchN: 1;
   --lightsOff-icon: url(../plugin/images/toolbarButton-lightsOff.svg);
-  --termMode-icon: url(../plugin/images/toolbarButton-termMode.svg);
-  --fontInput-icon: url(../plugin/images/secToolbarButton-fontInput.svg);
+  --reader-icon: url(../plugin/images/toolbarButton-termMode.svg);
   --colorSelect-icon: url(../plugin/images/secToolbarButton-colorSelect.svg);
   --secToolbarWidth: 220px;
   --secToolbarBtnPad: 36px;
@@ -18,23 +12,12 @@
 @media (prefers-color-scheme: dark) {
   :root {
   --lightsOff-icon: url(../plugin/images/toolbarButton-lightsOff-dark.svg);
-  --termMode-icon: url(../plugin/images/toolbarButton-termMode-dark.svg);
-  --fontInput-icon: url(../plugin/images/secToolbarButton-fontInput-dark.svg);
+  --reader-icon: url(../plugin/images/toolbarButton-termMode-dark.svg);
   --colorSelect-icon: url(../plugin/images/secToolbarButton-colorSelect-dark.svg);
   }
 }
 
 /* Addons styles */
-#fontInput {
-  max-width: calc(var(--secToolbarWidth) / 2 - 18px);
-  margin-right: 3px;
-  vertical-align: top;
-}
-#fontResize {
-  max-width: 57px;
-  padding-left: 0;
-  padding-right: 0;
-}
 #colorSelect {
   width: calc(100% + 22px);
   height: 26px;
@@ -61,13 +44,13 @@
   margin: 2px;
   height: 16px;
   width: calc(100% / var(--swatchN) - 4px);
-  background-color: var(--termColor);
+  background-color: var(--readerBG);
   cursor: pointer;
 }
 .colorSwatch.selected {
   border: 1px solid var(--outline-color);
 }
-.fontControls, .colorControl {
+.colorControl {
   position: relative;
   padding-left: var(--secToolbarBtnPad);
   margin-bottom: 4px;
@@ -86,53 +69,29 @@
 .imageControl label:hover, .imageControl input:focus + label {
   background-color: var(--button-hover-color);
 }
-.termMode button.termMode, .lightsOff button.lightsOff,
 .imageControl .toolbarField[type="checkbox"]:checked + .toolbarLabel {
   background-color: var(--toggled-btn-bg-color);
 }
-.fontControls::before, .colorControl::before {
+.colorControl::before {
   position: absolute;
   top: 8px;
   left: var(--secToolbarIconLeft);
-}
-.fontControls::before {
-  content: var(--fontInput-icon);
-}
-.colorControl::before {
   content: var(--colorSelect-icon);
-  color: var(--termColor) !important;
+  /*color: var(--termColor) !important;*/
 }
 .toolbarButton.lightsOff::before, .secondaryToolbarButton.lightsOff::before {
   content: var(--lightsOff-icon);
 }
-.toolbarButton.termMode::before, .secondaryToolbarButton.termMode::before {
-  content: var(--termMode-icon);
+.toolbarButton.reader::before, .secondaryToolbarButton.reader::before {
+  content: var(--reader-icon);
 }
 
 /* Customization rules */
-.termMode .pdfViewer .page {
-  background-color: var(--termBG) !important;
+.reader .pdfViewer .page {
+  background-color: var(--readerBG) !important;
 }
-.termMode .pdfViewer .textLayer {
-  opacity: 1;
-  background-color: transparent;
-}
-.termMode .pdfViewer .textLayer > span {
-  color: var(--termColor) !important;
+.pdfViewer .textLayer > span {
   -webkit-text-size-adjust: none;
-}
-.termMode .pdfViewer .canvasWrapper {
-  display: var(--canvasDisplay);
-}
-.termMode .pdfViewer ::selection, .termMode .pdfViewer .textLayer ::selection {
-  background-color: var(--termHL);
-}
-.termMode .pdfViewer ::-moz-selection {
-  background-color: var(--termHL);
-}
-.termFont .pdfViewer .textLayer > span {
-  font-family: var(--termFont) !important;
-  transform: scale(var(--fontScale)) !important;
 }
 .lightsOff .pdfViewer {
   filter: invert(86%);
