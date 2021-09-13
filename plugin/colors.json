@@ -1,62 +1,27 @@
 [
   {
-    "name": "Solarized (L)",
-    "background": "#fdf6e3",
-    "highlight": "#eee8d5",
-    "termColors": {
-      "Base00": "#657b83",
-      "Base01": "#586e75",
-      "Base1": "#93a1a1",
-      "Orange": "#cb4b16",
-      "Magenta": "#d33682",
-      "Violet": "#6c71c4",
-      "Blue": "#268bd2",
-      "Cyan": "#2aa198"
-    }
-  },
-  {
-    "name": "Solarized (D)",
-    "background": "#002b36",
-    "highlight": "#073642",
-    "termColors": {
-      "Base0": "#839496",
-      "Base1": "#93a1a1",
-      "Base01": "#586e75",
-      "Yellow": "#b58900",
-      "Orange": "#cb4b16",
-      "Violet": "#6c71c4",
-      "Blue": "#268bd2",
-      "Green": "#859900"
-    }
-  },
-  {
-    "name": "Nord",
-    "background": "#2E3440",
-    "highlight": "#434C5E",
-    "termColors": {
-      "Snow": "#D8DEE9",
-      "Frost Cyan": "#8FBCBB",
-      "Frost Sky": "#88C0D0",
-      "Frost Ice": "#81A1C1",
-      "Aurora Orange": "#D08770",
-      "Aurora Yellow": "#EBCB8B",
-      "Aurora Green": "#A3BE8C",
-      "Aurora Magenta": "#B48EAD"
-    }
-  },
-  {
-    "name": "Smyck",
-    "background": "#242424",
-    "highlight": "rgba(33, 134, 147, 0.6)",
-    "termColors": {
-      "White": "#B0B0B0",
-      "Bright White": "#F7F7F7",
-      "Bright Red": "#E09690",
-      "Green": "#8EB33B",
-      "Yellow": "#D0B03C",
-      "Blue": "#4E90A7",
-      "Magenta": "#C8A0D1",
-      "Bright Cyan": "#77DFD8"
-    }
+    "name" : "Safari",
+    "tones" : [
+      {
+        "title": "light",
+        "background": "#FFFFFF",
+        "foreground": "#1B1B1B"
+      },
+      {
+        "title": "book",
+        "background": "#F8F1E3",
+        "foreground": "#4F321C"
+      },
+      {
+        "title": "dim",
+        "background": "#4A4A4D",
+        "foreground": "#D7D7D8"
+      },
+      {
+        "title": "dark",
+        "background": "#121212",
+        "foreground": "#B0B0B0"
+      }
+    ]
   }
 ]
