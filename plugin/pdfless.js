@@ -32,7 +32,9 @@ const PDFLessPlugin = {
   config: {},
   appConfig: {},
   colorSchemes: [],
-  flags: { imageMode: false },
+  flags: {
+    readerOn: false, imagesOn: false
+  },
 
   getPdfLessConfig() {
     return {
@@ -67,9 +69,17 @@ const PDFLessPlugin = {
     this.config.schemeSelector.onchange = e => {
       this.updateColorScheme(this.colorSchemes[e.target.selectedIndex]);
     };
-    this.config.imageToggle.onchange = e => this.toggleImgMode(e.target.checked);
+    this.config.imageToggle.onchange = e => this.toggleImages(e.target.checked);
     this.config.lightsOff.onclick = e => this.toggleLightsOff();
     this.config.reader.onclick = this.config.secReader.onclick = e => this.toggleReader();
+
+    const ctx = CanvasRenderingContext2D.prototype;
+    ["fill", "stroke"].forEach(f => {
+      ["", "Rect", "Text"].forEach(e =>
+        ctx[f + e] = this.wrap(ctx[f + e], f + "Style", this.getReaderStyle));
+    });
+    ctx.drawImage = this.wrap(ctx.drawImage, "globalCompositeOperation",
+                              this.getReaderCompOp);
   },
 
   scroll(e) {
@@ -116,46 +126,24 @@ const PDFLessPlugin = {
     this.config.lightsOff.classList.toggle("toggled");
   },
   toggleReader() {
-    const toReader = !this.config.viewerClassList.contains("reader");
-    const imageOn = this.config.imageToggle.checked;
-    if (toReader) {
-      if (imageOn) {
-        this.forceRedraw(true);
-        this.flags.imageMode = true;
-      }
-    } else {
-      if (this.flags.imageMode) {
-        this.forceRedraw(false);
-        this.flags.imageMode = false;
-      }
-    }
     this.config.viewerClassList.toggle("reader");
-    this.config.viewerClassList.remove("lightsOff");
     this.config.reader.classList.toggle("toggled");
+    this.config.viewerClassList.remove("lightsOff");
     this.config.lightsOff.classList.remove("toggled");
+
+    this.flags.readerOn = this.config.viewerClassList.contains("reader");
+    this.forceRedraw();
   },
 
-  toggleImgMode(enable) {
-    const reader = this.config.viewerClassList.contains("reader");
-    if (reader) {
-      if (enable) {
-        if (!this.flags.imageMode) {
-          this.forceRedraw(true);
-          this.flags.imageMode = true;
-        }
-      } else {
-      }
+  toggleImages(bool) {
+    //const reader = this.config.viewerClassList.contains("reader");
+    this.flags.imagesOn = bool;
+    if (this.flags.readerOn) {
+      this.forceRedraw();
     }
   },
 
-  forceRedraw(imageMode) {
-    if (imageMode) {
-      ctxProto.fillText = ctxProto.strokeText = function() {};
-      ctxProto.fillRect = ctxProto.strokeRect = function() {};
-    } else {
-      [ctxProto.fillText, ctxProto.strokeText,
-       ctxProto.fillRect, ctxProto.strokeRect] = ctxProtoArr;
-    }
+  forceRedraw() {
     const pdfViewer = PDFViewerApplication.pdfViewer;
     const i = pdfViewer.currentPageNumber;
     for (let j = i - 9; j < i + 8; ++j) {
@@ -165,8 +153,21 @@ const PDFLessPlugin = {
       }
     }
     pdfViewer.forceRendering();
+  },
+
+  getReaderStyle(action, style) {
+    return style;
+  },
+  getReaderCompOp(_, compOp) {
+    return compOp;
+  },
+
+  wrap(method, prop, getNewVal) {
+    return function() {
+      const orig = this[prop];
+      this[prop] = getNewVal(method.name, orig);
+      method.apply(this, arguments);
+      this[prop] = orig;
+    }
   }
 }
-  const ctxProto = CanvasRenderingContext2D.prototype;
-  const ctxProtoArr = [ctxProto.fillText, ctxProto.strokeText,
-                       ctxProto.fillRect, ctxProto.strokeRect];
