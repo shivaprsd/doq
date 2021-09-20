@@ -9,6 +9,10 @@ if (document.readyState === "interactive" || document.readyState === "complete")
   document.addEventListener("DOMContentLoaded", pdfLessInit, true);
 }
 
+import Color from "../plugin/color.esm.js";
+window.Color = window.Color || Color;
+function newColor(obj) { return new Color(obj); }
+
 async function pdfLessInit() {
   const colors = await fetch("../plugin/colors.json").then(resp => resp.json());
   fetch("../plugin/pdfless.html")
@@ -61,12 +65,15 @@ const PDFLessPlugin = {
     colorSchemes.forEach(scheme => {
       this.config.schemeSelector.innerHTML += `<option>${scheme.name}</option>`;
       scheme.tones.forEach(tone => {
-        let [b,f] = [tone.background,tone.foreground].map(this.math.rgbFromHex);
-        tone.values = {
-          bg: b, fg: f, grad: b.map((e, i) => e - f[i]),
-          lv: this.math.clFromRgb(b)[1]
+        const [b, f] = [tone.background, tone.foreground].map(newColor);
+        tone.colors = {
+          bg: b, fg: f,
+          acc: (tone.accents || []).map(newColor),
+          grad: b.range(f, { outputSpace: "srgb" })
         };
-      })
+        tone.scheme = scheme;
+      });
+      scheme.colors = (scheme.accents || []).map(newColor);
     });
     this.colorSchemes = colorSchemes;
     colorSchemes[0] && this.updateColorScheme(colorSchemes[0]);
@@ -115,7 +122,7 @@ const PDFLessPlugin = {
     const picker = this.config.colorPicker;
     picker.innerHTML = scheme.tones.reduce((acc, e, i) => (
       `${acc}<li style="color: ${e.foreground}; background: ${e.background};"
-                 class="colorSwatch" title="${e.title}" value="${i}"></li>`
+                 class="colorSwatch" title="${e.name}" value="${i}"></li>`
     ), "");
     this.config.docStyle.setProperty("--swatchN", picker.childElementCount);
     setTimeout(() => picker.firstElementChild.click(), 10);
@@ -171,42 +178,38 @@ const PDFLessPlugin = {
   },
 
   getReaderStyle(ctx, method, args, style) {
-    if (this.flags.readerOn) {
-      let rgb = this.math.rgbFromHex(style);
-      const [c, l] = this.math.clFromRgb(rgb);
-      if (c < 0.1) {
-        const {fg, grad} = this.readerTone.values;
-        rgb = grad.map((e, i) => parseInt(e * l + fg[i]));
-      }
-      if (method.name.endsWith("Text")) {
-        let bg = this.readerTone.values.bg;
-        if (this.canvasData) {
-          const tfm = ctx.getTransform();
-          let {x, y} = tfm.transformPoint({x: args[1], y: args[2]});
-          [x, y] = [x, y].map(Math.round);
-          const i = (y * this.canvasData.width + x) * 4;
-          bg = Array.from(this.canvasData.data.slice(i, i + 3));
-        }
-        style = this.math.calcTextStyle(rgb, bg, 4.5);
-      } else {
-        style = this.math.hexFromRgb(rgb);
-      }
+    if (!this.flags.readerOn)
+      return style;
+    const {bg, fg, grad, acc} = this.readerTone.colors;
+    const accents = acc.concat(this.readerTone.scheme.colors);
+    const clr = newColor(style);
+    if (clr.chroma > 10) {
+      if (accents.length)
+        style = this.findMatch(accents, e => e.deltaE(clr), Math.min).toHex();
+    } else {
+      let fill;
+      if (method.name.endsWith("Text"))
+        fill = this.getCanvasColor(ctx, args[1], args[2]);
+      if (fill && bg.deltaE(fill) > 2.3)
+        style = this.findMatch([bg, fg], this.diffL(fill), Math.max).toHex();
+      else
+        style = grad(1 - this.normL(clr)).toHex();
     }
     return style;
   },
 
   getReaderCompOp(ctx, drawImage, args, compOp) {
-    if (this.flags.readerOn && this.flags.imagesOn) {
-      if (this.readerTone.values.lv > 0.5) {
-        compOp = "multiply";
-      } else if (args.length >= 5) {
-        args = [...args];
-        const mask = this.createMask(this.readerTone.foreground,
-                                     args.slice(0, 5));
-        args.splice(0, 1, mask);
-        drawImage.apply(ctx, args);
-        compOp = "difference";
-      }
+    if (!this.flags.readerOn || !this.flags.imagesOn)
+      return compOp;
+    const tone = this.readerTone;
+    if (tone.colors.bg.lightness > 50) {
+      compOp = "multiply";
+    } else if (args.length >= 5) {
+      args = [...args];
+      const mask = this.createMask(tone.foreground, args.slice(0, 5));
+      args.splice(0, 1, mask);
+      drawImage.apply(ctx, args);
+      compOp = "difference";
     }
     return compOp;
   },
@@ -228,6 +231,17 @@ const PDFLessPlugin = {
       this.canvasData = ctx.getImageData(0, 0, cvs.width, cvs.height);
   },
 
+  getCanvasColor(ctx, tx, ty) {
+    if (!this.canvasData)
+      return null;
+    const tfm = ctx.getTransform();
+    let {x, y} = tfm.transformPoint({x: tx, y: ty});
+    [x, y] = [x, y].map(Math.round);
+    const i = (y * this.canvasData.width + x) * 4;
+    const data = Array.from(this.canvasData.data.slice(i, i + 3));
+    return newColor(data.map(e => e / 255));
+  },
+
   createMask(color, args) {
     const cvs = document.createElement("canvas");
     const dim = [cvs.width, cvs.height] = args.slice(3);
@@ -239,55 +253,15 @@ const PDFLessPlugin = {
     return cvs;
   },
 
-  math: {
-    calcTextStyle(fg, bg, cr) {
-      const lmax = 1.05 / cr - 0.05;
-      const lmin = 0.05 * (cr - 1);
-      const lbg = this.luminance(bg);
-      let sign;
-      if (lbg > lmax)
-        sign = -1;
-      else if (lbg < lmin)
-        sign = +1;
-      else
-        sign = this.luminance(fg) > lbg ? +1 : -1;
-      while (this.contrast(bg, fg) < cr)
-        this.addLight(fg, sign * 5);
-      return this.hexFromRgb(fg);
-    },
+  findMatch(array, mapFun, condFun) {
+    const newArr = array.map(mapFun);
+    return array[newArr.indexOf(condFun(...newArr))];
+  },
 
-    rgbFromHex(hex) {
-      return hex.substr(1).match(/../g).map(h => parseInt(h, 16));
-    },
-    hexFromRgb(rgb) {
-      return "#" + rgb.map(e => e.toString(16).padStart(2, "0")).join("");
-    },
-    clFromRgb(rgb) {
-      [r, g, b] = rgb.map(e => e / 255);
-      const max = Math.max(r, g, b), min = Math.min(r, g, b);
-      return [max - min, (max + min) / 2];
-    },
-
-    srgbGamma(v) {
-      return v <= 0.003131 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055;
-    },
-    srgbInvGamma(c) {
-      return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-    },
-    luminance(rgb) {
-      const coeffs = [0.2126, 0.7152, 0.0722];
-      return rgb.map((e, i) => coeffs[i] * this.srgbInvGamma(e / 255))
-                .reduce((prev, cur) => prev + cur);
-    },
-    contrast(bg, fg) {
-      const r = [bg,fg].map(e => this.luminance(e) + 0.05).reduce((p,c) => p/c);
-      return r < 1 ? 1/r : r;
-    },
-    addLight(rgb, amt) {
-      rgb.forEach((e, i) => {
-        e = this.srgbInvGamma(e / 255) + amt / 255;
-        rgb[i] = Math.ceil(255 * this.srgbGamma(Math.max(0, Math.min(1, e))));
-      });
-    }
+  diffL(clr1) {
+    return clr2 => Math.abs(clr1.lightness - clr2.lightness);
+  },
+  normL(color) {
+    return color.lightness / newColor([1, 1, 1]).lightness;
   }
 }

@@ -1,27 +1,51 @@
 [
   {
-    "name" : "Safari",
-    "tones" : [
+    "name": "Safari",
+    "tones": [
       {
-        "title": "light",
+        "name": "White",
         "background": "#FFFFFF",
-        "foreground": "#1B1B1B"
+        "foreground": "#1B1B1B",
+        "accents": ["#416ED2"]
       },
       {
-        "title": "book",
+        "name": "Sepia",
         "background": "#F8F1E3",
-        "foreground": "#4F321C"
+        "foreground": "#4F321C",
+        "accents": ["#D19600"]
       },
       {
-        "title": "dim",
+        "name": "Gray",
         "background": "#4A4A4D",
-        "foreground": "#D7D7D8"
+        "foreground": "#D7D7D8",
+        "accents": ["#5AC8FA"]
       },
       {
-        "title": "dark",
+        "name": "Night",
         "background": "#121212",
-        "foreground": "#B0B0B0"
+        "foreground": "#B0B0B0",
+        "accents": ["#5AC8FA"]
       }
+    ]
+  },
+
+  {
+    "name": "Solarized",
+    "tones": [
+      {
+        "name": "Light",
+        "background": "#FDF6E3",
+        "foreground": "#657B83"
+      },
+      {
+        "name": "Dark",
+        "background": "#002B36",
+        "foreground": "#839496"
+      }
+    ],
+    "accents": [
+      "#B58900", "#CB4B16", "#DC322F", "#D33682",
+      "#6C71C4", "#268BD2", "#2AA198", "#859900"
     ]
   }
 ]
