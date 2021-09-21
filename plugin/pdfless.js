@@ -38,6 +38,7 @@ const PDFLessPlugin = {
   colorSchemes: [],
   readerTone: {},
   canvasData: null,
+  styleCache: new Map(),
   flags: { readerOn: false, imagesOn: false },
 
   getPdfLessConfig() {
@@ -138,6 +139,7 @@ const PDFLessPlugin = {
       sel.classList.remove("selected");
     }
     e.target.classList.add("selected");
+    this.styleCache.clear();
     if (this.flags.readerOn)
       this.forceRedraw();
   },
@@ -177,25 +179,33 @@ const PDFLessPlugin = {
     pdfViewer.forceRendering();
   },
 
+  calcStyle(color, textBg) {
+    let style;
+    const {bg, fg, grad, acc} = this.readerTone.colors;
+    if (color.chroma > 10) {
+      const accents = acc.concat(this.readerTone.scheme.colors);
+      if (accents.length)
+        style = this.findMatch(accents, e => e.deltaE(color), Math.min).toHex();
+    } else if (textBg && bg.deltaE(textBg) > 2.3) {
+      style = this.findMatch([bg, fg], this.diffL(textBg), Math.max).toHex();
+    } else {
+      style = grad(1 - this.normL(color)).toHex();
+    }
+    return style;
+  },
+
   getReaderStyle(ctx, method, args, style) {
     if (!this.flags.readerOn)
       return style;
-    const {bg, fg, grad, acc} = this.readerTone.colors;
-    const accents = acc.concat(this.readerTone.scheme.colors);
-    const clr = newColor(style);
-    if (clr.chroma > 10) {
-      if (accents.length)
-        style = this.findMatch(accents, e => e.deltaE(clr), Math.min).toHex();
-    } else {
-      let fill;
-      if (method.name.endsWith("Text"))
-        fill = this.getCanvasColor(ctx, args[1], args[2]);
-      if (fill && bg.deltaE(fill) > 2.3)
-        style = this.findMatch([bg, fg], this.diffL(fill), Math.max).toHex();
-      else
-        style = grad(1 - this.normL(clr)).toHex();
+    const isText = method.name.endsWith("Text");
+    const bg = isText && this.getCanvasColor(ctx, args[1], args[2]);
+    const key = style + (bg ? bg.toHex() : "");
+    let newStyle = this.styleCache.get(key);
+    if (!newStyle) {
+      newStyle = this.calcStyle(newColor(style), bg);
+      this.styleCache.set(key, newStyle);
     }
-    return style;
+    return newStyle;
   },
 
   getReaderCompOp(ctx, drawImage, args, compOp) {
@@ -220,8 +230,7 @@ const PDFLessPlugin = {
       this[prop] = getNewVal(this, method, arguments, orig);
       method.apply(this, arguments);
       this[prop] = orig;
-      if (callback !== null)
-        callback(this, method);
+      callback && callback(this, method);
     }
   },
 
