@@ -3,32 +3,69 @@
 </template>
 
 <template id="toolbarAddon">
-  <button id="lightsOff" class="toolbarButton lightsOff hiddenSmallView" title="Toggle Lights" tabindex="29">
+  <button id="lightsOff" class="toolbarButton lightsOff" title="Toggle Lights"
+          tabindex="28">
     <span>Lights Off</span>
   </button>
-  <button id="reader" class="toolbarButton reader hiddenSmallView" title="Toggle Reader Mode" tabindex="30">
-    <span>Reader Mode</span>
+  <button id="reader" class="toolbarButton" title="Toggle Reader"
+          tabindex="29">
+    <span>Reader</span>
   </button>
 </template>
 
 <template id="secToolbarAddon">
-  <div class="colorControl">
-    <div id="colorSelectContainer" class="dropdownToolbarButton">
-      <select id="colorSelect" class="toolbarField" title="Color Scheme" tabindex="47"></select>
+  <button id="secReader" class="secondaryToolbarButton visibleSmallView"
+          title="Toggle Reader" tabindex="50">
+    <span>Reader</span>
+  </button>
+</template>
+
+<template id="containerAddon">
+  <div id="readerToolbar" class="secondaryToolbar doorHangerRight hidden">
+    <div class="colorOptions">
+      <div class="tonePickerContainer">
+        <ol id="tonePicker">
+          <input type="radio" name="pickedTone" tabindex="30" checked>
+          <li class="colorSwatch" title="White"></li>
+        </ol>
+      </div>
+      <div id="schemeSelectContainer" class="dropdownToolbarButton">
+        <select id="schemeSelect" class="toolbarField" title="Color Scheme"
+                tabindex="30">
+        </select>
+      </div>
     </div>
-  </div
-  ><div class="imageControl">
-    <input type="checkbox" id="imageEnable" class="toolbarField" tabindex="48"
-    ><label for="imageEnable" class="toolbarLabel">Images</label>
+    <div class="verticalToolbarSeparator"></div>
+
+    <div class="otherOptions">
+      <div class="invertContainer">
+        <ul>
+          <input type="checkbox" name="" tabindex="30">
+          <li class="invert colorSwatch" title="Invert"></li>
+        </ul>
+      </div>
+      <div class="shapeEnableContainer">
+        <input type="checkbox" id="shapeEnable" class="toolbarField" tabindex="30">
+        <label for="shapeEnable" class="toolbarLabel">Shapes</label>
+      </div>
+    </div>
+    <div class="horizontalToolbarSeparator"></div>
+
+    <div class="imageOptions">
+      <div class="imageEnableContainer">
+        <input type="checkbox" id="imageEnable" class="toolbarField" tabindex="30">
+        <label for="imageEnable" class="toolbarLabel">Images</label>
+      </div>
+      <div class="imageModes choiceSwitch">
+        <div class="blendImageContainer">
+          <input type="radio" id="blendImage" name="imageMode" tabindex="30" checked>
+          <label class="toolbarLabel" for="blendImage">Blend</label>
+        </div>
+        <div class="invertImageContainer">
+          <input type="radio" id="invertImage" name="imageMode" tabindex="30">
+          <label class="toolbarLabel" for="invertImage">Invert</label>
+        </div>
+      </div>
+    </div>
   </div>
-  <ol id="colorPicker">
-    <li class="colorSwatch selected" title="White"></li>
-  </ol>
-  <div class="horizontalToolbarSeparator"></div>
-  <button id="secLightsOff" class="secondaryToolbarButton lightsOff visibleSmallView" title="Toggle Lights" tabindex="49">
-    <span>Lights Off</span>
-  </button>
-  <button id="secReader" class="secondaryToolbarButton reader visibleSmallView" title="Toggle Reader Mode" tabindex="50">
-    <span>Reader Mode</span>
-  </button>
 </template>

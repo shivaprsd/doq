@@ -1,10 +1,8 @@
 :root {
   /* Fallbacks */
   --readerBG: #F8F1E3;
-  --swatchN: 1;
   --lightsOff-icon: url(../plugin/images/toolbarButton-lightsOff.svg);
   --reader-icon: url(../plugin/images/toolbarButton-termMode.svg);
-  --colorSelect-icon: url(../plugin/images/secToolbarButton-colorSelect.svg);
   --secToolbarWidth: 220px;
   --secToolbarBtnPad: 36px;
   --secToolbarIconLeft: 12px;
@@ -13,76 +11,151 @@
   :root {
   --lightsOff-icon: url(../plugin/images/toolbarButton-lightsOff-dark.svg);
   --reader-icon: url(../plugin/images/toolbarButton-termMode-dark.svg);
-  --colorSelect-icon: url(../plugin/images/secToolbarButton-colorSelect-dark.svg);
   }
 }
 
 /* Addons styles */
-#colorSelect {
-  width: calc(100% + 22px);
-  height: 26px;
+html[dir="ltr"] #readerToolbar {
+  right: 34px;
+  z-index: 20000;
+  font-size: 0;
 }
-#colorSelect:focus {
+.colorOptions {
+  display: inline-block;
+  padding-left: 8px;
+}
+#schemeSelectContainer {
+  --focus-outline: 5px auto;
+  position: relative;
+  min-width: 100px;
+  width: auto;
+}
+#schemeSelectContainer:focus-within {
+  outline: var(--focus-outline);
+}
+#schemeSelect {
+  width: calc(100% + 22px);
+}
+#schemeSelect:focus {
   border-color: rgba(0, 0, 0, 0.38);
 }
-#colorSelectContainer {
+.tonePickerContainer, .invertContainer {
+  margin-bottom: 6px;
+}
+#tonePicker, .invertContainer > ul {
   position: relative;
-  max-width: calc(var(--secToolbarWidth) / 2 - 4px);
-}
-#colorPicker {
-  padding: 2px;
-  margin: 4px 8px 10px;
-  border: 1px solid var(--field-border-color);
-  border-radius: 4px;
-  list-style-type: none;
   text-align: center;
+  list-style-type: none;
 }
+
+#readerToolbar .verticalToolbarSeparator {
+  display: inline-block;
+  vertical-align: top;
+  padding: 41px 0;
+  margin: -6px 4px -6px 5px;
+  background-color: var(--doorhanger-separator-color);
+}
+
+.otherOptions {
+  display: inline-block;
+  vertical-align: top;
+  padding-right: 8px;
+}
+
 .colorSwatch {
   display: inline-block;
   vertical-align: middle;
   box-sizing: border-box;
-  margin: 2px;
-  height: 16px;
-  width: calc(100% / var(--swatchN) - 4px);
+  height: 26px;
+  width: 26px;
+  border-radius: 50%;
+  border: 0.5px solid var(--field-border-color);
   background-color: var(--readerBG);
+  margin: 4px;
   cursor: pointer;
 }
-.colorSwatch.selected {
-  border: 1px solid var(--outline-color);
+.colorSwatch.invert {
+  --stripe-angle: 90deg;
+  background: linear-gradient(var(--stripe-angle), black 50%, white 50%);
+  border: 1px solid black;
+  color: transparent;
 }
-.colorControl {
+input[type="checkbox"]:checked + .invert {
+  --stripe-angle: 270deg;
+}
+input[type="radio"]:checked + .colorSwatch::before {
+  content: "\2713";
+  line-height: 22px;
+  font-size: 16px;
+  font-weight: 500;
+}
+#readerToolbar input:focus + :is(label, li) {
+  outline: 5px auto;
+}
+
+.imageOptions {
+  display: flex;
+  align-items: baseline;
+  padding: 0 8px;
+  margin-bottom: -4px;
+}
+.imageEnableContainer { flex: 2; }
+.imageModes { flex: 3; }
+.imageModes > div { flex: 1; }
+
+:is(.imageOptions, .otherOptions, .choiceSwitch) > div {
   position: relative;
-  padding-left: var(--secToolbarBtnPad);
-  margin-bottom: 4px;
 }
-.colorControl, .imageControl {
-  display: inline-block;
+#readerToolbar label {
+  display: block;
+  text-align: center;
 }
-.imageControl {
-  position: relative;
-  margin-left: 6px;
-  overflow: hidden;
-}
-.imageControl label {
-  display: block
-}
-.imageControl label:hover, .imageControl input:focus + label {
+#readerToolbar input[type="checkbox"] + label:hover {
   background-color: var(--button-hover-color);
 }
-.imageControl .toolbarField[type="checkbox"]:checked + .toolbarLabel {
+#readerToolbar input[type="checkbox"]:checked + label {
   background-color: var(--toggled-btn-bg-color);
 }
-.colorControl::before {
-  position: absolute;
-  top: 8px;
-  left: var(--secToolbarIconLeft);
-  content: var(--colorSelect-icon);
-  /*color: var(--termColor) !important;*/
+#readerToolbar input:is([type="checkbox"], [type="radio"]) {
+  pointer-events: none;
 }
+
+.choiceSwitch {
+  display: inline-flex;
+  margin-left: 6px;
+}
+.choiceSwitch label {
+  display: block;
+  margin: 0;
+  border-color: var(--field-border-color);
+  cursor: pointer;
+}
+.choiceSwitch > div:first-child > label {
+  border-right: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.choiceSwitch > div:last-child > label {
+  border-left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+:is(.choiceSwitch, #tonePicker) input[type="radio"],
+.invertContainer input[type="checkbox"] {
+  margin: 10px 0 3px 7px;
+  position: absolute !important;
+  top: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.choiceSwitch input[type="radio"]:checked + label {
+  background-color: var(--field-border-color);
+}
+
 .toolbarButton.lightsOff::before, .secondaryToolbarButton.lightsOff::before {
   content: var(--lightsOff-icon);
 }
-.toolbarButton.reader::before, .secondaryToolbarButton.reader::before {
+.toolbarButton#reader::before, .secondaryToolbarButton#secReader::before {
   content: var(--reader-icon);
 }
 

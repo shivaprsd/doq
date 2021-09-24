@@ -28,6 +28,8 @@ async function pdfLessInit() {
     toolbar.prepend(docFrag.getElementById("toolbarAddon").content);
     let secToolbar = document.getElementById("secondaryToolbarButtonContainer");
     secToolbar.prepend(docFrag.getElementById("secToolbarAddon").content);
+    let mainContainer = document.getElementById("mainContainer");
+    mainContainer.prepend(docFrag.getElementById("containerAddon").content);
     document.head.append(docFrag.getElementById("headAddon").content);
   }
 }
@@ -46,10 +48,12 @@ const PDFLessPlugin = {
       compStyle: getComputedStyle(document.documentElement),
       docStyle: document.documentElement.style,
       lightsOff: document.getElementById("lightsOff"),
+      readerToolbar: document.getElementById("readerToolbar"),
       reader: document.getElementById("reader"),
       secReader: document.getElementById("secReader"),
-      schemeSelector: document.getElementById("colorSelect"),
-      colorPicker: document.getElementById("colorPicker"),
+      schemeSelector: document.getElementById("schemeSelect"),
+      selectorStyle: document.getElementById("schemeSelectContainer").style,
+      tonePicker: document.getElementById("tonePicker"),
       imageToggle: document.getElementById("imageEnable"),
       viewerClassList: document.getElementById("mainContainer").classList
     };
@@ -80,9 +84,16 @@ const PDFLessPlugin = {
     colorSchemes[0] && this.updateColorScheme(colorSchemes[0]);
 
     appConfig.mainContainer.ondblclick = this.scroll.bind(this);
-    this.config.colorPicker.onclick = this.updateReaderColors.bind(this);
+    this.config.tonePicker.onclick = this.updateReaderColors.bind(this);
     this.config.schemeSelector.onchange = e => {
       this.updateColorScheme(this.colorSchemes[e.target.selectedIndex]);
+    };
+    this.config.schemeSelector.onclick = e => {
+      this.config.selectorStyle.setProperty("--focus-outline", "none");
+    };
+    this.config.readerToolbar.onkeydown = e => {
+      if (e.code === "Tab")
+        this.config.selectorStyle.removeProperty("--focus-outline");
     };
     this.config.imageToggle.onchange = this.toggleImages.bind(this);
     this.config.lightsOff.onclick = this.toggleLightsOff.bind(this);
@@ -120,13 +131,24 @@ const PDFLessPlugin = {
   updateColorScheme(scheme) {
     if (!scheme.tones || !scheme.tones.length)
       return;
-    const picker = this.config.colorPicker;
-    picker.innerHTML = scheme.tones.reduce((acc, e, i) => (
-      `${acc}<li style="color: ${e.foreground}; background: ${e.background};"
-                 class="colorSwatch" title="${e.name}" value="${i}"></li>`
-    ), "");
-    this.config.docStyle.setProperty("--swatchN", picker.childElementCount);
-    setTimeout(() => picker.firstElementChild.click(), 10);
+    const picker = this.config.tonePicker;
+    const createElem = (e, a) => Object.assign(document.createElement(e), a);
+    picker.innerHTML = "";
+    scheme.tones.forEach((tone, index) => {
+      picker.appendChild(createElem("input", {
+        type: "radio",
+        name: "pickedTone",
+        tabIndex: 30,
+        onchange: e => e.target.nextElementSibling.click()
+      }));
+      picker.appendChild(createElem("li", {
+        className: "colorSwatch",
+        value: index,
+        title: `${tone.name}`,
+        style: `color:${tone.foreground}; background-color:${tone.background};`
+      }));
+    });
+    setTimeout(() => picker.querySelector("li").click(), 10);
   },
 
   updateReaderColors(e) {
@@ -135,10 +157,8 @@ const PDFLessPlugin = {
     let sel = this.config.schemeSelector.selectedIndex;
     this.readerTone = this.colorSchemes[sel].tones[e.target.value];
     this.config.docStyle.setProperty("--readerBG", this.readerTone.background);
-    if (sel = e.currentTarget.querySelector(".selected")) {
-      sel.classList.remove("selected");
-    }
-    e.target.classList.add("selected");
+
+    e.target.previousElementSibling.checked = true;
     this.styleCache.clear();
     if (this.flags.readerOn)
       this.forceRedraw();
