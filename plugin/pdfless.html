@@ -3,10 +3,6 @@
 </template>
 
 <template id="toolbarAddon">
-  <button id="lightsOff" class="toolbarButton lightsOff" title="Toggle Lights"
-          tabindex="28">
-    <span>Lights Off</span>
-  </button>
   <button id="reader" class="toolbarButton" title="Toggle Reader"
           tabindex="29">
     <span>Reader</span>
@@ -39,13 +35,13 @@
 
     <div class="otherOptions">
       <div class="invertContainer">
-        <ul>
-          <input type="checkbox" name="" tabindex="30">
-          <li class="invert colorSwatch" title="Invert"></li>
-        </ul>
+        <input type="checkbox" id="invertToggle" tabindex="30">
+        <label for="invertToggle" class="invert colorSwatch" title="Invert">
+        </label>
       </div>
       <div class="shapeEnableContainer">
-        <input type="checkbox" id="shapeEnable" class="toolbarField" tabindex="30">
+        <input type="checkbox" id="shapeEnable" class="toolbarField"
+               tabindex="30" checked>
         <label for="shapeEnable" class="toolbarLabel">Shapes</label>
       </div>
     </div>
@@ -56,16 +52,18 @@
         <input type="checkbox" id="imageEnable" class="toolbarField" tabindex="30">
         <label for="imageEnable" class="toolbarLabel">Images</label>
       </div>
-      <div class="imageModes choiceSwitch">
-        <div class="blendImageContainer">
-          <input type="radio" id="blendImage" name="imageMode" tabindex="30" checked>
+      <form id="imageMode" class="imageModes choiceSwitch">
+        <div>
+          <input type="radio" id="blendImage" name="compOp" value="multiply"
+                 tabindex="30" checked>
           <label class="toolbarLabel" for="blendImage">Blend</label>
         </div>
-        <div class="invertImageContainer">
-          <input type="radio" id="invertImage" name="imageMode" tabindex="30">
+        <div>
+          <input type="radio" id="invertImage" name="compOp" value="difference"
+                 tabindex="30">
           <label class="toolbarLabel" for="invertImage">Invert</label>
         </div>
-      </div>
+      </form>
     </div>
   </div>
 </template>

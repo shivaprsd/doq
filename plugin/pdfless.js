@@ -41,20 +41,25 @@ const PDFLessPlugin = {
   readerTone: {},
   canvasData: null,
   styleCache: new Map(),
-  flags: { readerOn: false, imagesOn: false },
+  flags: {
+    readerOn: false, imagesOn: false,
+    invertOn: false, shapesOn: true
+  },
 
   getPdfLessConfig() {
     return {
       compStyle: getComputedStyle(document.documentElement),
       docStyle: document.documentElement.style,
-      lightsOff: document.getElementById("lightsOff"),
       readerToolbar: document.getElementById("readerToolbar"),
       reader: document.getElementById("reader"),
       secReader: document.getElementById("secReader"),
       schemeSelector: document.getElementById("schemeSelect"),
       selectorStyle: document.getElementById("schemeSelectContainer").style,
       tonePicker: document.getElementById("tonePicker"),
+      invertToggle: document.getElementById("invertToggle"),
+      shapeToggle: document.getElementById("shapeEnable"),
       imageToggle: document.getElementById("imageEnable"),
+      imageMode: document.getElementById("imageMode"),
       viewerClassList: document.getElementById("mainContainer").classList
     };
   },
@@ -85,6 +90,7 @@ const PDFLessPlugin = {
 
     appConfig.mainContainer.ondblclick = this.scroll.bind(this);
     this.config.tonePicker.onclick = this.updateReaderColors.bind(this);
+    this.config.tonePicker.onchange = e => e.target.nextElementSibling.click();
     this.config.schemeSelector.onchange = e => {
       this.updateColorScheme(this.colorSchemes[e.target.selectedIndex]);
     };
@@ -95,8 +101,10 @@ const PDFLessPlugin = {
       if (e.code === "Tab")
         this.config.selectorStyle.removeProperty("--focus-outline");
     };
-    this.config.imageToggle.onchange = this.toggleImages.bind(this);
-    this.config.lightsOff.onclick = this.toggleLightsOff.bind(this);
+    this.config.shapeToggle.onchange = this.config.imageToggle.onchange
+                                     = this.toggleFlags.bind(this);
+    this.config.invertToggle.onchange = this.toggleInvert.bind(this);
+    this.config.imageMode.onchange = this.redrawImages.bind(this);
     this.config.reader.onclick = this.config.secReader.onclick
                                = this.toggleReader.bind(this);
 
@@ -138,8 +146,7 @@ const PDFLessPlugin = {
       picker.appendChild(createElem("input", {
         type: "radio",
         name: "pickedTone",
-        tabIndex: 30,
-        onchange: e => e.target.nextElementSibling.click()
+        tabIndex: 30
       }));
       picker.appendChild(createElem("li", {
         className: "colorSwatch",
@@ -160,31 +167,38 @@ const PDFLessPlugin = {
 
     e.target.previousElementSibling.checked = true;
     this.styleCache.clear();
-    if (this.flags.readerOn)
-      this.forceRedraw();
+    if (this.flags.invertOn)
+      this.config.invertToggle.click();
+    else if (this.flags.readerOn)
+        this.forceRedraw();
   },
 
-  toggleLightsOff() {
+  toggleInvert() {
+    this.config.viewerClassList.toggle("invert");
+    this.flags.invertOn = !this.flags.invertOn;
     if (this.config.viewerClassList.contains("reader")) {
-      this.toggleReader();
+      this.flags.readerOn = !this.flags.readerOn;
+      this.forceRedraw();
     }
-    this.config.viewerClassList.toggle("lightsOff");
-    this.config.lightsOff.classList.toggle("toggled");
   },
   toggleReader() {
     this.config.viewerClassList.toggle("reader");
     this.config.reader.classList.toggle("toggled");
-    this.config.viewerClassList.remove("lightsOff");
-    this.config.lightsOff.classList.remove("toggled");
-    this.flags.readerOn = this.config.viewerClassList.contains("reader");
-    this.forceRedraw();
+    this.flags.readerOn = !this.flags.invertOn && !this.flags.readerOn;
+    if (!this.flags.invertOn)
+      this.forceRedraw();
   },
 
-  toggleImages(e) {
-    this.flags.imagesOn = e.target.checked;
-    if (this.flags.readerOn) {
+  toggleFlags(e) {
+    const flag = e.target.id.replace("Enable", "sOn");
+    this.flags[flag] = e.target.checked;
+    if (this.flags.readerOn)
       this.forceRedraw();
-    }
+  },
+
+  redrawImages() {
+    if (this.flags.readerOn && this.flags.imagesOn)
+      this.forceRedraw();
   },
 
   forceRedraw() {
@@ -215,9 +229,14 @@ const PDFLessPlugin = {
   },
 
   getReaderStyle(ctx, method, args, style) {
-    if (!this.flags.readerOn)
-      return style;
     const isText = method.name.endsWith("Text");
+    const isShape = !isText && !(
+      method.name === "fillRect" &&
+      args[2] == ctx.canvas.width &&
+      args[3] == ctx.canvas.height
+    );
+    if (!this.flags.readerOn || isShape && !this.flags.shapesOn)
+      return style;
     const bg = isText && this.getCanvasColor(ctx, args[1], args[2]);
     const key = style + (bg ? bg.toHex() : "");
     let newStyle = this.styleCache.get(key);
@@ -232,15 +251,13 @@ const PDFLessPlugin = {
     if (!this.flags.readerOn || !this.flags.imagesOn)
       return compOp;
     const tone = this.readerTone;
-    if (tone.colors.bg.lightness > 50) {
-      compOp = "multiply";
-    } else if (args.length >= 5) {
+    if (tone.colors.bg.lightness < 50 && args.length >= 5) {
       args = [...args];
       const mask = this.createMask(tone.foreground, args.slice(0, 5));
       args.splice(0, 1, mask);
       drawImage.apply(ctx, args);
-      compOp = "difference";
     }
+    compOp = this.config.imageMode.compOp.value;
     return compOp;
   },
 

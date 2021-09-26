@@ -1,25 +1,28 @@
 :root {
   /* Fallbacks */
   --readerBG: #F8F1E3;
-  --lightsOff-icon: url(../plugin/images/toolbarButton-lightsOff.svg);
   --reader-icon: url(../plugin/images/toolbarButton-termMode.svg);
+  --check-mark: "\2713";
   --secToolbarWidth: 220px;
   --secToolbarBtnPad: 36px;
   --secToolbarIconLeft: 12px;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-  --lightsOff-icon: url(../plugin/images/toolbarButton-lightsOff-dark.svg);
   --reader-icon: url(../plugin/images/toolbarButton-termMode-dark.svg);
   }
 }
 
 /* Addons styles */
-html[dir="ltr"] #readerToolbar {
-  right: 34px;
+#readerToolbar {
+  right: 189px;
   z-index: 20000;
   font-size: 0;
 }
+@media all and (max-width: 770px) { #readerToolbar { right:129px; }}
+@media all and (max-width: 700px) { #readerToolbar { right: 69px; }}
+@media all and (max-width: 640px) { #readerToolbar { right: 34px; }}
+
 .colorOptions {
   display: inline-block;
   padding-left: 8px;
@@ -40,11 +43,11 @@ html[dir="ltr"] #readerToolbar {
   border-color: rgba(0, 0, 0, 0.38);
 }
 .tonePickerContainer, .invertContainer {
+  text-align: center;
   margin-bottom: 6px;
 }
 #tonePicker, .invertContainer > ul {
   position: relative;
-  text-align: center;
   list-style-type: none;
 }
 
@@ -80,14 +83,17 @@ html[dir="ltr"] #readerToolbar {
   border: 1px solid black;
   color: transparent;
 }
-input[type="checkbox"]:checked + .invert {
+input[type="checkbox"]:checked + .colorSwatch.invert {
   --stripe-angle: 270deg;
 }
 input[type="radio"]:checked + .colorSwatch::before {
-  content: "\2713";
+  content: var(--check-mark);
   line-height: 22px;
   font-size: 16px;
   font-weight: 500;
+}
+.invert .colorSwatch {
+  --check-mark: "";
 }
 #readerToolbar input:focus + :is(label, li) {
   outline: 5px auto;
@@ -106,7 +112,7 @@ input[type="radio"]:checked + .colorSwatch::before {
 :is(.imageOptions, .otherOptions, .choiceSwitch) > div {
   position: relative;
 }
-#readerToolbar label {
+#readerToolbar label:not(.colorSwatch) {
   display: block;
   text-align: center;
 }
@@ -152,9 +158,6 @@ input[type="radio"]:checked + .colorSwatch::before {
   background-color: var(--field-border-color);
 }
 
-.toolbarButton.lightsOff::before, .secondaryToolbarButton.lightsOff::before {
-  content: var(--lightsOff-icon);
-}
 .toolbarButton#reader::before, .secondaryToolbarButton#secReader::before {
   content: var(--reader-icon);
 }
@@ -166,6 +169,6 @@ input[type="radio"]:checked + .colorSwatch::before {
 .pdfViewer .textLayer > span {
   -webkit-text-size-adjust: none;
 }
-.lightsOff .pdfViewer {
+.reader.invert .pdfViewer {
   filter: invert(86%);
 }
