@@ -3,21 +3,29 @@
 </template>
 
 <template id="toolbarAddon">
-  <button id="reader" class="toolbarButton" title="Toggle Reader"
+  <button id="viewReader" class="toolbarButton" title="Toggle Reader"
           tabindex="29">
-    <span>Reader</span>
-  </button>
-</template>
-
-<template id="secToolbarAddon">
-  <button id="secReader" class="secondaryToolbarButton visibleSmallView"
-          title="Toggle Reader" tabindex="50">
     <span>Reader</span>
   </button>
 </template>
 
 <template id="containerAddon">
   <div id="readerToolbar" class="secondaryToolbar doorHangerRight hidden">
+
+    <div class="otherOptions">
+      <div class="readerSwitchContainer">
+        <input type="checkbox" id="readerSwitch" tabindex="30">
+        <label for="readerSwitch" class="power colorSwatch" title="Power">
+        </label>
+      </div>
+      <div class="shapeEnableContainer">
+        <input type="checkbox" id="shapeEnable" class="toolbarField"
+               tabindex="30" checked>
+        <label for="shapeEnable" class="toolbarLabel"></label>
+      </div>
+    </div>
+    <div class="verticalToolbarSeparator"></div>
+
     <div class="colorOptions">
       <div class="tonePickerContainer">
         <ol id="tonePicker">
@@ -25,24 +33,15 @@
           <li class="colorSwatch" title="White"></li>
         </ol>
       </div>
-      <div id="schemeSelectContainer" class="dropdownToolbarButton">
-        <select id="schemeSelect" class="toolbarField" title="Color Scheme"
-                tabindex="30">
-        </select>
-      </div>
-    </div>
-    <div class="verticalToolbarSeparator"></div>
-
-    <div class="otherOptions">
       <div class="invertContainer">
         <input type="checkbox" id="invertToggle" tabindex="30">
         <label for="invertToggle" class="invert colorSwatch" title="Invert">
         </label>
       </div>
-      <div class="shapeEnableContainer">
-        <input type="checkbox" id="shapeEnable" class="toolbarField"
-               tabindex="30" checked>
-        <label for="shapeEnable" class="toolbarLabel">Shapes</label>
+      <div id="schemeSelectContainer" class="dropdownToolbarButton">
+        <select id="schemeSelect" class="toolbarField" title="Color Scheme"
+                tabindex="30">
+        </select>
       </div>
     </div>
     <div class="horizontalToolbarSeparator"></div>
@@ -50,7 +49,7 @@
     <div class="imageOptions">
       <div class="imageEnableContainer">
         <input type="checkbox" id="imageEnable" class="toolbarField" tabindex="30">
-        <label for="imageEnable" class="toolbarLabel">Images</label>
+        <label for="imageEnable" class="toolbarLabel"></label>
       </div>
       <form id="imageMode" class="imageModes choiceSwitch">
         <div>

@@ -1,15 +1,18 @@
 :root {
   /* Fallbacks */
   --readerBG: #F8F1E3;
-  --reader-icon: url(../plugin/images/toolbarButton-termMode.svg);
-  --check-mark: "\2713";
+  --reader-icon: url(../plugin/images/readerIcon.svg);
+  --power-icon: url(../plugin/images/powerButton.svg);
+  --shapes-icon: url(../plugin/images/shapesIcon.svg);
+  --images-icon: url(../plugin/images/imageIcon.svg);
+  --check-mark: url(../plugin/images/checkMark.svg);
   --secToolbarWidth: 220px;
   --secToolbarBtnPad: 36px;
   --secToolbarIconLeft: 12px;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-  --reader-icon: url(../plugin/images/toolbarButton-termMode-dark.svg);
+  --reader-icon: url(../plugin/images/readerIcon-dark.svg);
   }
 }
 
@@ -25,13 +28,15 @@
 
 .colorOptions {
   display: inline-block;
-  padding-left: 8px;
+  max-width: 136px;
+  padding-right: 4px;
 }
 #schemeSelectContainer {
   --focus-outline: 5px auto;
   position: relative;
-  min-width: 100px;
+  min-width: 94px;
   width: auto;
+  margin: 3px 4px 6px !important;
 }
 #schemeSelectContainer:focus-within {
   outline: var(--focus-outline);
@@ -42,27 +47,48 @@
 #schemeSelect:focus {
   border-color: rgba(0, 0, 0, 0.38);
 }
-.tonePickerContainer, .invertContainer {
+.readerSwitchContainer {
   text-align: center;
   margin-bottom: 6px;
 }
+.tonePickerContainer, .invertContainer {
+  display: inline-block;
+  text-align: center;
+  margin-bottom: 3px;
+}
+.invertContainer {
+  float: right;
+  margin-left: 4px;
+}
 #tonePicker, .invertContainer > ul {
   position: relative;
+  margin-right: -4px;
   list-style-type: none;
 }
 
+#readerToolbar .horizontalToolbarSeparator {
+  margin-top: 2px;
+}
 #readerToolbar .verticalToolbarSeparator {
   display: inline-block;
   vertical-align: top;
   padding: 41px 0;
-  margin: -6px 4px -6px 5px;
+  margin: -6px 4px -6px 6px;
   background-color: var(--doorhanger-separator-color);
 }
 
 .otherOptions {
   display: inline-block;
   vertical-align: top;
-  padding-right: 8px;
+  padding-left: 6px;
+}
+#shapeEnable + label {
+  width: 16px;
+  padding: 5px;
+}
+#imageEnable + label {
+  width: 25px;
+  padding: 5px;
 }
 
 .colorSwatch {
@@ -77,23 +103,70 @@
   margin: 4px;
   cursor: pointer;
 }
+.colorSwatch.power {
+  margin-left: 3px;
+  margin-right: 3px;
+  color: var(--field-color);
+  border-color: transparent;
+  background-color: transparent;
+  cursor: revert;
+}
 .colorSwatch.invert {
   --stripe-angle: 90deg;
   background: linear-gradient(var(--stripe-angle), black 50%, white 50%);
   border: 1px solid black;
   color: transparent;
 }
+#readerSwitch:checked + .colorSwatch.power {
+  color: aqua;
+  box-shadow: 0 0 2px;
+}
+@media (prefers-color-scheme: light) {
+  #readerSwitch:checked + .colorSwatch.power {
+    color: dodgerblue;
+    background-color: transparent;
+  }
+}
+#readerSwitch:checked + .power:before {
+  opacity: 1
+}
 input[type="checkbox"]:checked + .colorSwatch.invert {
   --stripe-angle: 270deg;
 }
+.readerSwitchContainer .colorSwatch::before,
+#shapeEnable + label::before, #imageEnable + label::before,
 input[type="radio"]:checked + .colorSwatch::before {
-  content: var(--check-mark);
-  line-height: 22px;
-  font-size: 16px;
-  font-weight: 500;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-top: 4px;
+  content: "";
+  vertical-align: top;
+  background-color: currentcolor;
+  -webkit-mask-size: cover;
+  mask-size: cover;
 }
-.invert .colorSwatch {
-  --check-mark: "";
+.colorSwatch.power::before {
+  -webkit-mask-image: var(--power-icon);
+  mask-image: var(--power-icon);
+  opacity: 0.5;
+}
+#shapeEnable + label::before {
+  -webkit-mask-image: var(--shapes-icon);
+  mask-image: var(--shapes-icon);
+  margin-top: 0;
+}
+#imageEnable + label::before {
+  -webkit-mask-image: var(--images-icon);
+  mask-image: var(--images-icon);
+  margin-top: 0;
+}
+#tonePicker .colorSwatch::before {
+  -webkit-mask-image: var(--check-mark);
+  mask-image: var(--check-mark);
+}
+.invert #tonePicker .colorSwatch::before {
+  visibility: hidden;
 }
 #readerToolbar input:focus + :is(label, li) {
   outline: 5px auto;
@@ -101,13 +174,13 @@ input[type="radio"]:checked + .colorSwatch::before {
 
 .imageOptions {
   display: flex;
-  align-items: baseline;
-  padding: 0 8px;
+  align-items: center;
+  padding: 0 8px 0 6px;
   margin-bottom: -4px;
 }
-.imageEnableContainer { flex: 2; }
-.imageModes { flex: 3; }
-.imageModes > div { flex: 1; }
+.imageEnableContainer { flex: none; }
+.imageModes { flex: auto; }
+.imageModes > div { flex: auto; }
 
 :is(.imageOptions, .otherOptions, .choiceSwitch) > div {
   position: relative;
@@ -147,7 +220,7 @@ input[type="radio"]:checked + .colorSwatch::before {
   border-bottom-left-radius: 0;
 }
 :is(.choiceSwitch, #tonePicker) input[type="radio"],
-.invertContainer input[type="checkbox"] {
+:is(.readerSwitchContainer, .invertContainer) input[type="checkbox"] {
   margin: 10px 0 3px 7px;
   position: absolute !important;
   top: 0;
@@ -158,7 +231,7 @@ input[type="radio"]:checked + .colorSwatch::before {
   background-color: var(--field-border-color);
 }
 
-.toolbarButton#reader::before, .secondaryToolbarButton#secReader::before {
+.toolbarButton#viewReader::before {
   content: var(--reader-icon);
 }
 

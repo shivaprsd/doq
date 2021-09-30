@@ -26,8 +26,6 @@ async function pdfLessInit() {
     let docFrag = document.createRange().createContextualFragment(html);
     let toolbar = document.getElementById("toolbarViewerRight");
     toolbar.prepend(docFrag.getElementById("toolbarAddon").content);
-    let secToolbar = document.getElementById("secondaryToolbarButtonContainer");
-    secToolbar.prepend(docFrag.getElementById("secToolbarAddon").content);
     let mainContainer = document.getElementById("mainContainer");
     mainContainer.prepend(docFrag.getElementById("containerAddon").content);
     document.head.append(docFrag.getElementById("headAddon").content);
@@ -50,9 +48,9 @@ const PDFLessPlugin = {
     return {
       compStyle: getComputedStyle(document.documentElement),
       docStyle: document.documentElement.style,
+      viewReader: document.getElementById("viewReader"),
       readerToolbar: document.getElementById("readerToolbar"),
-      reader: document.getElementById("reader"),
-      secReader: document.getElementById("secReader"),
+      readerSwitch: document.getElementById("readerSwitch"),
       schemeSelector: document.getElementById("schemeSelect"),
       selectorStyle: document.getElementById("schemeSelectContainer").style,
       tonePicker: document.getElementById("tonePicker"),
@@ -105,8 +103,11 @@ const PDFLessPlugin = {
                                      = this.toggleFlags.bind(this);
     this.config.invertToggle.onchange = this.toggleInvert.bind(this);
     this.config.imageMode.onchange = this.redrawImages.bind(this);
-    this.config.reader.onclick = this.config.secReader.onclick
-                               = this.toggleReader.bind(this);
+    this.config.readerSwitch.onchange = this.toggleReader.bind(this);
+    this.config.viewReader.onclick = e => {
+      this.config.readerToolbar.classList.toggle("hidden");
+      e.target.classList.toggle("toggled");
+    }
 
     const ctxp = CanvasRenderingContext2D.prototype;
     const cb = this.saveCanvas.bind(this);
@@ -183,7 +184,6 @@ const PDFLessPlugin = {
   },
   toggleReader() {
     this.config.viewerClassList.toggle("reader");
-    this.config.reader.classList.toggle("toggled");
     this.flags.readerOn = !this.flags.invertOn && !this.flags.readerOn;
     if (!this.flags.invertOn)
       this.forceRedraw();
