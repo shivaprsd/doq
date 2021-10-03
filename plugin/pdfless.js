@@ -23,11 +23,13 @@ async function pdfLessInit() {
       PDFLessPlugin.load(appConfig, colors);
     });
   function addHTML(html) {
+    const appConfig = window.PDFViewerApplication.appConfig;
     let docFrag = document.createRange().createContextualFragment(html);
     let toolbar = document.getElementById("toolbarViewerRight");
     toolbar.prepend(docFrag.getElementById("toolbarAddon").content);
     let mainContainer = document.getElementById("mainContainer");
-    mainContainer.prepend(docFrag.getElementById("containerAddon").content);
+    mainContainer.insertBefore(docFrag.getElementById("containerAddon").content,
+                               appConfig.mainContainer);
     document.head.append(docFrag.getElementById("headAddon").content);
   }
 }
@@ -52,13 +54,12 @@ const PDFLessPlugin = {
       readerToolbar: document.getElementById("readerToolbar"),
       readerSwitch: document.getElementById("readerSwitch"),
       schemeSelector: document.getElementById("schemeSelect"),
-      selectorStyle: document.getElementById("schemeSelectContainer").style,
       tonePicker: document.getElementById("tonePicker"),
       invertToggle: document.getElementById("invertToggle"),
       shapeToggle: document.getElementById("shapeEnable"),
       imageToggle: document.getElementById("imageEnable"),
       imageMode: document.getElementById("imageMode"),
-      viewerClassList: document.getElementById("mainContainer").classList
+      viewerClassList: document.getElementById("outerContainer").classList
     };
   },
 
@@ -85,6 +86,7 @@ const PDFLessPlugin = {
     });
     this.colorSchemes = colorSchemes;
     colorSchemes[0] && this.updateColorScheme(colorSchemes[0]);
+    this.updateToolbarPos();
 
     appConfig.mainContainer.ondblclick = this.scroll.bind(this);
     this.config.tonePicker.onclick = this.updateReaderColors.bind(this);
@@ -93,21 +95,21 @@ const PDFLessPlugin = {
       this.updateColorScheme(this.colorSchemes[e.target.selectedIndex]);
     };
     this.config.schemeSelector.onclick = e => {
-      this.config.selectorStyle.setProperty("--focus-outline", "none");
+      this.config.readerToolbar.classList.remove("tabMode");
     };
-    this.config.readerToolbar.onkeydown = e => {
-      if (e.code === "Tab")
-        this.config.selectorStyle.removeProperty("--focus-outline");
-    };
+    this.config.readerToolbar.onkeydown = this.handleKeyDown.bind(this);
     this.config.shapeToggle.onchange = this.config.imageToggle.onchange
                                      = this.toggleFlags.bind(this);
     this.config.invertToggle.onchange = this.toggleInvert.bind(this);
     this.config.imageMode.onchange = this.redrawImages.bind(this);
     this.config.readerSwitch.onchange = this.toggleReader.bind(this);
-    this.config.viewReader.onclick = e => {
-      this.config.readerToolbar.classList.toggle("hidden");
-      e.target.classList.toggle("toggled");
-    }
+    this.config.viewReader.onclick = this.toggleToolbar.bind(this);
+    window.addEventListener("click", this.closeToolbar.bind(this));
+    window.addEventListener("resize", this.updateToolbarPos.bind(this));
+    (new MutationObserver(this.updateToolbarPos.bind(this))).observe(
+      this.config.viewReader.parentElement,
+      { subtree: true, attributeFilter: ["style", "hidden"] }
+    );
 
     const ctxp = CanvasRenderingContext2D.prototype;
     const cb = this.saveCanvas.bind(this);
@@ -147,15 +149,18 @@ const PDFLessPlugin = {
       picker.appendChild(createElem("input", {
         type: "radio",
         name: "pickedTone",
-        tabIndex: 30
+        tabIndex: 29
       }));
+      picker.lastChild.setAttribute("aria-label", tone.name);
       picker.appendChild(createElem("li", {
         className: "colorSwatch",
         value: index,
-        title: `${tone.name}`,
+        title: tone.name,
         style: `color:${tone.foreground}; background-color:${tone.background};`
       }));
+      picker.lastChild.setAttribute("aria-hidden", "true");
     });
+    this.config.invertToggle.tabIndex = (scheme.tones.length < 4) ? 29 : 30;
     setTimeout(() => picker.querySelector("li").click(), 10);
   },
 
@@ -174,6 +179,36 @@ const PDFLessPlugin = {
         this.forceRedraw();
   },
 
+  updateToolbarPos() {
+    const docWidth = document.documentElement.clientWidth;
+    const btnRight = this.config.viewReader.getBoundingClientRect().right;
+    const offset = docWidth - Math.ceil(window.pageXOffset + btnRight);
+    this.config.readerToolbar.style.right = `${offset + 2}px`;
+  },
+
+  handleKeyDown(e) {
+    if (e.code === "Tab") {
+      this.config.readerToolbar.classList.add("tabMode");
+    } else if (e.code === "Escape") {
+      this.closeToolbar();
+      e.target.blur();
+      e.preventDefault();
+    }
+  },
+
+  closeToolbar(e) {
+    const toolbar = this.config.readerToolbar;
+    if (toolbar.contains(e?.target) || e?.target === this.config.viewReader)
+      return;
+    if (!toolbar.classList.contains("hidden"))
+      this.toggleToolbar();
+  },
+  toggleToolbar() {
+    this.config.readerToolbar.classList.toggle("hidden");
+    this.config.viewReader.classList.toggle("toggled");
+    this.toggleTitle(this.config.viewReader);
+  },
+
   toggleInvert() {
     this.config.viewerClassList.toggle("invert");
     this.flags.invertOn = !this.flags.invertOn;
@@ -182,8 +217,9 @@ const PDFLessPlugin = {
       this.forceRedraw();
     }
   },
-  toggleReader() {
+  toggleReader(e) {
     this.config.viewerClassList.toggle("reader");
+    this.toggleTitle(e.target.labels[0]);
     this.flags.readerOn = !this.flags.invertOn && !this.flags.readerOn;
     if (!this.flags.invertOn)
       this.forceRedraw();
@@ -202,15 +238,11 @@ const PDFLessPlugin = {
   },
 
   forceRedraw() {
-    const pdfViewer = window.PDFViewerApplication.pdfViewer;
-    const i = pdfViewer.currentPageNumber;
-    for (let j = i - 9; j < i + 8; ++j) {
-      if (j >= 0 && j < pdfViewer.pagesCount) {
-        pdfViewer.getPageView(j).renderingState = 0;
-        pdfViewer.getPageView(j).reset();
-      }
-    }
-    pdfViewer.forceRendering();
+    const {pdfViewer, pdfThumbnailViewer} = window.PDFViewerApplication;
+    pdfViewer._pages.filter(e => e.renderingState).forEach(e => e.reset());
+    pdfThumbnailViewer._thumbnails.filter(e => e.renderingState)
+                                  .forEach(e => e.reset());
+    window.PDFViewerApplication.forceRendering();
   },
 
   calcStyle(color, textBg) {
@@ -302,6 +334,13 @@ const PDFLessPlugin = {
   findMatch(array, mapFun, condFun) {
     const newArr = array.map(mapFun);
     return array[newArr.indexOf(condFun(...newArr))];
+  },
+  toggleTitle(elem) {
+    const swapPair = elem.dataset.toggleTitle?.split(";", 2);
+    if (swapPair) {
+      elem.title = elem.title.replace(...swapPair);
+      elem.dataset.toggleTitle = swapPair.reverse().join(";");
+    }
   },
 
   diffL(clr1) {

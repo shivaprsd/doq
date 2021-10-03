@@ -22,9 +22,6 @@
   z-index: 20000;
   font-size: 0;
 }
-@media all and (max-width: 770px) { #readerToolbar { right:129px; }}
-@media all and (max-width: 700px) { #readerToolbar { right: 69px; }}
-@media all and (max-width: 640px) { #readerToolbar { right: 34px; }}
 
 .colorOptions {
   display: inline-block;
@@ -32,14 +29,10 @@
   padding-right: 4px;
 }
 #schemeSelectContainer {
-  --focus-outline: 5px auto;
   position: relative;
   min-width: 94px;
   width: auto;
   margin: 3px 4px 6px !important;
-}
-#schemeSelectContainer:focus-within {
-  outline: var(--focus-outline);
 }
 #schemeSelect {
   width: calc(100% + 22px);
@@ -58,6 +51,7 @@
 }
 .invertContainer {
   float: right;
+  position: relative;
   margin-left: 4px;
 }
 #tonePicker, .invertContainer > ul {
@@ -168,6 +162,7 @@ input[type="radio"]:checked + .colorSwatch::before {
 .invert #tonePicker .colorSwatch::before {
   visibility: hidden;
 }
+.tabMode #schemeSelectContainer:focus-within,
 #readerToolbar input:focus + :is(label, li) {
   outline: 5px auto;
 }
@@ -189,6 +184,7 @@ input[type="radio"]:checked + .colorSwatch::before {
   display: block;
   text-align: center;
 }
+#readerToolbar input[type="checkbox"]:focus + label,
 #readerToolbar input[type="checkbox"] + label:hover {
   background-color: var(--button-hover-color);
 }
@@ -236,7 +232,7 @@ input[type="radio"]:checked + .colorSwatch::before {
 }
 
 /* Customization rules */
-.reader .pdfViewer .page {
+.reader .pdfViewer .page, .reader .thumbnailImage {
   background-color: var(--readerBG) !important;
 }
 .pdfViewer .textLayer > span {
