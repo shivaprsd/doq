@@ -9,38 +9,38 @@
   </button>
 </template>
 
-<template id="containerAddon">
+<template id="mainAddon">
   <div id="readerToolbar" class="secondaryToolbar doorHangerRight hidden">
-    <div class="otherOptions">
-      <div class="readerSwitchContainer">
-        <input type="checkbox" id="readerSwitch" tabindex="29"
+    <div class="asidePanel">
+      <div>
+        <input type="checkbox" id="readerSwitch" class="toolbarField" tabindex="29"
                aria-label="Toggle reader mode">
-        <label for="readerSwitch" class="power colorSwatch" aria-hidden="true"
+        <label for="readerSwitch" class="colorSwatch maskIcon" aria-hidden="true"
                title="Turn on Reader Mode" data-toggle-title="on;off">
         </label>
       </div>
-      <div class="shapeEnableContainer">
+      <div>
         <input type="checkbox" id="shapeEnable" class="toolbarField" tabindex="29"
                aria-label="Apply to lines and shapes" checked>
-        <label for="shapeEnable" class="toolbarLabel" aria-hidden="true"
+        <label for="shapeEnable" class="toolbarLabel maskIcon" aria-hidden="true"
                title="Apply to Lines and Shapes">
         </label>
       </div>
     </div>
     <div class="verticalToolbarSeparator"></div>
 
-    <div class="colorOptions">
-      <div class="tonePickerContainer">
+    <div class="colorPanel">
+      <div>
         <ol id="tonePicker" role="radiogroup" aria-label="Color scheme tone">
           <input type="radio" name="pickedTone" tabindex="29" aria-label="White"
                  checked>
-          <li class="colorSwatch" aria-hidden="true" title="White"></li>
+          <li class="colorSwatch maskIcon" aria-hidden="true" title="White"></li>
         </ol>
       </div>
-      <div class="invertContainer">
-        <input type="checkbox" id="invertToggle" tabindex="29"
+      <div>
+        <input type="checkbox" id="invertToggle" class="toolbarField" tabindex="29"
                aria-label="Invert document colors">
-        <label for="invertToggle" class="invert colorSwatch" aria-hidden="true"
+        <label for="invertToggle" class="colorSwatch" aria-hidden="true"
                title="Invert Document Colors">
         </label>
       </div>
@@ -52,15 +52,15 @@
     </div>
     <div class="horizontalToolbarSeparator"></div>
 
-    <div class="imageOptions">
-      <div class="imageEnableContainer">
+    <div class="imagePanel">
+      <div>
         <input type="checkbox" id="imageEnable" class="toolbarField" tabindex="30"
                aria-label="Apply to images">
-        <label for="imageEnable" class="toolbarLabel" aria-hidden="true"
+        <label for="imageEnable" class="toolbarLabel maskIcon" aria-hidden="true"
                title="Apply to Images">
         </label>
       </div>
-      <form id="imageMode" class="imageModes choiceSwitch" title="Image Mode"
+      <form id="imageMode" class="choiceSwitch" title="Image Mode"
             role="radiogroup" aria-label="Image mode">
         <div>
           <input type="radio" id="blendImage" name="compOp" value="multiply"

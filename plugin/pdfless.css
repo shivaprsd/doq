@@ -1,203 +1,67 @@
+/* Viewer customizations */
 :root {
-  /* Fallbacks */
-  --readerBG: #F8F1E3;
+  --reader-bg: #F8F1E3;
   --reader-icon: url(../plugin/images/readerIcon.svg);
-  --power-icon: url(../plugin/images/powerButton.svg);
-  --shapes-icon: url(../plugin/images/shapesIcon.svg);
-  --images-icon: url(../plugin/images/imageIcon.svg);
-  --check-mark: url(../plugin/images/checkMark.svg);
-  --secToolbarWidth: 220px;
-  --secToolbarBtnPad: 36px;
-  --secToolbarIconLeft: 12px;
 }
 @media (prefers-color-scheme: dark) {
   :root {
   --reader-icon: url(../plugin/images/readerIcon-dark.svg);
   }
 }
-
-/* Addons styles */
-#readerToolbar {
-  right: 189px;
-  z-index: 20000;
-  font-size: 0;
+#viewReader.toolbarButton::before {
+  content: var(--reader-icon);
+}
+.reader .pdfViewer .page, .reader .thumbnailImage {
+  background-color: var(--reader-bg) !important;
+}
+.reader.invert .pdfViewer {
+  filter: invert(86%);
+}
+.pdfViewer .textLayer > span {
+  -webkit-text-size-adjust: none;      /* bug-fix */
 }
 
-.colorOptions {
-  display: inline-block;
-  max-width: 136px;
-  padding-right: 4px;
-}
-#schemeSelectContainer {
-  position: relative;
-  min-width: 94px;
-  width: auto;
-  margin: 3px 4px 6px !important;
-}
-#schemeSelect {
-  width: calc(100% + 22px);
-}
-#schemeSelect:focus {
-  border-color: rgba(0, 0, 0, 0.38);
-}
-.readerSwitchContainer {
-  text-align: center;
-  margin-bottom: 6px;
-}
-.tonePickerContainer, .invertContainer {
-  display: inline-block;
-  text-align: center;
-  margin-bottom: 3px;
-}
-.invertContainer {
-  float: right;
-  position: relative;
-  margin-left: 4px;
-}
-#tonePicker, .invertContainer > ul {
-  position: relative;
-  margin-right: -4px;
-  list-style-type: none;
-}
-
-#readerToolbar .horizontalToolbarSeparator {
-  margin-top: 2px;
-}
-#readerToolbar .verticalToolbarSeparator {
-  display: inline-block;
-  vertical-align: top;
-  padding: 41px 0;
-  margin: -6px 4px -6px 6px;
-  background-color: var(--doorhanger-separator-color);
-}
-
-.otherOptions {
-  display: inline-block;
-  vertical-align: top;
-  padding-left: 6px;
-}
-#shapeEnable + label {
-  width: 16px;
-  padding: 5px;
-}
-#imageEnable + label {
-  width: 25px;
-  padding: 5px;
-}
-
+/* Widgets */
 .colorSwatch {
   display: inline-block;
   vertical-align: middle;
+  text-align: center;
   box-sizing: border-box;
   height: 26px;
   width: 26px;
   border-radius: 50%;
   border: 0.5px solid var(--field-border-color);
-  background-color: var(--readerBG);
+  background-color: var(--reader-bg);
   margin: 4px;
   cursor: pointer;
 }
-.colorSwatch.power {
-  margin-left: 3px;
-  margin-right: 3px;
-  color: var(--field-color);
-  border-color: transparent;
-  background-color: transparent;
-  cursor: revert;
-}
-.colorSwatch.invert {
-  --stripe-angle: 90deg;
-  background: linear-gradient(var(--stripe-angle), black 50%, white 50%);
-  border: 1px solid black;
-  color: transparent;
-}
-#readerSwitch:checked + .colorSwatch.power {
-  color: aqua;
-  box-shadow: 0 0 2px;
-}
-@media (prefers-color-scheme: light) {
-  #readerSwitch:checked + .colorSwatch.power {
-    color: dodgerblue;
-    background-color: transparent;
-  }
-}
-#readerSwitch:checked + .power:before {
-  opacity: 1
-}
-input[type="checkbox"]:checked + .colorSwatch.invert {
-  --stripe-angle: 270deg;
-}
-.readerSwitchContainer .colorSwatch::before,
-#shapeEnable + label::before, #imageEnable + label::before,
-input[type="radio"]:checked + .colorSwatch::before {
+
+.maskIcon::before, :checked + .colorSwatch::before {
   display: inline-block;
+  content: "";
   width: 16px;
   height: 16px;
   margin-top: 4px;
-  content: "";
   vertical-align: top;
   background-color: currentcolor;
   -webkit-mask-size: cover;
   mask-size: cover;
 }
-.colorSwatch.power::before {
-  -webkit-mask-image: var(--power-icon);
-  mask-image: var(--power-icon);
-  opacity: 0.5;
-}
-#shapeEnable + label::before {
-  -webkit-mask-image: var(--shapes-icon);
-  mask-image: var(--shapes-icon);
+.maskIcon.toolbarLabel::before {
   margin-top: 0;
 }
-#imageEnable + label::before {
-  -webkit-mask-image: var(--images-icon);
-  mask-image: var(--images-icon);
-  margin-top: 0;
-}
-#tonePicker .colorSwatch::before {
-  -webkit-mask-image: var(--check-mark);
-  mask-image: var(--check-mark);
-}
-.invert #tonePicker .colorSwatch::before {
-  visibility: hidden;
-}
-.tabMode #schemeSelectContainer:focus-within,
-#readerToolbar input:focus + :is(label, li) {
-  outline: 5px auto;
-}
-
-.imageOptions {
-  display: flex;
-  align-items: center;
-  padding: 0 8px 0 6px;
-  margin-bottom: -4px;
-}
-.imageEnableContainer { flex: none; }
-.imageModes { flex: auto; }
-.imageModes > div { flex: auto; }
-
-:is(.imageOptions, .otherOptions, .choiceSwitch) > div {
-  position: relative;
-}
-#readerToolbar label:not(.colorSwatch) {
+.maskIcon.toolbarLabel {
   display: block;
-  text-align: center;
-}
-#readerToolbar input[type="checkbox"]:focus + label,
-#readerToolbar input[type="checkbox"] + label:hover {
-  background-color: var(--button-hover-color);
-}
-#readerToolbar input[type="checkbox"]:checked + label {
-  background-color: var(--toggled-btn-bg-color);
-}
-#readerToolbar input:is([type="checkbox"], [type="radio"]) {
-  pointer-events: none;
+  width: 16px;
+  padding: 5px;
 }
 
 .choiceSwitch {
   display: inline-flex;
-  margin-left: 6px;
+}
+.choiceSwitch > div {
+  position: relative;
+  flex: auto;
 }
 .choiceSwitch label {
   display: block;
@@ -205,39 +69,184 @@ input[type="radio"]:checked + .colorSwatch::before {
   border-color: var(--field-border-color);
   cursor: pointer;
 }
-.choiceSwitch > div:first-child > label {
+.choiceSwitch :checked + label {
+  background-color: var(--field-border-color);
+}
+.choiceSwitch > :first-child > .toolbarLabel {
   border-right: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
-.choiceSwitch > div:last-child > label {
+.choiceSwitch > :last-child > .toolbarLabel {
   border-left: 0;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
-:is(.choiceSwitch, #tonePicker) input[type="radio"],
-:is(.readerSwitchContainer, .invertContainer) input[type="checkbox"] {
+
+/* Toolbar layout */
+#readerToolbar {
+  --power-icon: url(../plugin/images/powerButton.svg);
+  --shapes-icon: url(../plugin/images/shapesIcon.svg);
+  --images-icon: url(../plugin/images/imageIcon.svg);
+  --check-mark: url(../plugin/images/checkMark.svg);
+  right: 189px;
+  z-index: 20000;
+  font-size: 0;
+}
+#readerToolbar > :nth-child(-n+3) {
+  display: inline-block;
+  vertical-align: top;
+}
+#readerToolbar > :first-child {
+  padding-left: 6px;
+}
+#readerToolbar .verticalToolbarSeparator {
+  padding: 41px 0;
+  margin: -6px 4px -2px 6px;
+  background-color: var(--doorhanger-separator-color);
+}
+#readerToolbar > :nth-child(3) {
+  padding-right: 4px;
+}
+#readerToolbar .horizontalToolbarSeparator {
+  clear: both;
+  margin-top: 2px;
+}
+#readerToolbar > :last-child {
+  display: flex;
+  align-items: center;
+  padding: 0 8px 0 6px;
+  margin-bottom: -4px;
+}
+
+/* Panel layouts */
+#readerToolbar > div > div {
+  position: relative;
+}
+.asidePanel > div {
+  margin-bottom: 6px;
+}
+.colorPanel {
+  max-width: 136px;
+}
+.colorPanel > :nth-child(-n+2) {
+  display: inline-block;
+  margin-bottom: 3px;
+}
+.colorPanel > :first-child > * {
+  margin-right: -4px;
+}
+.colorPanel > :nth-child(2) {
+  float: right;
+  margin-left: 4px;
+}
+.colorPanel > :last-child {
+  margin: 3px 4px 6px !important;
+}
+.imagePanel > :first-child {
+  flex: none;
+}
+.imagePanel > :last-child {
+  flex: auto;
+  margin-left: 6px;
+}
+
+/* Aside panel */
+#readerSwitch + .colorSwatch {
+  color: var(--field-color);
+  border-color: transparent;
+  background-color: transparent;
+  margin-left: 3px;
+  margin-right: 3px;
+  cursor: revert;
+}
+#readerSwitch:checked + .colorSwatch {
+  color: aqua;
+  box-shadow: 0 0 2px;
+}
+@media (prefers-color-scheme: light) {
+  #readerSwitch:checked + .colorSwatch {
+    color: dodgerblue;
+    background-color: transparent !important;
+  }
+}
+/* Image panel */
+#imageEnable + label {
+  width: 25px;
+}
+
+/* Color panel */
+ol#tonePicker {
+  list-style-type: none;
+}
+#invertToggle + .colorSwatch {
+  --stripe-angle: 90deg;
+  background: linear-gradient(var(--stripe-angle), black 50%, white 50%);
+  border: 1px solid black;
+  color: transparent;
+}
+#invertToggle:checked + .colorSwatch {
+  --stripe-angle: 270deg;
+}
+#schemeSelectContainer {
+  min-width: 94px;
+  width: auto;
+}
+#schemeSelect {
+  width: calc(100% + 22px);
+}
+#schemeSelect:focus {
+  border-color: rgba(0, 0, 0, 0.38);
+}
+
+/* Icons */
+#readerSwitch + .colorSwatch::before {
+  -webkit-mask-image: var(--power-icon);
+  mask-image: var(--power-icon);
+  opacity: 0.5;
+}
+#readerSwitch:checked + .colorSwatch::before {
+  opacity: 1
+}
+#tonePicker > :checked + .colorSwatch::before {
+  -webkit-mask-image: var(--check-mark);
+  mask-image: var(--check-mark);
+}
+.invert #tonePicker > .colorSwatch::before {
+  visibility: hidden;
+}
+#shapeEnable + label::before {
+  -webkit-mask-image: var(--shapes-icon);
+  mask-image: var(--shapes-icon);
+}
+#imageEnable + label::before {
+  -webkit-mask-image: var(--images-icon);
+  mask-image: var(--images-icon);
+}
+
+/* Form controls */
+#readerToolbar .toolbarLabel {
+  text-align: center;
+}
+#readerToolbar input[type="radio"] {
   margin: 10px 0 3px 7px;
   position: absolute !important;
   top: 0;
   opacity: 0;
   pointer-events: none;
 }
-.choiceSwitch input[type="radio"]:checked + label {
-  background-color: var(--field-border-color);
+#readerToolbar input:[type="checkbox"] {
+  pointer-events: none;
 }
-
-.toolbarButton#viewReader::before {
-  content: var(--reader-icon);
+#readerToolbar input[type="checkbox"] + label:hover,
+#readerToolbar input[type="checkbox"]:focus + label {
+  background-color: var(--button-hover-color);
 }
-
-/* Customization rules */
-.reader .pdfViewer .page, .reader .thumbnailImage {
-  background-color: var(--readerBG) !important;
+#readerToolbar input[type="checkbox"]:checked + label {
+  background-color: var(--toggled-btn-bg-color);
 }
-.pdfViewer .textLayer > span {
-  -webkit-text-size-adjust: none;
-}
-.reader.invert .pdfViewer {
-  filter: invert(86%);
+/* Accessibility */
+.tabMode #schemeSelectContainer:focus-within,
+#readerToolbar input:focus + label, #readerToolbar input:focus + li {
+  outline: 5px auto;
 }
