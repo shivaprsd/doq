@@ -81,8 +81,7 @@ const PDFLessPlugin = {
     this.config.schemeSelector.onchange = e => {
       this.updateColorScheme(this.colorSchemes[e.target.selectedIndex]);
     };
-    this.config.tonePicker.onclick = this.updateReaderColors.bind(this);
-    this.config.tonePicker.onchange = e => e.target.nextElementSibling.click();
+    this.config.tonePicker.onchange = this.updateReaderColors.bind(this);
     this.config.viewReader.onclick = this.toggleToolbar.bind(this);
     this.config.readerSwitch.onchange = this.toggleReader.bind(this);
     this.config.shapeToggle.onchange = this.config.imageToggle.onchange
@@ -216,37 +215,32 @@ const PDFLessPlugin = {
     if (!scheme.tones || !scheme.tones.length)
       return;
     const picker = this.config.tonePicker;
-    const createElem = (e, a) => Object.assign(document.createElement(e), a);
-    picker.innerHTML = "";
+    const toneWgt = picker.querySelector("template");
+    picker.innerHTML = toneWgt.outerHTML;
     scheme.tones.forEach((tone, index) => {
-      picker.appendChild(createElem("input", {
-        type: "radio",
-        name: "pickedTone",
-        tabIndex: 29
-      }));
-      picker.lastChild.setAttribute("aria-label", tone.name);
-      picker.appendChild(createElem("li", {
-        className: "colorSwatch",
-        value: index,
-        title: tone.name,
-        style: `color:${tone.foreground}; background-color:${tone.background};`
-      }));
-      picker.lastChild.setAttribute("aria-hidden", true);
+      const widget = toneWgt.content.cloneNode(true);
+      const [input, label] = widget.children;
+      input.id = label.htmlFor = "tone" + tone.name;
+      input.value = index;
+      input.setAttribute("aria-label", tone.name);
+      label.title = tone.name;
+      label.style.color = tone.foreground;
+      label.style.backgroundColor = tone.background;
+      picker.appendChild(widget);
     });
+    picker.querySelector("input").checked = true;
     this.config.invertToggle.tabIndex = (scheme.tones.length < 4) ? 29 : 30;
-    setTimeout(() => picker.querySelector("li").click(), 10);
+    this.updateReaderColors();
   },
 
-  updateReaderColors(e) {
-    if (e.target.tagName !== "LI")
-      return;
-    let sel = this.config.schemeSelector.selectedIndex;
-    this.readerTone = this.colorSchemes[sel].tones[e.target.value];
+  updateReaderColors() {
+    const sel = this.config.schemeSelector.selectedIndex;
+    const pick = this.config.tonePicker.readerTone.value;
+    this.readerTone = this.colorSchemes[sel].tones[pick];
     this.config.docStyle.setProperty("--reader-bg", this.readerTone.background);
-    e.target.previousElementSibling.checked = true;
     this.styleCache.clear();
     if (this.flags.invertOn)
-      this.config.invertToggle.click();
+      this.toggleInvert();
     else if (this.flags.readerOn)
         this.forceRedraw();
   },

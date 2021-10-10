@@ -31,11 +31,12 @@
 
     <div class="colorPanel">
       <div>
-        <ol id="tonePicker" role="radiogroup" aria-label="Color scheme tone">
-          <input type="radio" name="pickedTone" tabindex="29" aria-label="White"
-                 checked>
-          <li class="colorSwatch maskIcon" aria-hidden="true" title="White"></li>
-        </ol>
+        <form id="tonePicker" role="radiogroup" aria-label="Color scheme tone">
+          <template>
+          <input type="radio" name="readerTone" tabindex="29" id value aria-label>
+          <label class="colorSwatch" aria-hidden="true" for title style></label>
+          </template>
+        </form>
       </div>
       <div>
         <input type="checkbox" id="invertToggle" class="toolbarField" tabindex="29"

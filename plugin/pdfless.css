@@ -176,9 +176,6 @@
 }
 
 /* Color panel */
-ol#tonePicker {
-  list-style-type: none;
-}
 #invertToggle + .colorSwatch {
   --stripe-angle: 90deg;
   background: linear-gradient(var(--stripe-angle), black 50%, white 50%);
@@ -247,6 +244,6 @@ ol#tonePicker {
 }
 /* Accessibility */
 .tabMode #schemeSelectContainer:focus-within,
-#readerToolbar input:focus + label, #readerToolbar input:focus + li {
+#readerToolbar input:focus + label {
   outline: 5px auto;
 }
