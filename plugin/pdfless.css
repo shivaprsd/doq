@@ -14,7 +14,7 @@
 .reader .pdfViewer .page, .reader .thumbnailImage {
   background-color: var(--reader-bg) !important;
 }
-.reader.invert .pdfViewer {
+.reader.invert .pdfViewer, .reader.invert .thumbnailImage {
   filter: invert(86%);
 }
 .pdfViewer .textLayer > span {
@@ -180,10 +180,12 @@
   --stripe-angle: 90deg;
   background: linear-gradient(var(--stripe-angle), black 50%, white 50%);
   border: 1px solid black;
-  color: transparent;
 }
 #invertToggle:checked + .colorSwatch {
   --stripe-angle: 270deg;
+}
+#invertToggle + .colorSwatch::before {
+  content: none;
 }
 #schemeSelectContainer {
   min-width: 94px;
@@ -209,9 +211,6 @@
   -webkit-mask-image: var(--check-mark);
   mask-image: var(--check-mark);
 }
-.invert #tonePicker > .colorSwatch::before {
-  visibility: hidden;
-}
 #shapeEnable + label::before {
   -webkit-mask-image: var(--shapes-icon);
   mask-image: var(--shapes-icon);
@@ -232,7 +231,7 @@
   opacity: 0;
   pointer-events: none;
 }
-#readerToolbar input:[type="checkbox"] {
+#readerToolbar input[type="checkbox"] {
   pointer-events: none;
 }
 #readerToolbar input[type="checkbox"] + label:hover,

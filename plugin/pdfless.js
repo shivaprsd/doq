@@ -33,13 +33,18 @@ function newColor(arg) { return new Color(arg); }
 
 const PDFLessPlugin = {
   config: {},
+  preferences: {},
   colorSchemes: [],
   readerTone: {},
   canvasData: null,
   styleCache: new Map(),
-  flags: {
-    readerOn: false, imagesOn: false,
-    invertOn: false, shapesOn: true
+  flags: { readerOn: false },
+
+  getDefaultPrefs() {
+    return {
+      scheme: 0, tone: "0", imageMode: "blendImage",
+      flags: { invertOn: false, shapesOn: true, imagesOn: false }
+    };
   },
   getPdfLessConfig() {
     return {
@@ -74,26 +79,29 @@ const PDFLessPlugin = {
       scheme.colors = (scheme.accents || []).map(newColor);
     });
     this.colorSchemes = colorSchemes;
-    colorSchemes[0] && this.updateColorScheme(colorSchemes[0]);
-    this.updateToolbarPos();
+    this.preferences = this.readPreferences();
+    Object.assign(this.flags, this.preferences.flags);
+    this.updateReaderState(this.preferences);
 
     /* Event listeners */
     this.config.schemeSelector.onchange = e => {
-      this.updateColorScheme(this.colorSchemes[e.target.selectedIndex]);
+      this.updateColorScheme(e.target.selectedIndex);
     };
     this.config.tonePicker.onchange = this.updateReaderColors.bind(this);
+    this.config.imageMode.onchange = this.updateImageMode.bind(this);
     this.config.viewReader.onclick = this.toggleToolbar.bind(this);
     this.config.readerSwitch.onchange = this.toggleReader.bind(this);
     this.config.shapeToggle.onchange = this.config.imageToggle.onchange
                                      = this.toggleFlags.bind(this);
     this.config.invertToggle.onchange = this.toggleInvert.bind(this);
-    this.config.imageMode.onchange = e => {
-      this.flags.readerOn && this.flags.imagesOn && this.forceRedraw();
-    };
     this.config.readerToolbar.onkeydown = this.handleKeyDown.bind(this);
     this.config.schemeSelector.onclick = e => {
       this.config.readerToolbar.classList.remove("tabMode");
     };
+    this.config.tonePicker.onfocusin = function(e) {
+      const t = e.currentTarget;
+      t.contains(e.relatedTarget) || t.elements[this.preferences.tone].focus();
+    }
     window.addEventListener("click", this.closeToolbar.bind(this));
     window.addEventListener("resize", this.updateToolbarPos.bind(this));
     (new MutationObserver(this.updateToolbarPos.bind(this))).observe(
@@ -210,8 +218,40 @@ const PDFLessPlugin = {
     return cvs;
   },
 
+  readPreferences() {
+    let prefs = this.getDefaultPrefs();
+    const prefStore = JSON.parse(localStorage.getItem("pdfless.preferences"));
+    for (const key in prefStore) {
+      const value = prefStore[key];
+      if (key in prefs && typeof value === typeof prefs[key])
+        prefs[key] = value;
+    }
+    return prefs;
+  },
+  updatePreference(key, value) {
+    let prefs = this.preferences;
+    if (key in prefs.flags)
+      prefs.flags[key] = this.flags[key];
+    else if (key in prefs && typeof value === typeof prefs[key])
+      prefs[key] = value;
+    localStorage.setItem("pdfless.preferences", JSON.stringify(prefs));
+  },
+  updateReaderState(prefs) {
+    const {invertToggle, imageToggle, shapeToggle, imageMode} = this.config;
+    if (invertToggle.checked = prefs.flags.invertOn) {
+      this.config.viewerClassList.add("invert");
+    }
+    imageToggle.checked = prefs.flags.imagesOn;
+    shapeToggle.checked = prefs.flags.shapesOn;
+    imageMode.elements[prefs.imageMode].checked = true;
+    this.config.schemeSelector.selectedIndex = prefs.scheme;
+    this.updateColorScheme(prefs.scheme);
+    this.updateToolbarPos();
+  },
+
   /* Event handlers */
-  updateColorScheme(scheme) {
+  updateColorScheme(index) {
+    const scheme = this.colorSchemes[index];
     if (!scheme.tones || !scheme.tones.length)
       return;
     const picker = this.config.tonePicker;
@@ -228,20 +268,33 @@ const PDFLessPlugin = {
       label.style.backgroundColor = tone.background;
       picker.appendChild(widget);
     });
-    picker.querySelector("input").checked = true;
     this.config.invertToggle.tabIndex = (scheme.tones.length < 4) ? 29 : 30;
+    if (index !== this.preferences.scheme) {
+      this.updatePreference("scheme", index);
+      this.updatePreference("tone", "0");
+    }
+    if (!this.flags.invertOn)
+      picker.elements[this.preferences.tone].checked = true;
     this.updateReaderColors();
   },
 
-  updateReaderColors() {
+  updateReaderColors(e) {
     const sel = this.config.schemeSelector.selectedIndex;
-    const pick = this.config.tonePicker.readerTone.value;
+    const pick = this.config.tonePicker.readerTone.value || this.preferences.tone;
     this.readerTone = this.colorSchemes[sel].tones[pick];
     this.config.docStyle.setProperty("--reader-bg", this.readerTone.background);
+    this.updatePreference("tone", pick);
     this.styleCache.clear();
-    if (this.flags.invertOn)
+    if (e && this.flags.invertOn) {
+      this.config.invertToggle.checked = false;
       this.toggleInvert();
-    else if (this.flags.readerOn)
+    } else if (this.flags.readerOn) {
+      this.forceRedraw();
+    }
+  },
+  updateImageMode(e) {
+      this.updatePreference("imageMode", e.target.id);
+      if (this.flags.readerOn && this.flags.imagesOn)
         this.forceRedraw();
   },
   forceRedraw() {
@@ -267,12 +320,18 @@ const PDFLessPlugin = {
   toggleFlags(e) {
     const flag = e.target.id.replace("Enable", "sOn");
     this.flags[flag] = e.target.checked;
+    this.updatePreference(flag);
     if (this.flags.readerOn)
       this.forceRedraw();
   },
-  toggleInvert() {
+  toggleInvert(e) {
     this.config.viewerClassList.toggle("invert");
     this.flags.invertOn = !this.flags.invertOn;
+    this.updatePreference("invertOn");
+    if (e) {
+      const prefTone = this.config.tonePicker.elements[this.preferences.tone];
+      prefTone.checked = !prefTone.checked;
+    }
     if (this.config.viewerClassList.contains("reader")) {
       this.flags.readerOn = !this.flags.readerOn;
       this.forceRedraw();
