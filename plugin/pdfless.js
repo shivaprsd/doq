@@ -26,10 +26,8 @@ async function pdfLessInit() {
     document.head.append(docFrag.getElementById("headAddon").content);
   }
 }
-
-import Color from "../plugin/color.esm.js";
-window.Color = window.Color || Color;
-function newColor(arg) { return new Color(arg); }
+import {Color} from "../plugin/color.js";
+const newColor = (arg) => new Color(arg);
 
 const PDFLessPlugin = {
   config: {},
@@ -70,9 +68,8 @@ const PDFLessPlugin = {
       scheme.tones.forEach(tone => {
         const [b, f] = [tone.background, tone.foreground].map(newColor);
         tone.colors = {
-          bg: b, fg: f,
-          acc: (tone.accents || []).map(newColor),
-          grad: b.range(f, { outputSpace: "srgb" })
+          bg: b, fg: f, grad: b.range(f),
+          acc: (tone.accents || []).map(newColor)
         };
         tone.scheme = scheme;
       });
@@ -183,7 +180,7 @@ const PDFLessPlugin = {
     } else if (textBg && bg.deltaE(textBg) > 2.3) {
       style = this.findMatch([bg, fg], diffL, Math.max).toHex();
     } else {
-      const whiteL = newColor([1, 1, 1]).lightness;
+      const whiteL = Color.white.lightness;
       style = grad(1 - color.lightness / whiteL).toHex();
     }
     return style;
