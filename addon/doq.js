@@ -1,20 +1,16 @@
-if (location.search.startsWith("?enc=false")) {
-  const encFilePath = encodeURIComponent(location.search.substring(16));
-  history.replaceState(null, "", "?file=" + encFilePath);
-}
 /* Initialisation */
 if (document.readyState === "interactive" || document.readyState === "complete") {
-  pdfLessInit();
+  doqInit();
 } else {
-  document.addEventListener("DOMContentLoaded", pdfLessInit, true);
+  document.addEventListener("DOMContentLoaded", doqInit, true);
 }
-async function pdfLessInit() {
-  const colors = await fetch("../plugin/colors.json").then(resp => resp.json());
-  fetch("../plugin/pdfless.html")
+async function doqInit() {
+  const colors = await fetch("../addon/colors.json").then(resp => resp.json());
+  fetch("../addon/doq.html")
     .then(response => response.text()).then(installAddon)
     .then(() => {
-      window.PDFLessPlugin = PDFLessPlugin;
-      PDFLessPlugin.load(colors);
+      /* window.DOQReader = DOQReader; */
+      DOQReader.load(colors);
     });
   function installAddon(html) {
     const docFrag = document.createRange().createContextualFragment(html);
@@ -26,10 +22,10 @@ async function pdfLessInit() {
     document.head.append(docFrag.getElementById("headAddon").content);
   }
 }
-import {Color} from "../plugin/color.js";
+import {Color} from "../addon/color.js";
 const newColor = (arg) => new Color(arg);
 
-const PDFLessPlugin = {
+const DOQReader = {
   config: {},
   preferences: {},
   colorSchemes: [],
@@ -44,7 +40,7 @@ const PDFLessPlugin = {
       flags: { invertOn: false, shapesOn: true, imagesOn: false }
     };
   },
-  getPdfLessConfig() {
+  getDoqConfig() {
     return {
       compStyle: getComputedStyle(document.documentElement),
       docStyle: document.documentElement.style,
@@ -62,7 +58,7 @@ const PDFLessPlugin = {
   },
 
   load(colorSchemes) {
-    this.config = this.getPdfLessConfig();
+    this.config = this.getDoqConfig();
     colorSchemes.forEach(scheme => {
       this.config.schemeSelector.innerHTML += `<option>${scheme.name}</option>`;
       scheme.tones.forEach(tone => {
@@ -217,7 +213,7 @@ const PDFLessPlugin = {
 
   readPreferences() {
     let prefs = this.getDefaultPrefs();
-    const prefStore = JSON.parse(localStorage.getItem("pdfless.preferences"));
+    const prefStore = JSON.parse(localStorage.getItem("doq.preferences"));
     for (const key in prefStore) {
       const value = prefStore[key];
       if (key in prefs && typeof value === typeof prefs[key])
@@ -231,7 +227,7 @@ const PDFLessPlugin = {
       prefs.flags[key] = this.flags[key];
     else if (key in prefs && typeof value === typeof prefs[key])
       prefs[key] = value;
-    localStorage.setItem("pdfless.preferences", JSON.stringify(prefs));
+    localStorage.setItem("doq.preferences", JSON.stringify(prefs));
   },
   updateReaderState(prefs) {
     const {invertToggle, imageToggle, shapeToggle, imageMode} = this.config;

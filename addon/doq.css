@@ -1,11 +1,11 @@
 /* Viewer customizations */
 :root {
   --reader-bg: #F8F1E3;
-  --reader-icon: url(../plugin/images/readerIcon.svg);
+  --reader-icon: url(../addon/images/readerIcon.svg);
 }
 @media (prefers-color-scheme: dark) {
   :root {
-  --reader-icon: url(../plugin/images/readerIcon-dark.svg);
+  --reader-icon: url(../addon/images/readerIcon-dark.svg);
   }
 }
 #viewReader.toolbarButton::before {
@@ -85,10 +85,10 @@
 
 /* Toolbar layout */
 #readerToolbar {
-  --power-icon: url(../plugin/images/powerButton.svg);
-  --shapes-icon: url(../plugin/images/shapesIcon.svg);
-  --images-icon: url(../plugin/images/imageIcon.svg);
-  --check-mark: url(../plugin/images/checkMark.svg);
+  --power-icon: url(../addon/images/powerButton.svg);
+  --shapes-icon: url(../addon/images/shapesIcon.svg);
+  --images-icon: url(../addon/images/imageIcon.svg);
+  --check-mark: url(../addon/images/checkMark.svg);
   right: 189px;
   z-index: 20000;
   font-size: 0;
