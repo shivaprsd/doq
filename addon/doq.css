@@ -3,14 +3,6 @@
   --reader-bg: #F8F1E3;
   --reader-icon: url(../addon/images/readerIcon.svg);
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-  --reader-icon: url(../addon/images/readerIcon-dark.svg);
-  }
-}
-#viewReader.toolbarButton::before {
-  content: var(--reader-icon);
-}
 .reader .pdfViewer .page, .reader .thumbnailImage {
   background-color: var(--reader-bg) !important;
 }
@@ -53,7 +45,8 @@
 .maskIcon.toolbarLabel {
   display: block;
   width: 16px;
-  padding: 5px;
+  padding: 6px;
+  border: 0;
 }
 
 .choiceSwitch {
@@ -66,7 +59,8 @@
 .choiceSwitch label {
   display: block;
   margin: 0;
-  border-color: var(--field-border-color);
+  padding: 6px;
+  border: 1px solid var(--field-border-color);
   cursor: pointer;
 }
 .choiceSwitch :checked + label {
@@ -199,6 +193,10 @@
 }
 
 /* Icons */
+#viewReader.toolbarButton::before {
+  -webkit-mask-image: var(--reader-icon);
+  mask-image: var(--reader-icon);
+}
 #readerSwitch + .colorSwatch::before {
   -webkit-mask-image: var(--power-icon);
   mask-image: var(--power-icon);

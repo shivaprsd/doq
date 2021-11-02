@@ -47,19 +47,21 @@ pdfjs-dist/
     ...
 ```
 
-*doq* targets the default generic viewer of PDF.js. It should also work in custom
-viewers built on top of that. Feel free to open an issue if it breaks in your
-viewer.
+*doq* targets the default generic viewer of PDF.js. It should also work in
+custom viewers built on top of that. Feel free to open an issue if it breaks in
+your viewer.
 
 ### Defining colors
 
-Color schemes are defined in `addon/colors.json`, which you can extend. Each
-color scheme can have up to four tones. `background` and `foreground` will
+Color schemes are defined in `addon/colors.json`, which you can extend. Only
+6-digit RGB hex codes are currently supported.
+
+Each color scheme can have up to four tones. `background` and `foreground` will
 replace the white and black colors in the document respectively; they also
 define the gradient to which the rest of the greyscale gets interpolated. Other
 colors map to their nearest color among `accents`, which can be specified per
-tone and/or per scheme. They also get mapped to the gradient if no `accents`
-are supplied.
+tone and/or per scheme. They too get mapped to the gradient if no `accents` are
+supplied.
 
 Included by default are the Safari Reader View tones and the [Solarized][4]
 color scheme.
@@ -151,6 +153,6 @@ Suggestions and contributions are welcome!
 
 [1]: https://mozilla.github.io/pdf.js/
 [2]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
-[3]: https://github.com/shivaprsd/doq/releases/latest
+[3]: https://github.com/shivaprsd/doq/releases/tag/v2.0-beta
 [4]: https://ethanschoonover.com/solarized/
 [5]: https://en.wikipedia.org/wiki/CIELAB_color_space
