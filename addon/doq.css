@@ -1,7 +1,6 @@
 /* Viewer customizations */
 :root {
   --reader-bg: #F8F1E3;
-  --reader-icon: url(../addon/images/readerIcon.svg);
 }
 .reader .pdfViewer .page, .reader .thumbnailImage {
   background-color: var(--reader-bg) !important;
@@ -79,10 +78,6 @@
 
 /* Toolbar layout */
 #readerToolbar {
-  --power-icon: url(../addon/images/powerButton.svg);
-  --shapes-icon: url(../addon/images/shapesIcon.svg);
-  --images-icon: url(../addon/images/imageIcon.svg);
-  --check-mark: url(../addon/images/checkMark.svg);
   right: 189px;
   z-index: 20000;
   font-size: 0;
@@ -194,28 +189,28 @@
 
 /* Icons */
 #viewReader.toolbarButton::before {
-  -webkit-mask-image: var(--reader-icon);
-  mask-image: var(--reader-icon);
+  -webkit-mask-image: url(images/readerIcon.svg);
+  mask-image: url(images/readerIcon.svg);
 }
 #readerSwitch + .colorSwatch::before {
-  -webkit-mask-image: var(--power-icon);
-  mask-image: var(--power-icon);
+  -webkit-mask-image: url(images/powerButton.svg);
+  mask-image: url(images/powerButton.svg);
   opacity: 0.5;
 }
 #readerSwitch:checked + .colorSwatch::before {
   opacity: 1
 }
 #tonePicker > :checked + .colorSwatch::before {
-  -webkit-mask-image: var(--check-mark);
-  mask-image: var(--check-mark);
+  -webkit-mask-image: url(images/checkMark.svg);
+  mask-image: url(images/checkMark.svg);
 }
 #shapeEnable + label::before {
-  -webkit-mask-image: var(--shapes-icon);
-  mask-image: var(--shapes-icon);
+  -webkit-mask-image: url(images/shapesIcon.svg);
+  mask-image: url(images/shapesIcon.svg);
 }
 #imageEnable + label::before {
-  -webkit-mask-image: var(--images-icon);
-  mask-image: var(--images-icon);
+  -webkit-mask-image: url(images/imageIcon.svg);
+  mask-image: url(images/imageIcon.svg);
 }
 
 /* Form controls */

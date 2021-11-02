@@ -5,8 +5,11 @@ if (document.readyState === "interactive" || document.readyState === "complete")
   document.addEventListener("DOMContentLoaded", doqInit, true);
 }
 async function doqInit() {
-  const colors = await fetch("../addon/colors.json").then(resp => resp.json());
-  fetch("../addon/doq.html")
+  let path = (new URL(import.meta.url)).pathname;
+  path = path.substring(0, path.lastIndexOf("/") + 1);
+  const colors = await fetch(path + "colors.json").then(resp => resp.json());
+  linkCSS(path + "doq.css");
+  fetch(path + "doq.html")
     .then(response => response.text()).then(installAddon)
     .then(() => {
       /* window.DOQReader = DOQReader; */
@@ -19,10 +22,15 @@ async function doqInit() {
     const mainContainer = document.getElementById("mainContainer");
     mainContainer.insertBefore(docFrag.getElementById("mainAddon").content,
                                mainContainer.querySelector("#viewerContainer"));
-    document.head.append(docFrag.getElementById("headAddon").content);
+  }
+  function linkCSS(href) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = href;
+    document.head.appendChild(link);
   }
 }
-import {Color} from "../addon/color.js";
+import {Color} from "./lib/color.js";
 const newColor = (arg) => new Color(arg);
 
 const DOQReader = {

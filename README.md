@@ -18,33 +18,20 @@ that it cannot change the fonts or reflow text).
 
 ## Usage
 
-*doq* is written as a native [ES6 module][2]; there is no bundled version. Hence
-it runs only in modern browsers that supports `import` and `export`.
+*doq* is written as a native [ES6 module][2]; there is no bundled version.
+Hence it runs only in modern browsers that supports `import` and `export`.
 
 ### Installation
 
 For your own deployment of the PDF.js viewer:
 
 1. [Download][3] the latest version (or clone this repo)
-2. Copy the `addon/` directory to the PDF.js dist directory in your deployment\
-   (i.e. Place it next to the `build/` and `web/` directories)
-3. Include `doq.js` as a module in the `<head>` of PDF.js's `viewer.html`:
+2. Copy the files in the `addon/` directory to some directory on your server\
+   (e.g. `/pdfjs-dist/addons/doq/`)
+3. Include `doq.js` as a module in the `viewer.html` of your deployment:
 
 ```js
-<script type="module" src="../addon/doq.js"></script>
-```
-
-The file layout should resemble this:
-
-```
-pdfjs-dist/
-├── build/
-├── web/
-│   ├── viewer.html	<-- script tag goes here
-│   ...
-└── addon/
-    ├── doq.js
-    ...
+<script type="module" src="/path/to/doq.js"></script>
 ```
 
 *doq* targets the default generic viewer of PDF.js. It should also work in
@@ -109,9 +96,9 @@ have zero experience with. Hence I chose the add-on route.)
 
 ## Why *doq*?
 
-Same reason that lead Ethan Schoonover in developing the Solarized color scheme:
-**ergonomics for eyes**. It is best summarized by this quote from the Solarized
-Readme:
+Same reason that lead Ethan Schoonover in developing the Solarized color
+scheme: **ergonomics for eyes**. It is best summarized by this quote from the
+Solarized Readme:
 
 > Black text on white from a computer display is akin to reading a book in
 > direct sunlight and tires the eye.
