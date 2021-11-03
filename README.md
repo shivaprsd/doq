@@ -138,8 +138,13 @@ goal in future if time permits.\
 
 Suggestions and contributions are welcome!
 
+---
+
+This project started out slightly differently; versions 1.x are now legacy. If
+interested, see v2.0 release notes for an overview of what changed, and why.
+
 [1]: https://mozilla.github.io/pdf.js/
 [2]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
-[3]: https://github.com/shivaprsd/doq/releases/tag/v2.0-beta
+[3]: https://github.com/shivaprsd/doq/releases/latest
 [4]: https://ethanschoonover.com/solarized/
 [5]: https://en.wikipedia.org/wiki/CIELAB_color_space
