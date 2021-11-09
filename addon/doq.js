@@ -99,7 +99,7 @@ const DOQReader = {
     this.config.schemeSelector.onclick = e => {
       this.config.readerToolbar.classList.remove("tabMode");
     };
-    this.config.tonePicker.onfocusin = function(e) {
+    this.config.tonePicker.onfocusin = e => {
       const t = e.currentTarget;
       t.contains(e.relatedTarget) || t.elements[this.preferences.tone].focus();
     }
@@ -286,6 +286,7 @@ const DOQReader = {
     this.config.docStyle.setProperty("--reader-bg", this.readerTone.background);
     this.updatePreference("tone", pick);
     this.styleCache.clear();
+    this.canvasData = null;
     if (e && this.flags.invertOn) {
       this.config.invertToggle.checked = false;
       this.toggleInvert();

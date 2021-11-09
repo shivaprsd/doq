@@ -81,6 +81,8 @@
   right: 189px;
   z-index: 20000;
   font-size: 0;
+  -webkit-user-select: none;
+  user-select: none;
 }
 #readerToolbar > :nth-child(-n+3) {
   display: inline-block;
