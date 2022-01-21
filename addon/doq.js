@@ -104,6 +104,7 @@ const DOQReader = {
       this.config.viewReader.parentElement,
       { subtree: true, attributeFilter: ["style", "class", "hidden"] }
     );
+    document.addEventListener("keydown", this.handleShortcut.bind(this));
 
     /* Wrap canvas drawing */
     const ctxp = CanvasRenderingContext2D.prototype;
@@ -394,5 +395,13 @@ const DOQReader = {
     const btnRight = this.config.viewReader.getBoundingClientRect().right;
     const offset = docWidth - Math.ceil(window.pageXOffset + btnRight);
     this.config.readerToolbar.style.right = `${offset + 2}px`;
+  },
+  handleShortcut(e) {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")
+      return;
+    if (e.code === "F5") {
+      this.config.viewerClassList.toggle("fullscreen");
+      e.preventDefault();
+    }
   }
 }
