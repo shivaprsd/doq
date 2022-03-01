@@ -112,28 +112,34 @@ const DOQReader = {
 
     /* Wrap canvas drawing */
     const ctxp = CanvasRenderingContext2D.prototype;
+    const test = this.checkFlags.bind(this);
     const cb = this.saveCanvas.bind(this);
     ctxp.origFillRect = ctxp.fillRect;
     ["fill", "stroke"].forEach(f => {
       ["", "Rect", "Text"].forEach(e => {
         ctxp[f + e] = this.wrap(ctxp[f + e], f + "Style",
-                                this.getReaderStyle.bind(this), cb);
+                                this.getReaderStyle.bind(this), test, cb);
       });
     });
     ctxp.origDrawImage = ctxp.drawImage;
     ctxp.drawImage = this.wrap(ctxp.drawImage, "globalCompositeOperation",
-                               this.getReaderCompOp.bind(this), cb);
+                               this.getReaderCompOp.bind(this), test, cb);
   },
 
   /* Method wrapper closure */
-  wrap(method, prop, getNewVal, callback) {
+  wrap(method, prop, getNewVal, test, callback) {
     return function() {
+      if (test && !test())
+        return method.apply(this, arguments);
       const orig = this[prop];
       this[prop] = getNewVal(this, method, arguments, orig);
       method.apply(this, arguments);
       this[prop] = orig;
       callback && callback(this, method);
     }
+  },
+  checkFlags() {
+    return this.flags.readerOn;
   },
   saveCanvas(ctx, method) {
     const cvs = ctx.canvas;
@@ -150,7 +156,7 @@ const DOQReader = {
       args[2] == ctx.canvas.width &&
       args[3] == ctx.canvas.height
     );
-    if (!this.flags.readerOn || isShape && !this.flags.shapesOn || !isColor)
+    if (isShape && !this.flags.shapesOn || !isColor)
       return style;
     const bg = isText && this.getCanvasColor(ctx, args[1], args[2]);
     const key = style + (bg ? bg.toHex() : "");
@@ -196,7 +202,7 @@ const DOQReader = {
 
   /* Return image composite operation, drawing an optional mask */
   getReaderCompOp(ctx, drawImage, args, compOp) {
-    if (!this.flags.readerOn || !this.flags.imagesOn)
+    if (!this.flags.imagesOn)
       return compOp;
     const tone = this.readerTone;
     if (tone.colors.bg.lightness < 50 && args.length >= 5) {
