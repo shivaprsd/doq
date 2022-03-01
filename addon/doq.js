@@ -40,7 +40,7 @@ const DOQReader = {
   readerTone: {},
   canvasData: null,
   styleCache: new Map(),
-  flags: { readerOn: false },
+  flags: { readerOn: false, isPrinting: false },
 
   getDefaultPrefs() {
     return {
@@ -103,6 +103,8 @@ const DOQReader = {
       const t = e.currentTarget;
       t.contains(e.relatedTarget) || t.elements[this.preferences.tone].focus();
     }
+    window.addEventListener("beforeprint", e => this.flags.isPrinting = true);
+    window.addEventListener("afterprint", e => this.flags.isPrinting = false);
     window.addEventListener("click", this.closeToolbar.bind(this));
     window.addEventListener("resize", this.updateToolbarPos.bind(this));
     (new MutationObserver(this.updateToolbarPos.bind(this))).observe(
@@ -139,7 +141,7 @@ const DOQReader = {
     }
   },
   checkFlags() {
-    return this.flags.readerOn;
+    return this.flags.readerOn && !this.flags.isPrinting;
   },
   saveCanvas(ctx, method) {
     const cvs = ctx.canvas;
@@ -202,7 +204,7 @@ const DOQReader = {
 
   /* Return image composite operation, drawing an optional mask */
   getReaderCompOp(ctx, drawImage, args, compOp) {
-    if (!this.flags.imagesOn)
+    if (!this.flags.imagesOn || !ctx.canvas.isConnected)
       return compOp;
     const tone = this.readerTone;
     if (tone.colors.bg.lightness < 50 && args.length >= 5) {
