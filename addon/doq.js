@@ -40,6 +40,7 @@ const DOQReader = {
   readerTone: {},
   canvasData: null,
   styleCache: new Map(),
+  options: { autoReader: true, dynamicTheme: true },
   flags: { readerOn: false, isPrinting: false },
 
   getDefaultPrefs() {
@@ -50,6 +51,7 @@ const DOQReader = {
   },
   getDoqConfig() {
     return {
+      sysTheme: window.matchMedia("(prefers-color-scheme: light)"),
       docStyle: document.documentElement.style,
       viewReader: document.getElementById("viewReader"),
       readerToolbar: document.getElementById("readerToolbar"),
@@ -77,11 +79,13 @@ const DOQReader = {
       scheme.colors = (scheme.accents || []).map(newColor);
     });
     this.colorSchemes = colorSchemes;
-    this.preferences = this.readPreferences();
-    Object.assign(this.flags, this.preferences.flags);
-    this.updateReaderState(this.preferences);
+    this.updateReaderState();
+
+    /* TEMPORARY: remove obsolete storage item used by previous versions */
+    localStorage.removeItem("doq.preferences");
 
     /* Event listeners */
+    this.config.sysTheme.onchange = this.updateReaderState.bind(this);
     this.config.schemeSelector.onchange = this.updateColorScheme.bind(this);
     this.config.tonePicker.onchange = this.updateReaderColors.bind(this);
     this.config.viewReader.onclick = this.toggleToolbar.bind(this);
@@ -216,34 +220,53 @@ const DOQReader = {
     return cvs;
   },
 
+  /* Preferences */
   readPreferences() {
     let prefs = this.getDefaultPrefs();
-    const prefStore = JSON.parse(localStorage.getItem("doq.preferences"));
-    for (const key in prefStore) {
-      const value = prefStore[key];
+    const theme = this.getSysTheme();
+    const store = JSON.parse(localStorage.getItem(`doq.preferences.${theme}`));
+    for (const key in store) {
+      const value = store[key];
       if (key in prefs && typeof value === typeof prefs[key])
         prefs[key] = value;
     }
+    this.preferences = prefs;
     return prefs;
   },
   updatePreference(key, value) {
     let prefs = this.preferences;
+    const theme = this.getSysTheme();
     if (key in prefs.flags)
       prefs.flags[key] = this.flags[key];
     else if (key in prefs && typeof value === typeof prefs[key])
       prefs[key] = value;
-    localStorage.setItem("doq.preferences", JSON.stringify(prefs));
+    localStorage.setItem(`doq.preferences.${theme}`, JSON.stringify(prefs));
   },
-  updateReaderState(prefs) {
-    const {imageToggle, shapeToggle} = this.config;
-    imageToggle.checked = prefs.flags.imagesOn;
-    shapeToggle.checked = prefs.flags.shapesOn;
-    this.config.schemeSelector.selectedIndex = prefs.scheme;
-    this.updateColorScheme();
-    this.updateToolbarPos();
+  getSysTheme() {
+    const light = !this.options.dynamicTheme || this.config.sysTheme.matches;
+    return light ? "light" : "dark";
   },
 
   /* Event handlers */
+  updateReaderState(e) {
+    this.readOptions();
+    const prefs = this.readPreferences();
+    Object.assign(this.flags, prefs.flags);
+    this.config.imageToggle.checked = prefs.flags.imagesOn;
+    this.config.shapeToggle.checked = prefs.flags.shapesOn;
+    this.config.schemeSelector.selectedIndex = prefs.scheme;
+    if (!e || this.options.dynamicTheme)
+      this.updateColorScheme(e);
+    this.updateToolbarPos();
+  },
+  readOptions() {
+    const store = JSON.parse(localStorage.getItem("doq.options"));
+    for (const key in this.options) {
+      if (typeof this.options[key] === typeof store?.[key])
+        this.options[key] = store[key];
+    }
+  },
+
   updateColorScheme(e) {
     const index = this.config.schemeSelector.selectedIndex;
     const scheme = this.colorSchemes[index];
@@ -265,7 +288,8 @@ const DOQReader = {
       this.updatePreference("scheme", index);
       this.updatePreference("tone", "1");
     }
-    picker.elements[this.preferences.tone].checked = true;
+    const prefTone = (e || this.options.autoReader) ? this.preferences.tone : 0;
+    picker.elements[prefTone].checked = true;
     this.updateReaderColors(e);
   },
   cloneWidget(template, id, title, value, tone) {
