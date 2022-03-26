@@ -402,6 +402,12 @@ const DOQReader = {
     if (e.code === "F5") {
       this.config.viewerClassList.toggle("fullscreen");
       e.preventDefault();
+    } else if (e.key === "9" && e.ctrlKey) {
+      const {pdfViewer} = window.PDFViewerApplication;
+      if (!pdfViewer.isInPresentationMode) {
+        pdfViewer.currentScaleValue = "page-width";
+        e.preventDefault();
+      }
     }
   }
 }

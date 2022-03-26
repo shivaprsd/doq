@@ -8,11 +8,18 @@
 .invert .pdfViewer, .invert .thumbnailImage, .colorSwatch.invert {
   filter: invert(86%);
 }
+
 #mainContainer {
   transition: margin-top 200ms ease;
 }
 .fullscreen #mainContainer {
   margin-top: -32px;
+}
+@media only screen and (hover: none) {
+  html { height: 100vh; }
+  @media (orientation: landscape) {
+    #mainContainer { margin-top: -32px; }
+  }
 }
 
 /* Widgets */
