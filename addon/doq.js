@@ -40,6 +40,7 @@ const DOQReader = {
   readerTone: {},
   canvasData: null,
   styleCache: new Map(),
+  zoomScale: 0,
   options: { autoReader: true, dynamicTheme: true },
   flags: { readerOn: false, isPrinting: false },
 
@@ -105,6 +106,21 @@ const DOQReader = {
       { subtree: true, attributeFilter: ["style", "class", "hidden"] }
     );
     document.addEventListener("keydown", this.handleShortcut.bind(this));
+
+    /* Smart zoom */
+    document.getElementById("viewerContainer").ondblclick = this.toggleSmartZoom.bind(this);
+    const app = window.PDFViewerApplication;
+    const registerMonitor = () => {
+      app.initializedPromise.then(() => {
+        app.eventBus.on("resize", this.resetZoomStat.bind(this));
+        app.eventBus.on("scalechanging", this.resetZoomStat.bind(this));
+      });
+    };
+    if (app.initializedPromise) {
+      registerMonitor();
+    } else {
+      document.addEventListener("webviewerloaded", registerMonitor.bind(this));
+    }
 
     /* Wrap canvas drawing */
     const ctxp = CanvasRenderingContext2D.prototype;
@@ -402,12 +418,69 @@ const DOQReader = {
     if (e.code === "F5") {
       this.config.viewerClassList.toggle("fullscreen");
       e.preventDefault();
-    } else if (e.key === "9" && e.ctrlKey) {
-      const {pdfViewer} = window.PDFViewerApplication;
-      if (!pdfViewer.isInPresentationMode) {
-        pdfViewer.currentScaleValue = "page-width";
-        e.preventDefault();
+    } else if (e.key === "9" && (e.ctrlKey || e.metaKey)) {
+      this.toggleSmartZoom(e);
+    }
+  },
+
+  toggleSmartZoom(e) {
+    const {pdfViewer, eventBus} = window.PDFViewerApplication;
+    if (!pdfViewer.pagesCount || pdfViewer.isInPresentationMode)
+      return;
+    if (e.detail > 0 && !("ontouchstart" in window))    /* not double tap */
+      return;
+    e.preventDefault();
+    const setZoom = () => {
+      const zoomTfm = this.smartZoom();
+      const scroll = Math.round(-zoomTfm.scroll);
+      this.config.docStyle.setProperty("--scroll-snap", scroll + "px");
+      return zoomTfm;
+    };
+    const page = pdfViewer.getPageView(pdfViewer.currentPageNumber - 1);
+    const curZoom = page.div.offsetWidth / pdfViewer.container.clientWidth;
+    /* Smart zoom only if page is in view range, but zoomed out */
+    if (curZoom > 0.8 && curZoom < 2 && !this.zoomScale) {
+      if (setZoom().scale !== 1) {
+        eventBus.on("textlayerrendered", setZoom, {once: true});
       }
+      this.config.viewerClassList.add("smartZoom")
+    } else {
+      pdfViewer.currentScaleValue = "page-width";
+    }
+  },
+
+  smartZoom(zoomPad = 0.015, maxZoom = 5) {
+    const {pdfViewer} = window.PDFViewerApplication;
+    const viewBox = pdfViewer.container;
+    /* Get non-empty text rects in current page */
+    const page = pdfViewer.getPageView(pdfViewer.currentPageNumber - 1);
+    const texts = page.textLayer.textDivs.filter(e => e.textContent.trim());
+    const textRects = texts.map(e => e.getBoundingClientRect());
+    const pageLeft = page.div.getBoundingClientRect().left;
+    /* Find zoom & scroll to fit text span to viewer width */
+    const minLeft = Math.min(...textRects.map(r => r.left));
+    const maxRight = Math.max(...textRects.map(r => r.right));
+    const textSpan = maxRight - minLeft;
+    let zoom = 1, offset = viewBox.scrollLeft;
+    if (textSpan > 0) {
+      zoom = viewBox.clientWidth / textSpan * (1 - 2 * zoomPad);
+      zoom = Math.min(zoom, maxZoom);
+      offset = (minLeft - pageLeft) * zoom - viewBox.clientWidth * zoomPad;
+      /* Apply if a valid zoom */
+      if (zoom && zoom > 0) {
+        this.zoomScale = zoom * page.scale;
+        pdfViewer.currentScale = this.zoomScale;
+        viewBox.scrollTo(offset, viewBox.scrollTop);
+      }
+    }
+    return {scale: zoom, scroll: offset};
+  },
+
+  resetZoomStat(e) {
+    if (e.scale !== this.zoomScale) {
+      this.zoomScale = 0;
+      this.config.viewerClassList.remove("smartZoom")
+      this.config.docStyle.removeProperty("--scroll-snap");
     }
   }
 }

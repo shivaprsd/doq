@@ -15,6 +15,13 @@
 .fullscreen #mainContainer {
   margin-top: -32px;
 }
+.smartZoom #viewerContainer {
+  scroll-snap-type: x mandatory;
+}
+.smartZoom .pdfViewer {
+  scroll-snap-align: start;
+  scroll-margin-left: var(--scroll-snap);
+}
 @media only screen and (hover: none) {
   html { height: 100vh; }
   @media (orientation: landscape) {
