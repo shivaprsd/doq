@@ -41,6 +41,7 @@ const DOQReader = {
   canvasData: null,
   styleCache: new Map(),
   zoomScale: 0,
+  zoomTfm: {},
   options: { autoReader: true, dynamicTheme: true },
   flags: { readerOn: false, isPrinting: false },
 
@@ -424,61 +425,70 @@ const DOQReader = {
   },
 
   toggleSmartZoom(e) {
-    const {pdfViewer, eventBus} = window.PDFViewerApplication;
+    const pdfViewer = window.PDFViewerApplication.pdfViewer;
     if (!pdfViewer.pagesCount || pdfViewer.isInPresentationMode)
       return;
     if (e.detail > 0 && !("ontouchstart" in window))    /* not double tap */
       return;
     e.preventDefault();
-    const setZoom = () => {
-      const zoomTfm = this.smartZoom();
-      const scroll = Math.round(-zoomTfm.scroll);
-      this.config.docStyle.setProperty("--scroll-snap", scroll + "px");
-      return zoomTfm;
-    };
+    const viewBox = pdfViewer.container;
+    const coord = e.clientY - viewBox.offsetTop || viewBox.clientHeight / 2;
     const page = pdfViewer.getPageView(pdfViewer.currentPageNumber - 1);
-    const curZoom = page.div.offsetWidth / pdfViewer.container.clientWidth;
+    const curZoom = page.div.offsetWidth / viewBox.clientWidth;
     /* Smart zoom only if page is in view range, but zoomed out */
     if (curZoom > 0.8 && curZoom < 2 && !this.zoomScale) {
-      if (setZoom().scale !== 1) {
-        eventBus.on("textlayerrendered", setZoom, {once: true});
-      }
+      this.zoomTfm = this.smartZoom(e.target, coord);
+      const scroll = Math.round(-this.zoomTfm.scrollX);
+      this.config.docStyle.setProperty("--scroll-snap", scroll + "px");
       this.config.viewerClassList.add("smartZoom")
     } else {
+      const zoomInv = 1 / this.zoomTfm.scale || 1;
       pdfViewer.currentScaleValue = "page-width";
+      viewBox.scrollBy(0, (zoomInv - 1) * coord);
     }
   },
 
-  smartZoom(zoomPad = 0.015, maxZoom = 5) {
-    const {pdfViewer} = window.PDFViewerApplication;
+  smartZoom(target, coord, nbrLines = 1, zoomPad = 0.015, maxZoom = 5) {
+    const pdfViewer = window.PDFViewerApplication.pdfViewer;
     const viewBox = pdfViewer.container;
-    /* Get non-empty text rects in current page */
+    const tgtRect = target.getBoundingClientRect();
+    const nbrRects = r => {
+      const {top, bottom, height} = tgtRect;
+      const range = (nbrLines + 0.5) * height;
+      return (r.top > top - range) && (r.bottom < bottom + range);
+    }
+    /* Get non-empty text rects around target in current page */
     const page = pdfViewer.getPageView(pdfViewer.currentPageNumber - 1);
-    const texts = page.textLayer.textDivs.filter(e => e.textContent.trim());
-    const textRects = texts.map(e => e.getBoundingClientRect());
-    const pageLeft = page.div.getBoundingClientRect().left;
+    const {textDivs, textLayerDiv} = page.textLayer;
+    const texts = textDivs.filter(e => e.textContent.trim());
+    let textRects = texts.map(e => e.getBoundingClientRect());
+    if (texts.indexOf(target) !== -1)
+      textRects = textRects.filter(nbrRects);
+    const pageLeft = textLayerDiv.getBoundingClientRect().left;
     /* Find zoom & scroll to fit text span to viewer width */
     const minLeft = Math.min(...textRects.map(r => r.left));
     const maxRight = Math.max(...textRects.map(r => r.right));
     const textSpan = maxRight - minLeft;
-    let zoom = 1, offset = viewBox.scrollLeft;
+    let zoom = 1, offset = viewBox.scrollLeft, scroll = 0;
     if (textSpan > 0) {
       zoom = viewBox.clientWidth / textSpan * (1 - 2 * zoomPad);
       zoom = Math.min(zoom, maxZoom);
-      offset = (minLeft - pageLeft) * zoom - viewBox.clientWidth * zoomPad;
+      offset = page.div.clientLeft + (minLeft - pageLeft) * zoom;
+      offset -= viewBox.clientWidth * zoomPad;
+      scroll = (zoom - 1) * coord;
       /* Apply if a valid zoom */
       if (zoom && zoom > 0) {
         this.zoomScale = zoom * page.scale;
         pdfViewer.currentScale = this.zoomScale;
-        viewBox.scrollTo(offset, viewBox.scrollTop);
+        viewBox.scrollTo(offset, viewBox.scrollTop + scroll);
       }
     }
-    return {scale: zoom, scroll: offset};
+    return {scale: zoom, scrollX: offset, scrollY: scroll};
   },
 
   resetZoomStat(e) {
     if (e.scale !== this.zoomScale) {
-      this.zoomScale = 0;
+      this.zoomScale = 0; this.zoomTfm = {};
       this.config.viewerClassList.remove("smartZoom")
       this.config.docStyle.removeProperty("--scroll-snap");
     }
