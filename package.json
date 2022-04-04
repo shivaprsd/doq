@@ -9,14 +9,14 @@
   "dependencies": [],
   "repository": {
     "type": "git",
-    "url": "git://github.com/shivaprsd/doq.git"
+    "url": "https://github.com/shivaprsd/doq.git"
   },
   "type": "add-on",
   "target": "@mozilla/pdf.js",
   "main": "addon/doq.js",
-  "version": "2.0",
+  "version": "2.1",
   "pdfjs_version": {
     "minimum": "2.7.570",
-    "target": "2.10.377"
+    "target": "2.13.216"
   }
 }

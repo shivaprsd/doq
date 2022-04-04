@@ -1,3 +1,17 @@
+# v2.1 (2022-05-21)
+
+### Release version 2.1
+
+- Update: target PDF.js version 2.13
+- Add themes: Nord and Firefox reader view
+- Revamp UI: neat, minimal & simplified toolbar
+- Feature: separate preferences based on OS theme
+- Feature: configurable options to control behaviour
+- Improvement: accessibility and color schemes
+- Improvement: better performance when reader is off
+- Fix: printing, thumbnails & some minor errors
+
+
 # v2.0 (2021-11-05)
 
 ### Release version 2.0
