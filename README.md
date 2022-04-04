@@ -117,9 +117,9 @@ have zero experience with. Hence I chose the add-on route.)
 
 ## Why *doq*?
 
-Same reason that lead Ethan Schoonover in developing the Solarized color
-scheme: **ergonomics for eyes**. It is best summarized by this quote from the
-Solarized Readme:
+Same reason that led Ethan Schoonover in developing the Solarized color scheme:
+**ergonomics for eyes**. It is best summarized by this quote from the Solarized
+Readme:
 
 > Black text on white from a computer display is akin to reading a book in
 > direct sunlight and tires the eye.

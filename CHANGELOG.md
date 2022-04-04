@@ -1,3 +1,15 @@
+# v2.3 (2023-02-08)
+
+### Release version 2.3
+
+- Update: target PDF.js 3.2, but retain legacy compatibility
+- Update: new reader icon to match the revamped PDF.js UI
+- Improvement: optimize saving canvas for faster rendering
+- Feature: theme support for added text annotations
+- Fix: avoid redraw when simply disabling invert mode
+- Improvement: refactor method wrapping
+
+
 # v2.2 (2022-10-30)
 
 ### Release version 2.2

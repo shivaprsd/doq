@@ -14,7 +14,7 @@
   "type": "add-on",
   "target": "@mozilla/pdf.js",
   "main": "addon/doq.js",
-  "version": "2.2",
+  "version": "2.3",
   "pdfjs_version": {
     "minimum": "2.7.570",
     "target": "3.2.146"
