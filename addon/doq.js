@@ -44,7 +44,7 @@ const DOQReader = {
 
   getDefaultPrefs() {
     return {
-      scheme: 0, tone: "0", imageMode: "blendImage",
+      scheme: 0, tone: "0",
       flags: { invertOn: false, shapesOn: true, imagesOn: false }
     };
   },
@@ -54,13 +54,10 @@ const DOQReader = {
       docStyle: document.documentElement.style,
       viewReader: document.getElementById("viewReader"),
       readerToolbar: document.getElementById("readerToolbar"),
-      readerSwitch: document.getElementById("readerSwitch"),
       schemeSelector: document.getElementById("schemeSelect"),
       tonePicker: document.getElementById("tonePicker"),
-      invertToggle: document.getElementById("invertToggle"),
       shapeToggle: document.getElementById("shapeEnable"),
       imageToggle: document.getElementById("imageEnable"),
-      imageMode: document.getElementById("imageMode"),
       viewerClassList: document.getElementById("outerContainer").classList
     };
   },
@@ -89,12 +86,9 @@ const DOQReader = {
       this.updateColorScheme(e.target.selectedIndex);
     };
     this.config.tonePicker.onchange = this.updateReaderColors.bind(this);
-    this.config.imageMode.onchange = this.updateImageMode.bind(this);
     this.config.viewReader.onclick = this.toggleToolbar.bind(this);
-    this.config.readerSwitch.onchange = this.toggleReader.bind(this);
     this.config.shapeToggle.onchange = this.config.imageToggle.onchange
                                      = this.toggleFlags.bind(this);
-    this.config.invertToggle.onchange = this.toggleInvert.bind(this);
     this.config.readerToolbar.onkeydown = this.handleKeyDown.bind(this);
     this.config.schemeSelector.onclick = e => {
       this.config.readerToolbar.classList.remove("tabMode");
@@ -213,7 +207,7 @@ const DOQReader = {
       args.splice(0, 1, mask);
       drawImage.apply(ctx, args);
     }
-    compOp = this.config.imageMode.compOp.value;
+    compOp = "multiply";
     return compOp;
   },
   createMask(color, args) {
@@ -246,13 +240,9 @@ const DOQReader = {
     localStorage.setItem("doq.preferences", JSON.stringify(prefs));
   },
   updateReaderState(prefs) {
-    const {invertToggle, imageToggle, shapeToggle, imageMode} = this.config;
-    if (invertToggle.checked = prefs.flags.invertOn) {
-      this.config.viewerClassList.add("invert");
-    }
+    const {imageToggle, shapeToggle} = this.config;
     imageToggle.checked = prefs.flags.imagesOn;
     shapeToggle.checked = prefs.flags.shapesOn;
-    imageMode.elements[prefs.imageMode].checked = true;
     this.config.schemeSelector.selectedIndex = prefs.scheme;
     this.updateColorScheme(prefs.scheme);
     this.updateToolbarPos();
@@ -263,49 +253,56 @@ const DOQReader = {
     const scheme = this.colorSchemes[index];
     if (!scheme.tones || !scheme.tones.length)
       return;
+    if (scheme.tones.length > 3)
+      console.warn("doq: can show up to three tones only; ignoring the rest.");
     const picker = this.config.tonePicker;
     const toneWgt = picker.querySelector("template");
+    let i = 0;
     picker.innerHTML = toneWgt.outerHTML;
-    scheme.tones.forEach((tone, index) => {
-      const widget = toneWgt.content.cloneNode(true);
-      const [input, label] = widget.children;
-      input.id = label.htmlFor = "tone" + tone.name;
-      input.value = index;
-      input.setAttribute("aria-label", tone.name);
-      label.title = tone.name;
-      label.style.color = tone.foreground;
-      label.style.backgroundColor = tone.background;
-      picker.appendChild(widget);
+    picker.appendChild(this.cloneWidget(toneWgt, "origTone", "Original", i++));
+    scheme.tones.slice(0, 3).forEach(tone => {
+      picker.appendChild(this.cloneWidget(toneWgt, null, null, i++, tone));
     });
-    this.config.invertToggle.tabIndex = (scheme.tones.length < 4) ? 29 : 30;
+    picker.appendChild(this.cloneWidget(toneWgt, "invertTone", "Invert", i));
+    picker.lastElementChild.classList.add("invert");
     if (index !== this.preferences.scheme) {
       this.updatePreference("scheme", index);
-      this.updatePreference("tone", "0");
+      this.updatePreference("tone", "1");
     }
-    if (!this.flags.invertOn)
-      picker.elements[this.preferences.tone].checked = true;
+    picker.elements[this.preferences.tone].checked = true;
     this.updateReaderColors();
+  },
+  cloneWidget(template, id, title, value, tone) {
+    const widget = template.content.cloneNode(true);
+    const [input, label] = widget.children;
+    title = title || tone?.name;
+    input.value = value;
+    input.id = label.htmlFor = id || "tone" + title;
+    input.setAttribute("aria-label", title);
+    label.title = title;
+    label.style.color = tone?.foreground;
+    label.style.backgroundColor = tone?.background;
+    return widget;
   },
 
   updateReaderColors(e) {
+    const picker = this.config.tonePicker;
+    const pick = picker.readerTone.value;
     const sel = this.config.schemeSelector.selectedIndex;
-    const pick = this.config.tonePicker.readerTone.value || this.preferences.tone;
-    this.readerTone = this.colorSchemes[sel].tones[pick];
-    this.config.docStyle.setProperty("--reader-bg", this.readerTone.background);
+    if (pick == 0) {
+      this.disableReader(e?.isTrusted);
+      this.disableInvert();
+    } else if (pick == picker.elements.length - 1) {
+      this.enableInvert();
+    } else {
+      this.readerTone = this.colorSchemes[sel].tones[+pick - 1];
+      this.config.docStyle.setProperty("--reader-bg", this.readerTone.background);
+      this.disableInvert();
+      this.enableReader(e?.isTrusted);
+    }
     this.updatePreference("tone", pick);
     this.styleCache.clear();
     this.canvasData = null;
-    if (e && this.flags.invertOn) {
-      this.config.invertToggle.checked = false;
-      this.toggleInvert();
-    } else if (this.flags.readerOn) {
-      this.forceRedraw();
-    }
-  },
-  updateImageMode(e) {
-      this.updatePreference("imageMode", e.target.id);
-      if (this.flags.readerOn && this.flags.imagesOn)
-        this.forceRedraw();
   },
   forceRedraw() {
     const {pdfViewer, pdfThumbnailViewer} = window.PDFViewerApplication;
@@ -315,17 +312,35 @@ const DOQReader = {
     window.PDFViewerApplication.forceRendering();
   },
 
+  enableReader(redraw) {
+    this.config.viewerClassList.add("reader");
+    this.flags.readerOn = true;
+    if (redraw)
+      this.forceRedraw();
+  },
+  disableReader(redraw) {
+    this.config.viewerClassList.remove("reader");
+    this.flags.readerOn = false;
+    if (redraw)
+      this.forceRedraw();
+  },
+  enableInvert() {
+    if (this.flags.readerOn)
+      this.disableReader(true);
+    this.config.viewerClassList.add("invert");
+    this.flags.invertOn = true;
+    this.updatePreference("invertOn");
+  },
+  disableInvert() {
+    this.config.viewerClassList.remove("invert");
+    this.flags.invertOn = false;
+    this.updatePreference("invertOn");
+  },
+
   toggleToolbar() {
     this.config.readerToolbar.classList.toggle("hidden");
     this.config.viewReader.classList.toggle("toggled");
     this.toggleTitle(this.config.viewReader);
-  },
-  toggleReader(e) {
-    this.config.viewerClassList.toggle("reader");
-    this.toggleTitle(e.target.labels[0]);
-    this.flags.readerOn = !this.flags.invertOn && !this.flags.readerOn;
-    if (!this.flags.invertOn)
-      this.forceRedraw();
   },
   toggleFlags(e) {
     const flag = e.target.id.replace("Enable", "sOn");
@@ -334,20 +349,6 @@ const DOQReader = {
     if (this.flags.readerOn)
       this.forceRedraw();
   },
-  toggleInvert(e) {
-    this.config.viewerClassList.toggle("invert");
-    this.flags.invertOn = !this.flags.invertOn;
-    this.updatePreference("invertOn");
-    if (e) {
-      const prefTone = this.config.tonePicker.elements[this.preferences.tone];
-      prefTone.checked = !prefTone.checked;
-    }
-    if (this.config.viewerClassList.contains("reader")) {
-      this.flags.readerOn = !this.flags.readerOn;
-      this.forceRedraw();
-    }
-  },
-
   toggleTitle(elem) {
     const swapPair = elem.dataset.toggleTitle?.split(";", 2);
     if (swapPair) {
@@ -355,6 +356,7 @@ const DOQReader = {
       elem.dataset.toggleTitle = swapPair.reverse().join(";");
     }
   },
+
   handleKeyDown(e) {
     if (e.code === "Tab") {
       this.config.readerToolbar.classList.add("tabMode");

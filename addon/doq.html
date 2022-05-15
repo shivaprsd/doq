@@ -7,24 +7,6 @@
 
 <template id="mainAddon">
   <div id="readerToolbar" class="secondaryToolbar doorHangerRight hidden">
-    <div class="asidePanel">
-      <div>
-        <input type="checkbox" id="readerSwitch" class="toolbarField" tabindex="29"
-               aria-label="Toggle reader mode">
-        <label for="readerSwitch" class="colorSwatch maskIcon" aria-hidden="true"
-               title="Turn on Reader Mode" data-toggle-title="on;off">
-        </label>
-      </div>
-      <div>
-        <input type="checkbox" id="shapeEnable" class="toolbarField" tabindex="29"
-               aria-label="Apply to lines and shapes">
-        <label for="shapeEnable" class="toolbarLabel maskIcon" aria-hidden="true"
-               title="Apply to Lines and Shapes">
-        </label>
-      </div>
-    </div>
-    <div class="verticalToolbarSeparator"></div>
-
     <div class="colorPanel">
       <div>
         <form id="tonePicker" role="radiogroup" aria-label="Color scheme tone">
@@ -34,42 +16,26 @@
           </template>
         </form>
       </div>
-      <div>
-        <input type="checkbox" id="invertToggle" class="toolbarField" tabindex="29"
-               aria-label="Invert document colors">
-        <label for="invertToggle" class="colorSwatch" aria-hidden="true"
-               title="Invert Document Colors">
-        </label>
-      </div>
       <div id="schemeSelectContainer" class="dropdownToolbarButton">
         <select id="schemeSelect" class="toolbarField" title="Color Scheme"
                 tabindex="29">
         </select>
       </div>
     </div>
-    <div class="horizontalToolbarSeparator"></div>
 
     <div class="imagePanel">
       <div>
-        <input type="checkbox" id="imageEnable" class="toolbarField" tabindex="30"
-               aria-label="Apply to images">
-        <label for="imageEnable" class="toolbarLabel maskIcon" aria-hidden="true"
-               title="Apply to Images">
-        </label>
+        <input type="checkbox" id="shapeEnable" class="toolbarField" tabindex="29"
+               aria-label="Apply theme to lines and shapes">
+        <label for="shapeEnable" class="toolbarLabel" aria-hidden="true"
+               title="Apply theme to lines and shapes">Apply to Shapes</label>
       </div>
-      <form id="imageMode" class="choiceSwitch" title="Image Mode"
-            role="radiogroup" aria-label="Image mode">
-        <div>
-          <input type="radio" id="blendImage" name="compOp" value="multiply"
-                 tabindex="30" checked>
-          <label class="toolbarLabel" for="blendImage">Blend</label>
-        </div>
-        <div>
-          <input type="radio" id="invertImage" name="compOp" value="difference"
-                 tabindex="30">
-          <label class="toolbarLabel" for="invertImage">Invert</label>
-        </div>
-      </form>
+      <div>
+        <input type="checkbox" id="imageEnable" class="toolbarField" tabindex="30"
+               aria-label="Blend images with reader theme">
+        <label for="imageEnable" class="toolbarLabel" aria-hidden="true"
+               title="Blend images with reader theme">Blend Images</label>
+      </div>
     </div>
   </div>
 </template>
