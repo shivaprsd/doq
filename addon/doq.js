@@ -45,12 +45,11 @@ const DOQReader = {
   getDefaultPrefs() {
     return {
       scheme: 0, tone: "0",
-      flags: { invertOn: false, shapesOn: true, imagesOn: false }
+      flags: { shapesOn: true, imagesOn: false }
     };
   },
   getDoqConfig() {
     return {
-      compStyle: getComputedStyle(document.documentElement),
       docStyle: document.documentElement.style,
       viewReader: document.getElementById("viewReader"),
       readerToolbar: document.getElementById("readerToolbar"),
@@ -82,28 +81,22 @@ const DOQReader = {
     this.updateReaderState(this.preferences);
 
     /* Event listeners */
-    this.config.schemeSelector.onchange = e => {
-      this.updateColorScheme(e.target.selectedIndex);
-    };
+    this.config.schemeSelector.onchange = this.updateColorScheme.bind(this);
     this.config.tonePicker.onchange = this.updateReaderColors.bind(this);
     this.config.viewReader.onclick = this.toggleToolbar.bind(this);
     this.config.shapeToggle.onchange = this.config.imageToggle.onchange
                                      = this.toggleFlags.bind(this);
-    this.config.readerToolbar.onkeydown = this.handleKeyDown.bind(this);
     this.config.schemeSelector.onclick = e => {
       this.config.readerToolbar.classList.remove("tabMode");
     };
-    this.config.tonePicker.onfocusin = e => {
-      const t = e.currentTarget;
-      t.contains(e.relatedTarget) || t.elements[this.preferences.tone].focus();
-    }
     window.addEventListener("beforeprint", e => this.flags.isPrinting = true);
     window.addEventListener("afterprint", e => this.flags.isPrinting = false);
     window.addEventListener("click", this.closeToolbar.bind(this));
+    window.addEventListener("keydown", this.handleKeyDown.bind(this));
     window.addEventListener("resize", this.updateToolbarPos.bind(this));
     (new MutationObserver(this.updateToolbarPos.bind(this))).observe(
       this.config.viewReader.parentElement,
-      { subtree: true, attributeFilter: ["style", "hidden"] }
+      { subtree: true, attributeFilter: ["style", "class", "hidden"] }
     );
 
     /* Wrap canvas drawing */
@@ -244,12 +237,13 @@ const DOQReader = {
     imageToggle.checked = prefs.flags.imagesOn;
     shapeToggle.checked = prefs.flags.shapesOn;
     this.config.schemeSelector.selectedIndex = prefs.scheme;
-    this.updateColorScheme(prefs.scheme);
+    this.updateColorScheme();
     this.updateToolbarPos();
   },
 
   /* Event handlers */
-  updateColorScheme(index) {
+  updateColorScheme(e) {
+    const index = this.config.schemeSelector.selectedIndex;
     const scheme = this.colorSchemes[index];
     if (!scheme.tones || !scheme.tones.length)
       return;
@@ -270,7 +264,7 @@ const DOQReader = {
       this.updatePreference("tone", "1");
     }
     picker.elements[this.preferences.tone].checked = true;
-    this.updateReaderColors();
+    this.updateReaderColors(e);
   },
   cloneWidget(template, id, title, value, tone) {
     const widget = template.content.cloneNode(true);
@@ -328,19 +322,14 @@ const DOQReader = {
     if (this.flags.readerOn)
       this.disableReader(true);
     this.config.viewerClassList.add("invert");
-    this.flags.invertOn = true;
-    this.updatePreference("invertOn");
   },
   disableInvert() {
     this.config.viewerClassList.remove("invert");
-    this.flags.invertOn = false;
-    this.updatePreference("invertOn");
   },
 
   toggleToolbar() {
     this.config.readerToolbar.classList.toggle("hidden");
     this.config.viewReader.classList.toggle("toggled");
-    this.toggleTitle(this.config.viewReader);
   },
   toggleFlags(e) {
     const flag = e.target.id.replace("Enable", "sOn");
@@ -349,14 +338,6 @@ const DOQReader = {
     if (this.flags.readerOn)
       this.forceRedraw();
   },
-  toggleTitle(elem) {
-    const swapPair = elem.dataset.toggleTitle?.split(";", 2);
-    if (swapPair) {
-      elem.title = elem.title.replace(...swapPair);
-      elem.dataset.toggleTitle = swapPair.reverse().join(";");
-    }
-  },
-
   handleKeyDown(e) {
     if (e.code === "Tab") {
       this.config.readerToolbar.classList.add("tabMode");

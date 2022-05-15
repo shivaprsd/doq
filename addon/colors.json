@@ -3,9 +3,9 @@
     "name": "Firefox",
     "tones": [
       {
-        "name": "Light",
-        "background": "#FFFFFF",
-        "foreground": "#333333",
+        "name": "Sepia",
+        "background": "#F4ECD8",
+        "foreground": "#5B4636",
         "accents": ["#0060DF", "#B5007F"]
       },
       {
@@ -13,12 +13,6 @@
         "background": "#1C1B22",
         "foreground": "#EEEEEE",
         "accents": ["#45A1FF", "#E675FD"]
-      },
-      {
-        "name": "Sepia",
-        "background": "#F4ECD8",
-        "foreground": "#5B4636",
-        "accents": ["#0060DF", "#B5007F"]
       }
     ]
   },
@@ -26,12 +20,6 @@
   {
     "name": "Safari",
     "tones": [
-      {
-        "name": "White",
-        "background": "#FFFFFF",
-        "foreground": "#1B1B1B",
-        "accents": ["#416ED2"]
-      },
       {
         "name": "Sepia",
         "background": "#F8F1E3",

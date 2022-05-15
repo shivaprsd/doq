@@ -53,8 +53,8 @@ export class Color {
       if (isNaN(start)) {
         return end;
       }
-      if (isNaN(start)) {
-        return end;
+      if (isNaN(end)) {
+        return start;
       }
       return start + (end - start) * p;
     }
@@ -129,7 +129,7 @@ const Matrices = {
     }
     const p = B[0].length;
     const B_cols = B[0].map((_, i) => B.map(x => x[i]));  /* transpose B */
-    const product = A.map(row => B_cols.map(col => {
+    let product = A.map(row => B_cols.map(col => {
       if (!Array.isArray(row)) {
         return col.reduce((a, c) => a + c * row, 0);
       }

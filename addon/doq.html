@@ -1,31 +1,31 @@
 <template id="toolbarAddon">
-  <button id="viewReader" class="toolbarButton" title="Show Reader Controls"
-          data-toggle-title="Show;Hide" tabindex="28">
+  <button id="viewReader" class="toolbarButton" title="Reader Mode options"
+          aria-expanded="false" aria-controls="readerToolbar" tabindex="29">
     <span>Reader Mode</span>
   </button>
 </template>
 
 <template id="mainAddon">
   <div id="readerToolbar" class="secondaryToolbar doorHangerRight hidden">
-    <div class="colorPanel">
+    <div class="mainPanel">
       <div>
-        <form id="tonePicker" role="radiogroup" aria-label="Color scheme tone">
+        <form id="tonePicker" role="radiogroup" aria-label="Choose reader theme">
           <template>
-          <input type="radio" name="readerTone" tabindex="29" id value aria-label>
+          <input type="radio" name="readerTone" tabindex="30" id value aria-label>
           <label class="colorSwatch" aria-hidden="true" for title style></label>
           </template>
         </form>
       </div>
       <div id="schemeSelectContainer" class="dropdownToolbarButton">
         <select id="schemeSelect" class="toolbarField" title="Color Scheme"
-                tabindex="29">
+                tabindex="30">
         </select>
       </div>
     </div>
 
-    <div class="imagePanel">
+    <div class="optionsPanel">
       <div>
-        <input type="checkbox" id="shapeEnable" class="toolbarField" tabindex="29"
+        <input type="checkbox" id="shapeEnable" class="toolbarField" tabindex="30"
                aria-label="Apply theme to lines and shapes">
         <label for="shapeEnable" class="toolbarLabel" aria-hidden="true"
                title="Apply theme to lines and shapes">Apply to Shapes</label>

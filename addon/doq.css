@@ -8,9 +8,6 @@
 .invert .pdfViewer, .invert .thumbnailImage, .colorSwatch.invert {
   filter: invert(86%);
 }
-.pdfViewer .textLayer > span {
-  -webkit-text-size-adjust: none;      /* bug-fix */
-}
 
 /* Widgets */
 .colorSwatch {
@@ -22,13 +19,10 @@
   width: 26px;
   border-radius: 50%;
   border: 0.5px solid var(--field-border-color);
-  background-color: var(--reader-bg);
+  background-color: #ffffff;
+  color: #000000;
   margin: 4px;
   cursor: pointer;
-}
-#origTone + .colorSwatch, #invertTone + .colorSwatch {
-  color: #000000;
-  background-color: #ffffff;
 }
 
 .maskIcon::before, :checked + .colorSwatch::before {
@@ -56,31 +50,33 @@
   border-bottom-color: var(--toolbar-bg-color);
 }
 #readerToolbar > :first-child {
-  padding: 0 6px;
   margin-bottom: 10px;
 }
 #readerToolbar > :last-child {
-  padding: 0 8px;
   margin-bottom: -6px;
 }
 
 /* Panel layouts */
-.colorPanel {
+.mainPanel {
   max-width: 170px;
+  padding: 0 6px;
 }
-.colorPanel > :first-child {
+.mainPanel > :first-child {
   margin-bottom: 6px;
 }
-.colorPanel > :last-child {
+.mainPanel > :last-child {
   margin-left: 4px;
   margin-right: 4px;
 }
-.imagePanel > div {
+.optionsPanel {
+  padding: 0 8px;
+}
+.optionsPanel > div {
   position: relative;
   margin-bottom: 6px;
 }
 
-/* Color panel */
+/* Main panel */
 #tonePicker {
   position: relative;
   text-align: center;
@@ -91,13 +87,10 @@
   width: auto;
 }
 #schemeSelect {
-  width: calc(100% + 22px);
+  width: calc(100% + var(--scale-select-overflow));
 }
-#schemeSelect:focus {
-  border-color: rgba(0, 0, 0, 0.38);
-}
-/* Image Panel */
-.imagePanel .toolbarLabel {
+/* Options Panel */
+.optionsPanel .toolbarLabel {
   display: block;
   text-align: center;
 }
@@ -110,14 +103,6 @@
 #tonePicker > :checked + .colorSwatch::before {
   -webkit-mask-image: url(images/checkMark.svg);
   mask-image: url(images/checkMark.svg);
-}
-#shapeEnable + label::before {
-  -webkit-mask-image: url(images/shapesIcon.svg);
-  mask-image: url(images/shapesIcon.svg);
-}
-#imageEnable + label::before {
-  -webkit-mask-image: url(images/imageIcon.svg);
-  mask-image: url(images/imageIcon.svg);
 }
 
 /* Form controls */
@@ -132,7 +117,7 @@
   pointer-events: none;
 }
 #readerToolbar input[type="checkbox"] + label:hover,
-#readerToolbar input[type="checkbox"]:focus + label {
+#readerToolbar input[type="checkbox"]:focus-visible + label {
   background-color: var(--button-hover-color);
 }
 #readerToolbar input[type="checkbox"]:checked + label {
@@ -140,6 +125,6 @@
 }
 /* Accessibility */
 .tabMode #schemeSelectContainer:focus-within,
-#readerToolbar input:focus + label {
+#readerToolbar input:focus-visible + label {
   outline: 5px auto;
 }
