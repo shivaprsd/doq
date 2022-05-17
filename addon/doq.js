@@ -45,7 +45,7 @@ const DOQReader = {
   getDefaultPrefs() {
     return {
       scheme: 0, tone: "0",
-      flags: { shapesOn: true, imagesOn: false }
+      flags: { shapesOn: true, imagesOn: true }
     };
   },
   getDoqConfig() {
@@ -57,6 +57,7 @@ const DOQReader = {
       tonePicker: document.getElementById("tonePicker"),
       shapeToggle: document.getElementById("shapeEnable"),
       imageToggle: document.getElementById("imageEnable"),
+      optionsToggle: document.getElementById("optionsToggle"),
       viewerClassList: document.getElementById("outerContainer").classList
     };
   },
@@ -86,6 +87,7 @@ const DOQReader = {
     this.config.viewReader.onclick = this.toggleToolbar.bind(this);
     this.config.shapeToggle.onchange = this.config.imageToggle.onchange
                                      = this.toggleFlags.bind(this);
+    this.config.optionsToggle.onchange = e => this.toggleOptions();
     this.config.schemeSelector.onclick = e => {
       this.config.readerToolbar.classList.remove("tabMode");
     };
@@ -328,8 +330,16 @@ const DOQReader = {
   },
 
   toggleToolbar() {
-    this.config.readerToolbar.classList.toggle("hidden");
+    const hidden = this.config.readerToolbar.classList.toggle("hidden");
     this.config.viewReader.classList.toggle("toggled");
+    this.config.viewReader.setAttribute("aria-expanded", !hidden);
+    if (hidden)
+      this.toggleOptions(/*collapse = */true);
+  },
+  toggleOptions(collapse) {
+    const panel = this.config.readerToolbar.querySelector(".optionsPanel");
+    const collapsed = panel.classList.toggle("collapsed", collapse);
+    this.config.optionsToggle.checked = !collapsed;
   },
   toggleFlags(e) {
     const flag = e.target.id.replace("Enable", "sOn");
@@ -338,6 +348,7 @@ const DOQReader = {
     if (this.flags.readerOn)
       this.forceRedraw();
   },
+
   handleKeyDown(e) {
     if (e.code === "Tab") {
       this.config.readerToolbar.classList.add("tabMode");

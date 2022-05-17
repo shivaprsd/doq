@@ -16,14 +16,25 @@
           </template>
         </form>
       </div>
-      <div id="schemeSelectContainer" class="dropdownToolbarButton">
-        <select id="schemeSelect" class="toolbarField" title="Color Scheme"
-                tabindex="30">
-        </select>
+      <div>
+        <span id="schemeSelectContainer" class="dropdownToolbarButton">
+          <select id="schemeSelect" class="toolbarField" title="Color Scheme"
+                  tabindex="30">
+          </select>
+        </span>
+        <span id="optionsToggleContainer">
+          <input type="checkbox" id="optionsToggle" class="toolbarField"
+                 tabindex="30" aria-label="Show additional options">
+          <div>
+            <label for="optionsToggle" class="maskIcon" aria-hidden="true"
+                   title="Options">
+            </label>
+          </div>
+        </span>
       </div>
     </div>
 
-    <div class="optionsPanel">
+    <div class="optionsPanel collapsed">
       <div>
         <input type="checkbox" id="shapeEnable" class="toolbarField" tabindex="30"
                aria-label="Apply theme to lines and shapes">
