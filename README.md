@@ -3,7 +3,7 @@
 # doq
 
 *doq* (pronounced as *doc-HUE*) is an add-on for Mozilla's excellent
-[PDF.js][1] PDF reader.
+[PDF.js][1] PDF viewer.
 
 It adds a **reader mode** where you can change the *colors* of the rendered PDF
 files, to make it more comfortable to the eyes while reading. It works similar
@@ -12,11 +12,15 @@ that it cannot change the fonts or reflow text).
 
 *doq* was inspired by Safari's Reader View, and many terminal color schemes.
 
-![Screenshot with a light tone applied](docs/screenshots/reader-light.png)
+![Screenshot with a light theme applied](docs/screenshots/reader-light.png)
 
-![Screenshot with a dark tone applied](docs/screenshots/reader-dark.png)
+![Screenshot with a dark theme applied](docs/screenshots/reader-dark.png)
 
 ## Usage
+
+If you simply want to use *doq* to read PDFs, try [*doqment*][6]. It is a
+browser extension that bundles *doq* with PDF.js and opens all your PDF links.
+You can skip the rest of this section.
 
 *doq* is written as a native [ES6 module][2]; there is no bundled version.
 Hence it runs only in modern browsers that supports `import` and `export`.
@@ -43,40 +47,57 @@ your viewer.
 Color schemes are defined in `addon/colors.json`, which you can extend. Only
 6-digit RGB hex codes are currently supported.
 
-Each color scheme can have up to four tones. `background` and `foreground` will
-replace the white and black colors in the document respectively; they also
+Each color scheme can have up to *three* tones. `background` and `foreground`
+will replace the white and black colors in the document respectively; they also
 define the gradient to which the rest of the greyscale gets interpolated. Other
 colors map to their nearest color among `accents`, which can be specified per
 tone and/or per scheme. They too get mapped to the gradient if no `accents` are
 supplied.
 
-Included by default are the Safari Reader View tones and the [Solarized][4]
-color scheme.
+Included by default are the Firefox, Safari Reader View themes and the
+[Solarized][4] color scheme.
+
+### Reader options
+
+Deployments can configure the following options by writing key-value pairs
+directly to `doq.options` in Local storage (example follows):
+
+- `autoReader` [Boolean]: Whether to automatically apply the last-used reader
+  theme at launch. Default `true`.
+- `dynamicTheme` [Boolean]: Whether to save separate last-used preferences for
+  OS light/dark themes. Default `true`.
+
+```js
+/* Options have to be set before loading doq */
+const doqOptions = { dynamicTheme: false };
+localStorage.setItem("doq.options", JSON.stringify(doqOptions));
+```
 
 ## Features
 
 ![Screenshot of the doq toolbar](docs/screenshots/addon-toolbar.png)
 
-- **Reader mode**: applies the selected color scheme and tone to the document's
-  background, text and (optionally) to lines and other shapes.
+- **Reader mode**: applies the selected theme to the document's background,
+  text and (optionally) to lines and other shapes.
+
+- **Blend images**: make images in the document blend with the new background
+  (or text color in the case of dark themes).
+
+- **Invert mode**: to simply invert the (original) document colors if that is
+  all you need (and you don't mind negative images).
 
 - **Intelligent application**: *doq* does not blindly change text color, but
   tries to ensure the legibility of the text against the background in which it
   is rendered.
 
-- **Blend/invert images**: to mix even images in the document with the new
-  background and text colors; can sometimes be helpful for legibility also.
-
-- **Quick-invert** toggle: to simply invert the (original) document colors
-  without any processing (if that is all you need).
-
 - **Color-science aware**: *doq* does color transformations in the
   perceptually-uniform [CIELAB color space][5].
 
-- **Accessibility**: the add-on toolbar is designed and tested, following WCAG
-  guidelines, to be fully accessible to keyboard/screen-reader users.
+- **Accessibility**: the add-on toolbar is designed, following WCAG guidelines,
+  to be well accessible to keyboard/screen-reader users.
 
-- **Remember preferences**: *doq* loads the last used settings upon launch.
+- **Remember preferences**: *doq* loads the last used settings at launch, and
+  also updates them dynamically, based on the OS theme in use.
 
 ### Performance
 
@@ -148,3 +169,4 @@ interested, see v2.0 release notes for an overview of what changed, and why.
 [3]: https://github.com/shivaprsd/doq/releases/latest
 [4]: https://ethanschoonover.com/solarized/
 [5]: https://en.wikipedia.org/wiki/CIELAB_color_space
+[6]: https://github.com/shivaprsd/doqment
