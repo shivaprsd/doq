@@ -42,6 +42,28 @@
   },
 
   {
+    "name": "Nord",
+    "tones": [
+      {
+        "name": "Snow Storm",
+        "background": "#ECEFF4",
+        "foreground": "#3B4252"
+      },
+      {
+        "name": "Polar Night",
+        "background": "#2E3440",
+        "foreground": "#D8DEE9",
+        "accents": ["#3B4252"]
+      }
+    ],
+    "accents": [
+      "#434C5E", "#4C566A", "#E5E9F0",
+      "#8FBCBB", "#88C0D0", "#81A1C1", "#5E81AC",
+      "#BF616A", "#D08770", "#EBCB8B", "#A3BE8C", "#B48EAD"
+    ]
+  },
+
+  {
     "name": "Solarized",
     "tones": [
       {
