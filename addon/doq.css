@@ -9,11 +9,12 @@
   filter: invert(86%);
 }
 
-#mainContainer {
-  transition: margin-top 200ms ease;
+#mainContainer, #sidebarContainer {
+  transition-property: left, margin-top !important;
+  transition-duration: var(--sidebar-transition-duration);
 }
-.fullscreen #mainContainer {
-  margin-top: -32px;
+.fullscreen :is(#mainContainer, #sidebarContainer) {
+  margin-top: -33px;
 }
 .smartZoom #viewerContainer {
   scroll-snap-type: x mandatory;
@@ -22,10 +23,9 @@
   scroll-snap-align: start;
   scroll-margin-left: var(--scroll-snap);
 }
-@media only screen and (hover: none) {
-  html { height: 100vh; }
-  @media (orientation: landscape) {
-    #mainContainer { margin-top: -32px; }
+@media screen and (max-width: 320px) {
+  #toolbarViewerLeft > #numPages {
+    display: none;
   }
 }
 

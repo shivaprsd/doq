@@ -457,6 +457,29 @@ const DOQReader = {
       const range = (nbrLines + 0.5) * height;
       return (r.top > top - range) && (r.bottom < bottom + range);
     }
+    const nbrRects2 = rects => {
+      const range = 2 * parseInt(target.style.fontSize);
+      let {left, right} = tgtRect;
+      let nbrs = [tgtRect];
+      let addRects;
+      do {
+        addRects = 0;
+        rects.forEach(r => {
+          if (nbrs.includes(r))
+            return;
+          if (r.left < left && r.right > left - range) {
+            nbrs.push(r);
+            left = Math.min(left, r.left);
+            ++addRects;
+          } else if (r.right > right && r.left < right + range) {
+            nbrs.push(r);
+            right = Math.max(right, r.right);
+            ++addRects;
+          }
+        });
+      } while (addRects);
+      return nbrs;
+    };
     /* Get non-empty text rects around target in current page */
     const page = pdfViewer.getPageView(pdfViewer.currentPageNumber - 1);
     const {textDivs, textLayerDiv} = page.textLayer;
@@ -464,6 +487,7 @@ const DOQReader = {
     let textRects = texts.map(e => e.getBoundingClientRect());
     if (texts.indexOf(target) !== -1)
       textRects = textRects.filter(nbrRects);
+    textRects = nbrRects2(textRects);
     const pageLeft = textLayerDiv.getBoundingClientRect().left;
     /* Find zoom & scroll to fit text span to viewer width */
     const minLeft = Math.min(...textRects.map(r => r.left));
