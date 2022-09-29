@@ -108,6 +108,43 @@ const DOQReader = {
     );
     document.addEventListener("keydown", this.handleShortcut.bind(this));
 
+    /* Auto-hide toolbar in touch devices */
+    if (window.matchMedia("only screen and (hover: none)").matches) {
+      this.scrollDir = -1;
+      this.oldScrollTop = 0;
+      this.landscape = window.matchMedia("(orientation: landscape)").matches;
+      window.matchMedia("(orientation: landscape)").onchange = e => {
+        this.landscape = e.target.matches;
+        if (!this.landscape) {
+          this.config.viewerClassList.remove("fullscreen");
+          this.scrollMark = 0;
+          this.scrollDir = -1;
+        }
+      };
+      document.getElementById("viewerContainer").onscroll = e => {
+        if (!this.landscape)
+          return;
+        const vc = e.target;
+        let delta = vc.scrollTop - this.oldScrollTop;
+        this.oldScrollTop = vc.scrollTop;
+        if (!this.scrollMark && this.scrollDir * delta < 0) {
+          this.scrollDir = -this.scrollDir;
+          this.scrollMark = vc.scrollTop;
+        }
+        if (this.scrollMark) {
+          delta = vc.scrollTop - this.scrollMark;
+
+          if (delta > 50) {
+            this.config.viewerClassList.add("fullscreen");
+            this.scrollMark = 0;
+          } else if (delta < -10) {
+            this.config.viewerClassList.remove("fullscreen");
+            this.scrollMark = 0;
+          }
+        }
+      };
+    }
+
     /* Smart zoom */
     document.getElementById("viewerContainer").ondblclick = this.toggleSmartZoom.bind(this);
     const app = window.PDFViewerApplication;
@@ -416,7 +453,7 @@ const DOQReader = {
   handleShortcut(e) {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")
       return;
-    if (e.code === "F5") {
+    if (e.code === "F3") {
       this.config.viewerClassList.toggle("fullscreen");
       e.preventDefault();
     } else if (e.key === "9" && (e.ctrlKey || e.metaKey)) {
