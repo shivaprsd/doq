@@ -456,7 +456,7 @@ const DOQReader = {
     if (e.code === "F3") {
       this.config.viewerClassList.toggle("fullscreen");
       e.preventDefault();
-    } else if (e.key === "9" && (e.ctrlKey || e.metaKey)) {
+    } else if (e.key === "z" || e.key === "Z") {
       this.toggleSmartZoom(e);
     }
   },
@@ -469,12 +469,13 @@ const DOQReader = {
       return;
     e.preventDefault();
     const viewBox = pdfViewer.container;
+    const target = e.detail ? e.target : document.querySelector("span:hover");
     const coord = e.clientY - viewBox.offsetTop || viewBox.clientHeight / 2;
     const page = pdfViewer.getPageView(pdfViewer.currentPageNumber - 1);
     const curZoom = page.div.offsetWidth / viewBox.clientWidth;
     /* Smart zoom only if page is in view range, but zoomed out */
     if (curZoom > 0.8 && curZoom < 2 && !this.zoomScale) {
-      this.zoomTfm = this.smartZoom(e.target, coord);
+      this.zoomTfm = this.smartZoom(target, coord);
       const scroll = Math.round(-this.zoomTfm.scrollX);
       this.config.docStyle.setProperty("--scroll-snap", scroll + "px");
       this.config.viewerClassList.add("smartZoom")
@@ -488,43 +489,19 @@ const DOQReader = {
   smartZoom(target, coord, nbrLines = 1, zoomPad = 0.015, maxZoom = 5) {
     const pdfViewer = window.PDFViewerApplication.pdfViewer;
     const viewBox = pdfViewer.container;
-    const tgtRect = target.getBoundingClientRect();
+    const tgtRect = target?.getBoundingClientRect();
     const nbrRects = r => {
       const {top, bottom, height} = tgtRect;
       const range = (nbrLines + 0.5) * height;
       return (r.top > top - range) && (r.bottom < bottom + range);
     }
-    const nbrRects2 = rects => {
-      const range = 2 * parseInt(target.style.fontSize);
-      let {left, right} = tgtRect;
-      let nbrs = [tgtRect];
-      let addRects;
-      do {
-        addRects = 0;
-        rects.forEach(r => {
-          if (nbrs.includes(r))
-            return;
-          if (r.left < left && r.right > left - range) {
-            nbrs.push(r);
-            left = Math.min(left, r.left);
-            ++addRects;
-          } else if (r.right > right && r.left < right + range) {
-            nbrs.push(r);
-            right = Math.max(right, r.right);
-            ++addRects;
-          }
-        });
-      } while (addRects);
-      return nbrs;
-    };
     /* Get non-empty text rects around target in current page */
     const page = pdfViewer.getPageView(pdfViewer.currentPageNumber - 1);
     const {textDivs, textLayerDiv} = page.textLayer;
     const texts = textDivs.filter(e => e.textContent.trim());
     let textRects = texts.map(e => e.getBoundingClientRect());
-    if (texts.indexOf(target) !== -1)
-      textRects = textRects.filter(nbrRects);
-    textRects = nbrRects2(textRects);
+    if (texts.includes(target))
+      textRects = this.colRects(target, textRects.filter(nbrRects));
     const pageLeft = textLayerDiv.getBoundingClientRect().left;
     /* Find zoom & scroll to fit text span to viewer width */
     const minLeft = Math.min(...textRects.map(r => r.left));
@@ -545,6 +522,30 @@ const DOQReader = {
       }
     }
     return {scale: zoom, scrollX: offset, scrollY: scroll};
+  },
+  colRects(target, rects) {
+    const tgtRect = target.getBoundingClientRect();
+    const range = 2 * parseInt(target.style.fontSize);
+    let {left, right} = tgtRect;
+    let nbrs = [tgtRect];
+    let addRects;
+    do {
+      addRects = 0;
+      rects.forEach(r => {
+        if (nbrs.includes(r))
+          return;
+        if (r.left < left && r.right > left - range) {
+          nbrs.push(r);
+          left = Math.min(left, r.left);
+          ++addRects;
+        } else if (r.right > right && r.left < right + range) {
+          nbrs.push(r);
+          right = Math.max(right, r.right);
+          ++addRects;
+        }
+      });
+    } while (addRects);
+    return nbrs;
   },
 
   resetZoomStat(e) {
