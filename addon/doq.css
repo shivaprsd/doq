@@ -5,7 +5,7 @@
 .reader .pdfViewer .page, .reader .thumbnailImage {
   background-color: var(--reader-bg) !important;
 }
-.invert .pdfViewer, .invert .thumbnailImage, .colorSwatch.invert {
+.invert :is(.page, .thumbnailImage), .colorSwatch.invert {
   filter: invert(86%);
 }
 
