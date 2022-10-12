@@ -38,7 +38,7 @@ const DOQReader = {
   preferences: {},
   colorSchemes: [],
   readerTone: {},
-  canvasData: null,
+  canvasData: new WeakMap(),
   styleCache: new Map(),
   options: { autoReader: true, dynamicTheme: true },
   flags: { readerOn: false, isPrinting: false },
@@ -140,7 +140,7 @@ const DOQReader = {
   saveCanvas(ctx, method) {
     const cvs = ctx.canvas;
     if (cvs.isConnected && cvs.closest(".canvasWrapper"))
-      this.canvasData = ctx.getImageData(0, 0, cvs.width, cvs.height);
+      this.canvasData.set(ctx, ctx.getImageData(0, 0, cvs.width, cvs.height));
   },
 
   /* Return fill and stroke styles */
@@ -164,14 +164,15 @@ const DOQReader = {
     return newStyle;
   },
   getCanvasColor(ctx, tx, ty) {
-    if (!this.canvasData)
+    if (!this.canvasData.has(ctx))
       return null;
     const tfm = ctx.getTransform();
     let {x, y} = tfm.transformPoint({x: tx, y: ty});
     [x, y] = [x, y].map(Math.round);
-    const i = (y * this.canvasData.width + x) * 4;
-    const data = Array.from(this.canvasData.data.slice(i, i + 3));
-    return newColor(data.map(e => e / 255));
+    const canvasData = this.canvasData.get(ctx);
+    const i = (y * canvasData.width + x) * 4;
+    const rgb = Array.from(canvasData.data.slice(i, i + 3));
+    return newColor(rgb.map(e => e / 255));
   },
 
   /* Calculate a new style for given colorscheme and tone */
@@ -322,8 +323,6 @@ const DOQReader = {
       this.enableReader(e?.isTrusted);
     }
     this.updatePreference("tone", pick);
-    this.styleCache.clear();
-    this.canvasData = null;
   },
   forceRedraw() {
     const {pdfViewer, pdfThumbnailViewer} = window.PDFViewerApplication;
@@ -332,6 +331,8 @@ const DOQReader = {
       Object.values(store || {}).forEach(e => e.rebuild());
       return page;
     };
+    this.styleCache.clear();
+    this.canvasData = new WeakMap();
     pdfViewer._pages.filter(e => e.renderingState).map(rebuildAnnotations)
                     .forEach(e => e.reset());
     pdfThumbnailViewer._thumbnails.filter(e => e.renderingState)
