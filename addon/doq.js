@@ -154,7 +154,7 @@ const DOQReader = {
     );
     if (isShape && !this.flags.shapesOn || !isColor)
       return style;
-    const bg = isText && this.getCanvasColor(ctx, args[1], args[2]);
+    const bg = isText && this.getCanvasColor(ctx, ...args);
     const key = style + (bg ? bg.toHex() : "");
     let newStyle = this.styleCache.get(key);
     if (!newStyle) {
@@ -163,11 +163,14 @@ const DOQReader = {
     }
     return newStyle;
   },
-  getCanvasColor(ctx, tx, ty) {
+  getCanvasColor(ctx, text, tx, ty) {
     if (!this.canvasData.has(ctx))
       return null;
+    const mtr = ctx.measureText(text);
+    const dx = mtr.width / 2;
+    const dy = (mtr.actualBoundingBoxAscent - mtr.actualBoundingBoxDescent) / 2;
     const tfm = ctx.getTransform();
-    let {x, y} = tfm.transformPoint({x: tx, y: ty});
+    let {x, y} = tfm.transformPoint({x: tx + dx, y: ty - dy});
     [x, y] = [x, y].map(Math.round);
     const canvasData = this.canvasData.get(ctx);
     const i = (y * canvasData.width + x) * 4;
