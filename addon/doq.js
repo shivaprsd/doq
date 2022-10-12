@@ -113,7 +113,8 @@ const DOQReader = {
     ["fill", "stroke"].forEach(f => {
       ["", "Rect", "Text"].forEach(e => {
         ctxp[f + e] = this.wrap(ctxp[f + e], f + "Style",
-                                this.getReaderStyle.bind(this), test, cb);
+                                this.getReaderStyle.bind(this), test,
+                                e !== "Text" ? cb : null);
       });
     });
     ctxp.origDrawImage = ctxp.drawImage;
@@ -138,7 +139,7 @@ const DOQReader = {
   },
   saveCanvas(ctx, method) {
     const cvs = ctx.canvas;
-    if (!method.name.endsWith("Text") && cvs.isConnected)
+    if (cvs.isConnected && cvs.closest(".canvasWrapper"))
       this.canvasData = ctx.getImageData(0, 0, cvs.width, cvs.height);
   },
 
@@ -326,7 +327,13 @@ const DOQReader = {
   },
   forceRedraw() {
     const {pdfViewer, pdfThumbnailViewer} = window.PDFViewerApplication;
-    pdfViewer._pages.filter(e => e.renderingState).forEach(e => e.reset());
+    const rebuildAnnotations = page => {
+      const store = page.annotationEditorLayer?.annotationStorage.getAll();
+      Object.values(store || {}).forEach(e => e.rebuild());
+      return page;
+    };
+    pdfViewer._pages.filter(e => e.renderingState).map(rebuildAnnotations)
+                    .forEach(e => e.reset());
     pdfThumbnailViewer._thumbnails.filter(e => e.renderingState)
                                   .forEach(e => e.reset());
     window.PDFViewerApplication.forceRendering();
