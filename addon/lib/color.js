@@ -14,16 +14,24 @@ export class Color {
     }
     else if (typeof args[0] === "string") {
       const str = args[0];
-      if (str[0] !== "#" || str.length !== 7) {
-        console.error(`Invalid hex: "${str}"`);
+      if (str[0] === "#" && str.length === 7) {
+        this._hex = str;
+        this._rgb = Color.parseHex(str);
+      } else if (str.startsWith("rgba(")) {
+        [this._rgb, this._alpha] = Color.parseRGBA(str);
+      } else {
+        console.error(`Unsupported color format: "${str}"`);
         return null;
       }
-      this._rgb = Color.parseHex(str);
     } else {
       this._rgb = [0, 0, 0];
     }
   }
 
+  get hex() {
+    this._hex = this._hex || this.toHex();
+    return this._hex;
+  }
   get rgb() {
     this._rgb = this._rgb || sRGB.fromLab(this._lab);
     return this._rgb;
@@ -38,6 +46,9 @@ export class Color {
   get chroma() {
     const [L, a, b] = this.lab;
     return Math.sqrt(a ** 2 + b ** 2);
+  }
+  get alpha() {
+    return this._alpha ?? 1;
   }
 
   deltaE(color) {
@@ -67,12 +78,10 @@ export class Color {
     };
   }
 
-  toHex() {
-    const coords = this.rgb.map(c => Math.round(c * 255));
-    const hex = coords.map(c => {
-      c = Math.min(Math.max(c, 0), 255);
-      return c.toString(16).padStart(2, "0");
-    }).join("");
+  toHex(alpha = 1) {
+    let hex = this.rgb.map(Color.compToHex).join("");
+    if (alpha !== 1)
+      hex += Color.compToHex(alpha);
     return "#" + hex;
   }
   static parseHex(str) {
@@ -81,6 +90,17 @@ export class Color {
       rgba.push(parseInt(component, 16) / 255);
     });
     return rgba.slice(0, 3);
+  }
+  static parseRGBA(str) {
+    const rgba = str.slice(5, -1).split(",");
+    return [
+      rgba.slice(0, 3).map(c => parseInt(c) / 255),   /* [r, g, b] */
+      parseFloat(rgba.pop())                          /* alpha */
+    ];
+  }
+  static compToHex(c) {
+    c = Math.round(Math.min(Math.max(c * 255, 0), 255));
+    return c.toString(16).padStart(2, "0");
   }
 }
 Color.white = new Color([1, 1, 1]);

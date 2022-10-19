@@ -154,14 +154,15 @@ const DOQReader = {
     );
     if (isShape && !this.flags.shapesOn || !isColor)
       return style;
+    style = newColor(style);
     const bg = isText && this.getCanvasColor(ctx, ...args);
-    const key = style + (bg ? bg.toHex() : "");
+    const key = style.hex + (bg ? bg.hex : "");
     let newStyle = this.styleCache.get(key);
     if (!newStyle) {
-      newStyle = this.calcStyle(newColor(style), bg);
+      newStyle = this.calcStyle(style, bg);
       this.styleCache.set(key, newStyle);
     }
-    return newStyle;
+    return newStyle.toHex(style.alpha);
   },
   getCanvasColor(ctx, text, tx, ty) {
     if (!this.canvasData.has(ctx))
@@ -186,12 +187,12 @@ const DOQReader = {
     if (color.chroma > 10) {
       const accents = acc.concat(this.readerTone.scheme.colors);
       if (accents.length)
-        style = this.findMatch(accents, e => e.deltaE(color), Math.min).toHex();
+        style = this.findMatch(accents, e => e.deltaE(color), Math.min);
     } else if (textBg && bg.deltaE(textBg) > 2.3) {
-      style = this.findMatch([bg, fg], diffL, Math.max).toHex();
+      style = this.findMatch([bg, fg], diffL, Math.max);
     } else {
       const whiteL = Color.white.lightness;
-      style = grad(1 - color.lightness / whiteL).toHex();
+      style = grad(1 - color.lightness / whiteL);
     }
     return style;
   },
