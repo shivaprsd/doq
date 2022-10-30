@@ -1,3 +1,15 @@
+# v2.2 (2022-10-30)
+
+### Release version 2.2
+
+- Update: target PDF.js version 2.16
+- Improvement: handle transparent canvas styles
+- Improvement: color calc based on BG of the text centre
+- Feature: support for PDF.js annotation editor
+- Fix: separate canvas data for different pages
+- Fix: apply invert filter to individual pages
+
+
 # v2.1 (2022-05-21)
 
 ### Release version 2.1
