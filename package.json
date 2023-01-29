@@ -17,6 +17,6 @@
   "version": "2.2",
   "pdfjs_version": {
     "minimum": "2.7.570",
-    "target": "2.16.105"
+    "target": "3.2.146"
   }
 }

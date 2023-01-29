@@ -19,9 +19,8 @@ async function doqInit() {
     const docFrag = document.createRange().createContextualFragment(html);
     const toolbar = document.getElementById("toolbarViewerRight");
     toolbar.prepend(docFrag.getElementById("toolbarAddon").content);
-    const mainContainer = document.getElementById("mainContainer");
-    mainContainer.insertBefore(docFrag.getElementById("mainAddon").content,
-                               mainContainer.querySelector("#viewerContainer"));
+    const findbar = document.getElementById("findbar");
+    findbar.after(docFrag.getElementById("mainAddon").content);
   }
   function linkCSS(href) {
     const link = document.createElement("link");
@@ -81,8 +80,14 @@ const DOQReader = {
     this.colorSchemes = colorSchemes;
     this.updateReaderState();
 
-    /* TEMPORARY: remove obsolete storage item used by previous versions */
-    localStorage.removeItem("doq.preferences");
+    /* Legacy PDF.js support */
+    const pdfjsVer = pdfjsLib.version.split(".").map(Number);
+    if (pdfjsVer[0] < 3) {
+      if (pdfjsVer[0] < 2 || pdfjsVer[1] < 7)
+        console.warn("doq: unsupported PDF.js version " + pdfjsLib.version);
+      this.config.viewReader.classList.add("pdfjsLegacy");
+      this.config.readerToolbar.classList.add("pdfjsLegacy");
+    }
 
     /* Event listeners */
     this.config.sysTheme.onchange = this.updateReaderState.bind(this);
@@ -330,15 +335,11 @@ const DOQReader = {
   },
   forceRedraw() {
     const {pdfViewer, pdfThumbnailViewer} = window.PDFViewerApplication;
-    const rebuildAnnotations = page => {
-      const store = page.annotationEditorLayer?.annotationStorage.getAll();
-      Object.values(store || {}).forEach(e => e.rebuild());
-      return page;
-    };
+    const annotations = pdfViewer.pdfDocument?.annotationStorage.getAll();
     this.styleCache.clear();
     this.canvasData = new WeakMap();
-    pdfViewer._pages.filter(e => e.renderingState).map(rebuildAnnotations)
-                    .forEach(e => e.reset());
+    Object.values(annotations || {}).forEach(e => e.rebuild());
+    pdfViewer._pages.filter(e => e.renderingState).forEach(e => e.reset());
     pdfThumbnailViewer._thumbnails.filter(e => e.renderingState)
                                   .forEach(e => e.reset());
     window.PDFViewerApplication.forceRendering();

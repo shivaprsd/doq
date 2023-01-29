@@ -52,7 +52,6 @@
 /* Toolbar layout */
 #readerToolbar {
   right: 189px;
-  z-index: 20000;
   font-size: 0;
   background-color: var(--toolbar-bg-color);
   -webkit-user-select: none;
@@ -115,7 +114,7 @@
   margin: 0 !important;
 }
 #schemeSelect {
-  width: calc(100% + var(--scale-select-overflow));
+  width: 100%;
 }
 #optionsToggleContainer {
   position: relative;
@@ -174,4 +173,13 @@
 .tabMode #schemeSelectContainer:focus-within,
 #readerToolbar input:focus-visible + :is(label, div) {
   outline: 5px auto;
+}
+
+/* For PDF.js legacy (< 3.x) versions */
+.pdfjsLegacy #schemeSelect {
+  width: calc(100% + 22px);
+}
+.pdfjsLegacy#viewReader::before {
+  -webkit-mask-image: url(images/readerIcon-legacy.svg);
+  mask-image: url(images/readerIcon-legacy.svg);
 }
