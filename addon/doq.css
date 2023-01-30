@@ -5,6 +5,10 @@
 .reader .pdfViewer .page, .reader .thumbnailImage {
   background-color: var(--reader-bg) !important;
 }
+.reader .freeTextEditor > .internal {
+  --free-text-color: #000000;
+  color: var(--free-text-color) !important;
+}
 .invert :is(.page, .thumbnailImage), .colorSwatch.invert {
   filter: invert(86%);
 }

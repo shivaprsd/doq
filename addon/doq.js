@@ -59,7 +59,8 @@ const DOQReader = {
       shapeToggle: document.getElementById("shapeEnable"),
       imageToggle: document.getElementById("imageEnable"),
       optionsToggle: document.getElementById("optionsToggle"),
-      viewerClassList: document.getElementById("outerContainer").classList
+      viewerClassList: document.getElementById("outerContainer").classList,
+      viewer: document.getElementById("viewerContainer")
     };
   },
 
@@ -100,6 +101,7 @@ const DOQReader = {
     this.config.schemeSelector.onclick = e => {
       this.config.readerToolbar.classList.remove("tabMode");
     };
+    this.config.viewer.addEventListener("input", this.handleInput.bind(this));
     window.addEventListener("beforeprint", e => this.flags.isPrinting = true);
     window.addEventListener("afterprint", e => this.flags.isPrinting = false);
     window.addEventListener("click", this.closeToolbar.bind(this));
@@ -109,6 +111,17 @@ const DOQReader = {
       this.config.viewReader.parentElement,
       { subtree: true, attributeFilter: ["style", "class", "hidden"] }
     );
+    const app = window.PDFViewerApplication;
+    const registerMonitor = () => {
+      app.initializedPromise.then(() => {
+        app.eventBus.on("switchannotationeditorparams",
+                        this.recolorSelectedAnnots.bind(this));
+      });
+    };
+    if (app.initializedPromise)
+      registerMonitor();
+    else
+      document.addEventListener("webviewerloaded", registerMonitor.bind(this));
 
     /* Wrap canvas drawing */
     const ctxp = CanvasRenderingContext2D.prototype;
@@ -336,9 +349,15 @@ const DOQReader = {
   forceRedraw() {
     const {pdfViewer, pdfThumbnailViewer} = window.PDFViewerApplication;
     const annotations = pdfViewer.pdfDocument?.annotationStorage.getAll();
+    const redrawAnnotation = annot => {
+      if (annot.name === "freeTextEditor")
+        this.recolorFreeTextAnnot(annot.editorDiv);
+      else
+        annot.rebuild();
+    };
     this.styleCache.clear();
     this.canvasData = new WeakMap();
-    Object.values(annotations || {}).forEach(e => e.rebuild());
+    Object.values(annotations || {}).forEach(redrawAnnotation);
     pdfViewer._pages.filter(e => e.renderingState).forEach(e => e.reset());
     pdfThumbnailViewer._thumbnails.filter(e => e.renderingState)
                                   .forEach(e => e.reset());
@@ -366,6 +385,19 @@ const DOQReader = {
     this.config.viewerClassList.remove("invert");
   },
 
+  recolorSelectedAnnots(e) {
+    if (!this.checkFlags())
+      return;
+    if (e.type === pdfjsLib.AnnotationEditorParamsType.FREETEXT_COLOR)
+      document.querySelectorAll(".freeTextEditor.selectedEditor > .internal")
+              .forEach(e => this.recolorFreeTextAnnot(e));
+  },
+  recolorFreeTextAnnot(editor) {
+    const newColor = this.getReaderStyle(null, ()=>{}, null, editor.style.color);
+    if (editor.style.getPropertyValue("--free-text-color") !== newColor)
+      editor.style.setProperty("--free-text-color", newColor);
+  },
+
   toggleToolbar() {
     const hidden = this.config.readerToolbar.classList.toggle("hidden");
     this.config.viewReader.classList.toggle("toggled");
@@ -386,6 +418,14 @@ const DOQReader = {
       this.forceRedraw();
   },
 
+  handleInput(e) {
+    if (!this.checkFlags())
+      return;
+    const {target} = e;
+    const isFreeText = target.matches?.(".freeTextEditor > .internal");
+    if (isFreeText && !target.style.getPropertyValue("--free-text-color"))
+      this.recolorFreeTextAnnot(target);
+  },
   handleKeyDown(e) {
     if (e.code === "Tab") {
       this.config.readerToolbar.classList.add("tabMode");

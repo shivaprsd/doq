@@ -17,6 +17,8 @@ export class Color {
       if (str[0] === "#" && str.length === 7) {
         this._hex = str;
         this._rgb = Color.parseHex(str);
+      } else if (str.startsWith("rgb(")) {
+        this._rgb = Color.parseRGB(str);
       } else if (str.startsWith("rgba(")) {
         [this._rgb, this._alpha] = Color.parseRGBA(str);
       } else {
@@ -90,6 +92,9 @@ export class Color {
       rgba.push(parseInt(component, 16) / 255);
     });
     return rgba.slice(0, 3);
+  }
+  static parseRGB(str) {
+    return Color.parseRGBA(str.replace("rgb", "rgba"))[0];
   }
   static parseRGBA(str) {
     const rgba = str.slice(5, -1).split(",");
