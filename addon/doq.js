@@ -333,16 +333,17 @@ const DOQReader = {
     const picker = this.config.tonePicker;
     const pick = picker.readerTone.value;
     const sel = this.config.schemeSelector.selectedIndex;
+    const redraw = e?.isTrusted;
     if (pick == 0) {
-      this.disableReader(e?.isTrusted);
+      this.disableReader(redraw);
       this.disableInvert();
     } else if (pick == picker.elements.length - 1) {
-      this.enableInvert();
+      this.enableInvert(redraw);
     } else {
       this.readerTone = this.colorSchemes[sel].tones[+pick - 1];
       this.config.docStyle.setProperty("--reader-bg", this.readerTone.background);
       this.disableInvert();
-      this.enableReader(e?.isTrusted);
+      this.enableReader(redraw);
     }
     this.updatePreference("tone", pick);
   },
@@ -371,14 +372,16 @@ const DOQReader = {
       this.forceRedraw();
   },
   disableReader(redraw) {
+    if (!this.flags.readerOn)
+      return;
     this.config.viewerClassList.remove("reader");
     this.flags.readerOn = false;
     if (redraw)
       this.forceRedraw();
   },
-  enableInvert() {
+  enableInvert(redraw) {
     if (this.flags.readerOn)
-      this.disableReader(true);
+      this.disableReader(redraw);
     this.config.viewerClassList.add("invert");
   },
   disableInvert() {
