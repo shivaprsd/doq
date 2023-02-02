@@ -126,7 +126,7 @@ const DOQReader = {
     /* Wrap canvas drawing */
     const ctxp = CanvasRenderingContext2D.prototype;
     const test = this.checkFlags.bind(this);
-    const cb = this.saveCanvas.bind(this);
+    const cb = this.forgetCanvas.bind(this);
     ctxp.origFillRect = ctxp.fillRect;
     ["fill", "stroke"].forEach(f => {
       ["", "Rect", "Text"].forEach(e => {
@@ -149,16 +149,22 @@ const DOQReader = {
       this[prop] = getNewVal(this, method, arguments, orig);
       method.apply(this, arguments);
       this[prop] = orig;
-      callback && callback(this, method);
+      callback && callback(this);
     }
   },
   checkFlags() {
     return this.flags.readerOn && !this.flags.isPrinting;
   },
-  saveCanvas(ctx, method) {
+  saveCanvas(ctx) {
     const cvs = ctx.canvas;
-    if (cvs.isConnected && cvs.closest(".canvasWrapper"))
+    if (cvs.isConnected && cvs.closest(".canvasWrapper")) {
       this.canvasData.set(ctx, ctx.getImageData(0, 0, cvs.width, cvs.height));
+      return true;
+    }
+    return false;
+  },
+  forgetCanvas(ctx) {
+    this.canvasData.delete(ctx)
   },
 
   /* Return fill and stroke styles */
@@ -183,7 +189,7 @@ const DOQReader = {
     return newStyle.toHex(style.alpha);
   },
   getCanvasColor(ctx, text, tx, ty) {
-    if (!this.canvasData.has(ctx))
+    if (!this.canvasData.has(ctx) && !this.saveCanvas(ctx))
       return null;
     const mtr = ctx.measureText(text);
     const dx = mtr.width / 2;
