@@ -130,26 +130,26 @@ const DOQReader = {
     ctxp.origFillRect = ctxp.fillRect;
     ["fill", "stroke"].forEach(f => {
       ["", "Rect", "Text"].forEach(e => {
-        ctxp[f + e] = this.wrap(ctxp[f + e], f + "Style",
-                                this.getReaderStyle.bind(this), test,
-                                e !== "Text" ? cb : null);
+        ctxp[f + e] = this.wrap(ctxp[f + e], this.setReaderStyle.bind(this),
+                                test, e !== "Text" ? cb : null, f + "Style");
       });
     });
     ctxp.origDrawImage = ctxp.drawImage;
-    ctxp.drawImage = this.wrap(ctxp.drawImage, "globalCompositeOperation",
-                               this.getReaderCompOp.bind(this), test, cb);
+    ctxp.drawImage = this.wrap(ctxp.drawImage, this.setReaderCompOp.bind(this),
+                               test, cb);
   },
 
   /* Method wrapper closure */
-  wrap(method, prop, getNewVal, test, callback) {
+  wrap(method, callHandler, test, callback, prop) {
     return function() {
-      if (test && !test())
+      if (!test?.())
         return method.apply(this, arguments);
-      const orig = this[prop];
-      this[prop] = getNewVal(this, method, arguments, orig);
-      method.apply(this, arguments);
-      this[prop] = orig;
-      callback && callback(this);
+      this.save();
+      callHandler(this, method, arguments, prop);
+      const retVal = method.apply(this, arguments);
+      this.restore();
+      callback?.(this);
+      return retVal;
     }
   },
   checkFlags() {
@@ -167,20 +167,25 @@ const DOQReader = {
     this.canvasData.delete(ctx)
   },
 
-  /* Return fill and stroke styles */
-  getReaderStyle(ctx, method, args, style) {
-    const isColor = typeof(style) === "string";    /* not gradient/pattern */
+  /* Alter fill and stroke styles */
+  setReaderStyle(ctx, method, args, prop) {
+    const style = ctx[prop];
+    if (typeof(style) !== "string")           /* is gradient/pattern */
+      return;
     const isText = method.name.endsWith("Text");
     const isShape = !isText && !(
       method.name === "fillRect" &&
       args[2] == ctx.canvas.width &&
       args[3] == ctx.canvas.height
     );
-    if (isShape && !this.flags.shapesOn || !isColor)
-      return style;
-    style = newColor(style);
+    if (isShape && !this.flags.shapesOn)
+      return;
     const bg = isText && this.getCanvasColor(ctx, ...args);
-    const key = style.hex + (bg ? bg.hex : "");
+    ctx[prop] = this.getReaderStyle(style, bg);
+  },
+  getReaderStyle(style, bg) {
+    style = newColor(style);
+    const key = style.hex + (bg?.hex || "");
     let newStyle = this.styleCache.get(key);
     if (!newStyle) {
       newStyle = this.calcStyle(style, bg);
@@ -226,9 +231,9 @@ const DOQReader = {
   },
 
   /* Return image composite operation, drawing an optional mask */
-  getReaderCompOp(ctx, drawImage, args, compOp) {
+  setReaderCompOp(ctx, drawImage, args) {
     if (!this.flags.imagesOn || !ctx.canvas.isConnected)
-      return compOp;
+      return;
     const tone = this.readerTone;
     if (tone.colors.bg.lightness < 50 && args.length >= 5) {
       args = [...args];
@@ -236,8 +241,7 @@ const DOQReader = {
       args.splice(0, 1, mask);
       drawImage.apply(ctx, args);
     }
-    compOp = "multiply";
-    return compOp;
+    ctx.globalCompositeOperation = "multiply";
   },
   createMask(color, args) {
     const cvs = document.createElement("canvas");
@@ -402,7 +406,7 @@ const DOQReader = {
               .forEach(e => this.recolorFreeTextAnnot(e));
   },
   recolorFreeTextAnnot(editor) {
-    const newColor = this.getReaderStyle(null, ()=>{}, null, editor.style.color);
+    const newColor = this.getReaderStyle(editor.style.color);
     if (editor.style.getPropertyValue("--free-text-color") !== newColor)
       editor.style.setProperty("--free-text-color", newColor);
   },
