@@ -67,15 +67,15 @@ const DOQReader = {
     this.config = this.getDoqConfig();
     colorSchemes.forEach(scheme => {
       this.config.schemeSelector.innerHTML += `<option>${scheme.name}</option>`;
+      scheme.colors = (scheme.accents || []).map(newColor);
       scheme.tones.forEach(tone => {
         const [b, f] = [tone.background, tone.foreground].map(newColor);
         tone.colors = {
           bg: b, fg: f, grad: b.range(f),
-          acc: (tone.accents || []).map(newColor)
+          acc: (tone.accents || []).map(newColor).concat(scheme.colors)
         };
         tone.scheme = scheme;
       });
-      scheme.colors = (scheme.accents || []).map(newColor);
     });
     this.colorSchemes = colorSchemes;
     this.updateReaderState();
@@ -234,10 +234,8 @@ const DOQReader = {
   calcStyle(color) {
     const {grad, acc} = this.readerTone.colors;
     let style;
-    if (color.chroma > 10) {
-      const accents = acc.concat(this.readerTone.scheme.colors);
-      if (accents.length)
-        style = this.findMatch(accents, e => e.deltaE(color), Math.min);
+    if (color.chroma > 10 && acc.length) {
+      style = this.findMatch(acc, e => e.deltaE(color), Math.min);
     } else {
       const whiteL = Color.white.lightness;
       style = grad(1 - color.lightness / whiteL);
