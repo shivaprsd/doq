@@ -37,7 +37,6 @@ const DOQReader = {
   preferences: {},
   colorSchemes: [],
   readerTone: {},
-  canvasData: new WeakMap(),
   styleCache: new Map(),
   options: { autoReader: true, dynamicTheme: true },
   flags: { readerOn: false, isPrinting: false },
@@ -126,25 +125,23 @@ const DOQReader = {
     /* Wrap canvas drawing */
     const ctxp = CanvasRenderingContext2D.prototype;
     const checks = style => this.checkFlags() && this.checkStyle(style);
-    const cb = this.forgetCanvas.bind(this);
     ctxp.origFillRect = ctxp.fillRect;
     ["fill", "stroke"].forEach(f => {
       ["", "Rect"].forEach(e => {
         ctxp[f + e] = this.wrap(ctxp[f + e], this.resetShapeStyle.bind(this),
-                                checks, cb, f + "Style");
+                                checks, f + "Style");
       });
-      const meth = f + "Text";
-      ctxp[meth] = this.wrap(ctxp[meth], this.updateTextStyle.bind(this),
-                             checks, null, f + "Style");
       this.wrapSet(ctxp, f + "Style", this.getReaderStyle.bind(this), checks);
     });
+    ctxp.fillText = this.wrap(ctxp.fillText, this.updateTextStyle.bind(this),
+                              checks, "fillStyle");
     ctxp.origDrawImage = ctxp.drawImage;
     ctxp.drawImage = this.wrap(ctxp.drawImage, this.setReaderCompOp.bind(this),
-                               this.checkFlags.bind(this), cb);
+                               this.checkFlags.bind(this));
   },
 
   /* Method and setter wrapper closures */
-  wrap(method, callHandler, test, callback, prop) {
+  wrap(method, callHandler, test, prop) {
     return function() {
       if (!test?.(this[prop]))
         return method.apply(this, arguments);
@@ -152,7 +149,6 @@ const DOQReader = {
       callHandler(this, method, arguments, prop);
       const retVal = method.apply(this, arguments);
       this.restore();
-      callback?.(this);
       return retVal;
     }
   },
@@ -181,20 +177,11 @@ const DOQReader = {
   checkStyle(style) {
     return typeof(style) === "string";        /* is not gradient/pattern */
   },
-  saveCanvas(ctx) {
-    const cvs = ctx.canvas;
-    if (cvs.isConnected && cvs.closest(".canvasWrapper")) {
-      this.canvasData.set(ctx, ctx.getImageData(0, 0, cvs.width, cvs.height));
-      return true;
-    }
-    return false;
-  },
-  forgetCanvas(ctx) {
-    this.canvasData.delete(ctx)
-  },
 
   /* Alter fill and stroke styles */
   resetShapeStyle(ctx, method, args, prop) {
+    if (this.isAccent(ctx[prop]))
+      ctx.hasAccents = true;
     if (this.flags.shapesOn)
       return;
     const {width, height} = ctx.canvas;
@@ -205,12 +192,20 @@ const DOQReader = {
   },
   updateTextStyle(ctx, method, args, prop) {
     const style = ctx[prop];
+    if (!ctx.hasAccents && !this.isAccent(style))
+      return;
     const bg = this.getCanvasColor(ctx, ...args);
     const newStyle = this.getReaderStyle(style, bg);
     if (newStyle !== style) {
       const setStyle = ctx["set" + prop];
       setStyle.call(ctx, newStyle);
     }
+  },
+  isAccent(style) {
+    const {accents, scheme} = this.readerTone;
+    const isStyle = s => s.toLowerCase() === style;
+    style = style.toLowerCase();
+    return accents?.some(isStyle) || scheme.accents?.some(isStyle);
   },
 
   getReaderStyle(style, bg) {
@@ -224,17 +219,14 @@ const DOQReader = {
     return newStyle.toHex(style.alpha);
   },
   getCanvasColor(ctx, text, tx, ty) {
-    if (!this.canvasData.has(ctx) && !this.saveCanvas(ctx))
-      return null;
     const mtr = ctx.measureText(text);
     const dx = mtr.width / 2;
     const dy = (mtr.actualBoundingBoxAscent - mtr.actualBoundingBoxDescent) / 2;
     const tfm = ctx.getTransform();
     let {x, y} = tfm.transformPoint({x: tx + dx, y: ty - dy});
     [x, y] = [x, y].map(Math.round);
-    const canvasData = this.canvasData.get(ctx);
-    const i = (y * canvasData.width + x) * 4;
-    const rgb = Array.from(canvasData.data.slice(i, i + 3));
+    const canvasData = ctx.getImageData(x, y, 1, 1);
+    const rgb = Array.from(canvasData.data.slice(0, 3));
     return newColor(rgb.map(e => e / 255));
   },
 
@@ -252,11 +244,11 @@ const DOQReader = {
     }
     return style;
   },
-  getTextStyle(color, textBg) {
+  getTextStyle(color, textBg, minContrast = 30) {
     const {bg, fg} = this.readerTone.colors;
     const diffL = clr => Math.abs(clr.lightness - textBg.lightness);
-    if (bg.deltaE(textBg) > 2.3)
-      return this.findMatch([bg, fg], diffL, Math.max);
+    if (bg.deltaE(textBg) > 2.3 && diffL(color) < minContrast)
+      return this.findMatch([color, bg, fg], diffL, Math.max);
     return color;
   },
   findMatch(array, mapFun, condFun) {
@@ -401,7 +393,6 @@ const DOQReader = {
         annot.rebuild();
     };
     this.styleCache.clear();
-    this.canvasData = new WeakMap();
     Object.values(annotations || {}).forEach(redrawAnnotation);
     pdfViewer._pages.filter(e => e.renderingState).forEach(e => e.reset());
     pdfThumbnailViewer._thumbnails.filter(e => e.renderingState)
