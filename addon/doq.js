@@ -125,24 +125,28 @@ const DOQReader = {
 
     /* Wrap canvas drawing */
     const ctxp = CanvasRenderingContext2D.prototype;
-    const test = this.checkFlags.bind(this);
+    const checks = style => this.checkFlags() && this.checkStyle(style);
     const cb = this.forgetCanvas.bind(this);
     ctxp.origFillRect = ctxp.fillRect;
     ["fill", "stroke"].forEach(f => {
-      ["", "Rect", "Text"].forEach(e => {
-        ctxp[f + e] = this.wrap(ctxp[f + e], this.setReaderStyle.bind(this),
-                                test, e !== "Text" ? cb : null, f + "Style");
+      ["", "Rect"].forEach(e => {
+        ctxp[f + e] = this.wrap(ctxp[f + e], this.resetShapeStyle.bind(this),
+                                checks, cb, f + "Style");
       });
+      const meth = f + "Text";
+      ctxp[meth] = this.wrap(ctxp[meth], this.updateTextStyle.bind(this),
+                             checks, null, f + "Style");
+      this.wrapSet(ctxp, f + "Style", this.getReaderStyle.bind(this), checks);
     });
     ctxp.origDrawImage = ctxp.drawImage;
     ctxp.drawImage = this.wrap(ctxp.drawImage, this.setReaderCompOp.bind(this),
-                               test, cb);
+                               this.checkFlags.bind(this), cb);
   },
 
-  /* Method wrapper closure */
+  /* Method and setter wrapper closures */
   wrap(method, callHandler, test, callback, prop) {
     return function() {
-      if (!test?.())
+      if (!test?.(this[prop]))
         return method.apply(this, arguments);
       this.save();
       callHandler(this, method, arguments, prop);
@@ -152,8 +156,30 @@ const DOQReader = {
       return retVal;
     }
   },
+  wrapSet(obj, prop, getNewVal, test) {
+    const descriptor = Object.getOwnPropertyDescriptor(obj, prop);
+    const { set: ownSet, get: ownGet } = descriptor;
+    Object.defineProperty(obj, prop, {
+      get() {
+        return ownGet.call(this);
+      },
+      set(arg) {
+        ownSet.call(this, arg);
+        if (!test?.(arg))
+          return;
+        const value = ownGet.call(this);
+        ownSet.call(this, getNewVal(value));
+        obj["orig" + prop] = value;
+      }
+    });
+    obj["set" + prop] = ownSet;
+  },
+
   checkFlags() {
     return this.flags.readerOn && !this.flags.isPrinting;
+  },
+  checkStyle(style) {
+    return typeof(style) === "string";        /* is not gradient/pattern */
   },
   saveCanvas(ctx) {
     const cvs = ctx.canvas;
@@ -168,27 +194,31 @@ const DOQReader = {
   },
 
   /* Alter fill and stroke styles */
-  setReaderStyle(ctx, method, args, prop) {
-    const style = ctx[prop];
-    if (typeof(style) !== "string")           /* is gradient/pattern */
+  resetShapeStyle(ctx, method, args, prop) {
+    if (this.flags.shapesOn)
       return;
-    const isText = method.name.endsWith("Text");
-    const isShape = !isText && !(
-      method.name === "fillRect" &&
-      args[2] == ctx.canvas.width &&
-      args[3] == ctx.canvas.height
-    );
-    if (isShape && !this.flags.shapesOn)
+    const {width, height} = ctx.canvas;
+    if (method.name === "fillRect" && args[2] == width && args[3] == height)
       return;
-    const bg = isText && this.getCanvasColor(ctx, ...args);
-    ctx[prop] = this.getReaderStyle(style, bg);
+    const setStyle = ctx["set" + prop];
+    setStyle.call(ctx, ctx["orig" + prop]);
   },
+  updateTextStyle(ctx, method, args, prop) {
+    const style = ctx[prop];
+    const bg = this.getCanvasColor(ctx, ...args);
+    const newStyle = this.getReaderStyle(style, bg);
+    if (newStyle !== style) {
+      const setStyle = ctx["set" + prop];
+      setStyle.call(ctx, newStyle);
+    }
+  },
+
   getReaderStyle(style, bg) {
     style = newColor(style);
     const key = style.hex + (bg?.hex || "");
     let newStyle = this.styleCache.get(key);
     if (!newStyle) {
-      newStyle = this.calcStyle(style, bg);
+      newStyle = bg ? this.getTextStyle(style, bg) : this.calcStyle(style);
       this.styleCache.set(key, newStyle);
     }
     return newStyle.toHex(style.alpha);
@@ -209,21 +239,25 @@ const DOQReader = {
   },
 
   /* Calculate a new style for given colorscheme and tone */
-  calcStyle(color, textBg) {
-    const {bg, fg, grad, acc} = this.readerTone.colors;
-    const diffL = clr => Math.abs(clr.lightness - textBg.lightness);
+  calcStyle(color) {
+    const {grad, acc} = this.readerTone.colors;
     let style;
     if (color.chroma > 10) {
       const accents = acc.concat(this.readerTone.scheme.colors);
       if (accents.length)
         style = this.findMatch(accents, e => e.deltaE(color), Math.min);
-    } else if (textBg && bg.deltaE(textBg) > 2.3) {
-      style = this.findMatch([bg, fg], diffL, Math.max);
     } else {
       const whiteL = Color.white.lightness;
       style = grad(1 - color.lightness / whiteL);
     }
     return style;
+  },
+  getTextStyle(color, textBg) {
+    const {bg, fg} = this.readerTone.colors;
+    const diffL = clr => Math.abs(clr.lightness - textBg.lightness);
+    if (bg.deltaE(textBg) > 2.3)
+      return this.findMatch([bg, fg], diffL, Math.max);
+    return color;
   },
   findMatch(array, mapFun, condFun) {
     const newArr = array.map(mapFun);
@@ -247,7 +281,7 @@ const DOQReader = {
     const cvs = document.createElement("canvas");
     const dim = [cvs.width, cvs.height] = args.slice(3);
     const ctx = cvs.getContext("2d");
-    ctx.fillStyle = color;
+    ctx.setfillStyle(color);
     ctx.origFillRect(0, 0, ...dim);
     ctx.globalCompositeOperation = "destination-in";
     ctx.origDrawImage(...args, 0, 0, ...dim);
