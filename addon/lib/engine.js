@@ -3,7 +3,10 @@ import Color from "./color.js";
 
 const DOQ = {
   colorSchemes: [],
-  flags: { engineOn: false, isPrinting: false }
+  flags: {
+    engineOn: false, isPrinting: false,
+    shapesOn: true, imagesOn: true
+  }
 }
 let activeTone = {};
 let styleCache = new Map();
@@ -17,21 +20,19 @@ function setCanvasTheme(scheme, tone) {
   return activeTone;
 }
 
-function initEngine(colorSchemes) {
+function addColorScheme(scheme) {
   const newColor = arg => new Color(arg);
-  colorSchemes.forEach(scheme => {
-    scheme.colors = (scheme.accents || []).map(newColor);
-    scheme.tones.forEach(tone => {
-      const [b, f] = [tone.background, tone.foreground].map(newColor);
-      tone.colors = {
-        bg: b, fg: f, grad: b.range(f),
-        acc: (tone.accents || []).map(newColor).concat(scheme.colors)
-      };
-      tone.scheme = scheme;
-    });
+  scheme.colors = (scheme.accents || []).map(newColor);
+
+  scheme.tones.forEach(tone => {
+    const [b, f] = [tone.background, tone.foreground].map(newColor);
+    tone.colors = {
+      bg: b, fg: f, grad: b.range(f),
+      acc: (tone.accents || []).map(newColor).concat(scheme.colors)
+    };
+    tone.scheme = scheme;
   });
-  DOQ.colorSchemes = colorSchemes;
-  wrapCanvas();
+  DOQ.colorSchemes.push(scheme);
 }
 
 /* Wrap canvas drawing */
@@ -219,4 +220,6 @@ function createMask(color, args) {
   return cvs;
 }
 
-export { DOQ, initEngine, setCanvasTheme, getCanvasStyle, checkFlags };
+export {
+  DOQ, setCanvasTheme, addColorScheme, wrapCanvas, getCanvasStyle, checkFlags
+};

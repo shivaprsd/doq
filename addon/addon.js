@@ -1,6 +1,6 @@
 
-import { initEngine } from "./lib/engine.js";
 import { DOQ, initConfig } from "./lib/config.js";
+import { addColorScheme, wrapCanvas } from "./lib/engine.js";
 import { updateReaderState, updateColorScheme } from "./lib/theme.js";
 import { updateReaderColors, toggleFlags } from "./lib/reader.js";
 import { monitorAnnotationParams, handleInput } from "./lib/annots.js";
@@ -31,7 +31,8 @@ function installUI(html) {
 }
 
 function load(colorSchemes) {
-  initEngine(colorSchemes);
+  colorSchemes.forEach(addColorScheme);
+  wrapCanvas()
   initConfig();
   updateReaderState();
   bindEvents();

@@ -23,8 +23,7 @@ export default class Color {
       } else if (str.startsWith("rgba(")) {
         [this._rgb, this._alpha] = Color.parseRGBA(str);
       } else {
-        console.error(`Unsupported color format: "${str}"`);
-        return null;
+        throw new Error(`Unsupported color format: "${str}"`);
       }
     } else {
       this._rgb = [0, 0, 0];
