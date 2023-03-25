@@ -142,7 +142,7 @@ function findMatch(array, mapFun, condFun) {
 /* Alter fill and stroke styles */
 function resetShapeStyle(ctx, method, args, prop) {
   if (isAccent(ctx[prop])) {
-    ctx.hasAccents = true;
+    ctx.hasBackgrounds = true;
   }
   if (DOQ.flags.shapesOn) {
     return;
@@ -154,12 +154,13 @@ function resetShapeStyle(ctx, method, args, prop) {
   }
   const setStyle = ctx["set" + prop];
   setStyle.call(ctx, ctx["orig" + prop]);
+  ctx.hasBackgrounds = true;
 }
 
 function updateTextStyle(ctx, method, args, prop) {
   const style = ctx[prop];
 
-  if (!ctx.hasAccents && !isAccent(style)) {
+  if (!ctx.hasBackgrounds && !isAccent(style)) {
     return;
   }
   const bg = getCanvasColor(ctx, ...args);
@@ -194,6 +195,8 @@ function isAccent(style) {
 
 /* Return image composite operation, drawing an optional mask */
 function setCanvasCompOp(ctx, drawImage, args) {
+  ctx.hasBackgrounds = true;
+
   if (!DOQ.flags.imagesOn || !ctx.canvas.isConnected) {
     return;
   }
