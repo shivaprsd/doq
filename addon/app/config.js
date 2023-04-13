@@ -1,5 +1,5 @@
 
-import { DOQ } from "./engine.js";
+import { DOQ } from "../lib/engine.js";
 Object.assign(DOQ, {
   config: {},
   preferences: {},

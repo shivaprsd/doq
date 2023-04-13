@@ -1,8 +1,8 @@
 
 import { DOQ } from "./config.js";
-import { wrapCanvas, setCanvasTheme } from "./engine.js";
 import { updatePreference } from "./prefs.js";
-import { redrawAnnotation } from "./annots.js";
+import { wrapCanvas, setCanvasTheme } from "../lib/engine.js";
+import { redrawAnnotation } from "../lib/annots.js";
 
 function initReader() {
   wrapCanvas();
@@ -16,6 +16,7 @@ function initReader() {
       ctxp.origDrawImage.apply(this, arguments);
     }
   }
+  DOQ.initialized = true;
 }
 
 function updateReaderColors(e) {

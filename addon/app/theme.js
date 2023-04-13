@@ -1,6 +1,5 @@
 
 import { DOQ } from "./config.js";
-import { updateToolbarPos } from "./toolbar.js";
 import { updateReaderColors } from "./reader.js";
 import { readOptions, readPreferences, updatePreference } from "./prefs.js";
 
@@ -17,7 +16,6 @@ function updateReaderState(e) {
   if (!e || options.dynamicTheme) {
     updateColorScheme(e);
   }
-  updateToolbarPos();
 }
 
 function updateColorScheme(e) {

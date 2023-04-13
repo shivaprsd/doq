@@ -1,11 +1,15 @@
 
-import { installAddon } from "./addon.js";
-import { DOQ, wrapCanvas, addColorScheme, setCanvasTheme } from "./lib/engine.js";
+import * as doqAPI from "./lib/api.js";
+import { addColorScheme } from "./lib/engine.js";
+import { monitorAnnotationParams, handleInput } from "./lib/annots.js";
 
-var initialized = false;
+import { DOQ, initConfig } from "./app/config.js";
+import { updateReaderState, updateColorScheme } from "./app/theme.js";
+import { initReader, updateReaderColors, toggleFlags } from "./app/reader.js";
+import updateToolbarPos, * as Toolbar from "./app/toolbar.js";
 
 /* Initialisation */
-function initBrowser(doqAPI) {
+if (typeof window !== "undefined" && globalThis === window) {
   if (window.PDFViewerApplication) {
     const { readyState } = document;
 
@@ -14,111 +18,69 @@ function initBrowser(doqAPI) {
     } else {
       document.addEventListener("DOMContentLoaded", installAddon, true);
     }
-    initialized = true;
   }
   window.DOQ = doqAPI;
+} else {
+  console.error("doq: this script should be run in a browser environment");
 }
 
-async function init(themes) {
-  if (initialized)
-    return;
-
-  if (typeof themes === "undefined") {
-    themes = await loadThemes("colors.json");
-  } else if (!Array.isArray(themes)) {
-    throw new Error("doq: argument 'themes' must be an array");
-  }
-  themes.forEach(addTheme);
-
-  try {
-    wrapCanvas();
-  } catch (e) {
-    throw new Error(`doq: unable to modify Canvas API: ${e.message}`);
-  }
-  initialized = true;
+async function installAddon() {
+  const getURL = path => new URL(path, import.meta.url);
+  const colors = await fetch(getURL("lib/colors.json")).then(resp => resp.json());
+  linkCSS(getURL("doq.css"));
+  fetch(getURL("doq.html"))
+    .then(response => response.text()).then(installUI)
+    .then(() => load(colors));
 }
 
-async function loadThemes(path) {
-  let themes = [];
-  try {
-    const url = new URL(path, import.meta.url);
-    themes = await fetch(url).then(response => response.json());
-  } catch (e) {
-    console.error(`doq: failed to load default themes: ${e.message}`);
-  }
-  return themes;
+function linkCSS(href) {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = href;
+  document.head.appendChild(link);
 }
 
-function addTheme(theme) {
-  if (!theme.tones?.length) {
-    throw new Error("doq: a theme should have at least one tone!");
-  }
-  try {
-    addColorScheme(theme);
-  } catch (e) {
-    throw new Error(`doq: failed to add theme: ${e.message}`);
-  }
+function installUI(html) {
+  const docFrag = document.createRange().createContextualFragment(html);
+  const toolbar = document.getElementById("toolbarViewerRight");
+  toolbar.prepend(docFrag.getElementById("toolbarAddon").content);
+  const findbar = document.getElementById("findbar");
+  findbar.after(docFrag.getElementById("mainAddon").content);
 }
 
-function setTheme(arg) {
-  let scheme, tone;
-  if (Array.isArray(arg)) {
-    arg = arg.splice(0, 2);
-    [scheme, tone] = arg;
-
-    if (!DOQ.colorSchemes[scheme]?.tones[tone]) {
-      throw new Error(`doq: no theme at index (${arg})`);
-    }
-  } else if (typeof arg === "string") {
-    const args = arg.trim().split(/\s+/);
-    [scheme, tone] = getIndex(...args);
-
-    if (scheme < 0 || tone < 0) {
-      throw new Error(`doq: no such theme: "${arg}"`);
-    }
-  } else {
-    throw new Error("doq: argument must be array or string");
-  }
-  setCanvasTheme(scheme, tone);
-  DOQ.flags.engineOn = true;
+function load(colorSchemes) {
+  colorSchemes.forEach(addColorScheme);
+  initReader()
+  initConfig();
+  updateReaderState();
+  updateToolbarPos();
+  bindEvents();
 }
 
-function getIndex(schemeName, toneName) {
-  const { colorSchemes } = DOQ;
-  let scheme, tone = 0;
+/* Event listeners */
+function bindEvents() {
+  const { config, flags } = DOQ;
+  config.sysTheme.onchange = updateReaderState;
+  config.schemeSelector.onchange = updateColorScheme;
+  config.tonePicker.onchange = updateReaderColors;
+  config.shapeToggle.onchange = config.imageToggle.onchange = toggleFlags;
+  monitorAnnotationParams();
 
-  scheme = colorSchemes.find(e => e.name === schemeName);
-  if (scheme && toneName) {
-    tone = scheme.tones.findIndex(e => e.name === toneName);
-  }
-  scheme = colorSchemes.indexOf(scheme);
-  return [scheme, tone];
+  config.viewReader.onclick = Toolbar.toggleToolbar;
+  config.optionsToggle.onchange = e => Toolbar.toggleOptions();
+  config.schemeSelector.onclick = e => {
+    config.readerToolbar.classList.remove("tabMode");
+  };
+  config.viewer.addEventListener("input", handleInput);
+
+  window.addEventListener("beforeprint", e => flags.isPrinting = true);
+  window.addEventListener("afterprint", e => flags.isPrinting = false);
+  window.addEventListener("click", Toolbar.closeToolbar);
+  window.addEventListener("keydown", Toolbar.handleKeyDown);
+  window.addEventListener("resize", updateToolbarPos);
+
+  new MutationObserver(updateToolbarPos).observe(
+    config.viewReader.parentElement,
+    { subtree: true, attributeFilter: ["style", "class", "hidden"] }
+  );
 }
-
-function enable() {
-  if (!initialized) {
-    throw new Error("doq: initialize with DOQ.init() before enabling");
-  }
-  if (!DOQ.colorSchemes.length) {
-    throw new Error("doq: cannot start theme engine: no themes found!");
-  }
-  DOQ.flags.engineOn = true;
-}
-
-function disable() {
-  DOQ.flags.engineOn = false;
-}
-
-const API = {
-  init,
-  addTheme,
-  setTheme,
-  enable,
-  disable
-}
-
-if (typeof window !== "undefined" && globalThis === window) {
-  initBrowser(API);
-}
-
-export default API;

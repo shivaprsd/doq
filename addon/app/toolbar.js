@@ -41,7 +41,7 @@ export function toggleOptions(collapse) {
   config.optionsToggle.checked = !collapsed;
 }
 
-export function updateToolbarPos() {
+export default function updateToolbarPos() {
   const { config } = DOQ;
   const docWidth = document.documentElement.clientWidth;
   const btnRight = config.viewReader.getBoundingClientRect().right;
