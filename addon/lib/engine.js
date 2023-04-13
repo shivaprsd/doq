@@ -197,7 +197,7 @@ function isAccent(style) {
 function setCanvasCompOp(ctx, drawImage, args) {
   ctx.hasBackgrounds = true;
 
-  if (!DOQ.flags.imagesOn || !ctx.canvas.isConnected) {
+  if (!DOQ.flags.imagesOn) {
     return;
   }
   const { colors, foreground } = activeTone;

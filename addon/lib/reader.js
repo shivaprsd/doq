@@ -1,8 +1,22 @@
 
 import { DOQ } from "./config.js";
-import { setCanvasTheme } from "./engine.js";
+import { wrapCanvas, setCanvasTheme } from "./engine.js";
 import { updatePreference } from "./prefs.js";
 import { redrawAnnotation } from "./annots.js";
+
+function initReader() {
+  wrapCanvas();
+  const ctxp = CanvasRenderingContext2D.prototype;
+  const wrappedDrawImage = ctxp.drawImage;
+
+  ctxp.drawImage = function() {
+    if (this.canvas.closest(".page")) {
+      wrappedDrawImage.apply(this, arguments);
+    } else {
+      ctxp.origDrawImage.apply(this, arguments);
+    }
+  }
+}
 
 function updateReaderColors(e) {
   const { config } = DOQ;
@@ -78,4 +92,4 @@ function forceRedraw() {
   window.PDFViewerApplication.forceRendering();
 }
 
-export { updateReaderColors, toggleFlags };
+export { initReader, updateReaderColors, toggleFlags };
