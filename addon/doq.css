@@ -9,6 +9,9 @@
   --free-text-color: #000000;
   color: var(--free-text-color) !important;
 }
+.reader.dark .canvasWrapper > .highlight {
+  --blend-mode: overlay;
+}
 .invert :is(.page, .thumbnailImage), .colorSwatch.invert {
   filter: invert(86%);
 }

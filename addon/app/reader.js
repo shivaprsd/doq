@@ -33,15 +33,18 @@ function updateReaderColors(e) {
     enableInvert(redraw);
   } else {
     const readerTone = setCanvasTheme(sel, +pick - 1);
+    const isDarkTone = readerTone.colors.bg.lightness < 50;
     config.docStyle.setProperty("--reader-bg", readerTone.background);
     disableInvert();
-    enableReader(redraw);
+    enableReader(redraw, isDarkTone);
   }
   updatePreference("tone", pick);
 }
 
-function enableReader(redraw) {
-  DOQ.config.viewerClassList.add("reader");
+function enableReader(redraw, isDarkTheme) {
+  const { viewerClassList } = DOQ.config;
+  viewerClassList.add("reader");
+  viewerClassList.toggle("dark", isDarkTheme);
   DOQ.flags.engineOn = true;
   if (redraw) {
     forceRedraw();
@@ -53,7 +56,7 @@ function disableReader(redraw) {
   if (!flags.engineOn) {
     return;
   }
-  config.viewerClassList.remove("reader");
+  config.viewerClassList.remove("reader", "dark");
   flags.engineOn = false;
   if (redraw) {
     forceRedraw();
