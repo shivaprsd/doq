@@ -5,7 +5,8 @@ import { wrapCanvas, setCanvasTheme } from "../lib/engine.js";
 import { redrawAnnotation } from "../lib/annots.js";
 
 function initReader() {
-  wrapCanvas();
+  const isFirefox = window.location.protocol === "moz-extension:";
+  wrapCanvas(isFirefox);
   const ctxp = CanvasRenderingContext2D.prototype;
   const wrappedDrawImage = ctxp.drawImage;
 
