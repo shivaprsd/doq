@@ -30,21 +30,28 @@ Hence it runs only in modern browsers that supports `import` and `export`.
 For your own deployment of the PDF.js viewer:
 
 1. [Download][3] the latest version (or clone this repo)
-2. Copy the files in the `addon/` directory to some directory on your server\
+2. Copy the `addon/` and `lib/` directories to some directory on your server\
    (e.g. `/pdfjs-dist/addons/doq/`)
-3. Include `doq.js` as a module in the `viewer.html` of your deployment:
+3. Include `addon/doq.js` as a module in the `viewer.html` of your deployment:
 
 ```js
-<script type="module" src="/path/to/doq.js"></script>
+<script type="module" src="/path/to/addon/doq.js"></script>
 ```
+4. The global add-on object can be accessed later as `window.DOQ`.
 
-*doq* targets the default generic viewer of PDF.js. It should also work in
+Alternatively, to simply import as an ES6 module:
+`import doq from "path/to/lib/doq.js"`.
+
+Please check the exported functions of `lib/api.js` for the API for both the
+global add-on object and the module import.
+
+The add-on targets the default generic viewer of PDF.js. It should also work in
 custom viewers built on top of that. Feel free to open an issue if it breaks in
 your viewer.
 
 ### Defining colors
 
-Color schemes are defined in `addon/colors.json`, which you can extend. Only
+Color schemes are defined in `lib/colors.json`, which you can extend. Only
 6-digit RGB hex codes are currently supported.
 
 Each color scheme can have up to *three* tones. `background` and `foreground`

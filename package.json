@@ -6,17 +6,17 @@
   "license": "MIT",
   "author": "Shiva Prasad <shivapv@pm.me>",
   "contributors": [],
-  "dependencies": [],
+  "dependencies": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/shivaprsd/doq.git"
   },
-  "type": "add-on",
+  "type": "module",
   "target": "@mozilla/pdf.js",
-  "main": "addon/doq.js",
-  "version": "2.3",
+  "main": "lib/doq.js",
+  "version": "2.4",
   "pdfjs_version": {
-    "minimum": "2.7.570",
-    "target": "3.2.146"
+    "minimum": "2.10.377",
+    "target": "4.1.392"
   }
 }

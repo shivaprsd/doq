@@ -1,3 +1,14 @@
+# v2.4 (2024-07-07)
+
+- Update: target PDF.js v4.1: support Stamps and Highlights
+- Feature: enable non-viewer integration and general usage
+- Refactor: separate the theme engine, components into modules
+- Refactor: make awaiting PDF.js eventBus reusable
+- Improvement: wrap setters to proactively calculate styles
+- Improvement: drop storing canvas, minimize checking background
+- Fix: map colors to gradient if no accents were provided
+
+
 # v2.3 (2023-02-08)
 
 ### Release version 2.3
