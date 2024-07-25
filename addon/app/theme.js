@@ -1,14 +1,13 @@
 
 import { DOQ } from "./config.js";
 import { updateReaderColors } from "./reader.js";
-import { readOptions, readPreferences, updatePreference } from "./prefs.js";
+import { readPreferences, updatePreference } from "./prefs.js";
 
 function updateReaderState(e) {
-  const options = readOptions();
   const prefs = readPreferences();
   Object.assign(DOQ.flags, prefs.flags);
 
-  const { config } = DOQ;
+  const { config, options } = DOQ;
   config.imageToggle.checked = prefs.flags.imagesOn;
   config.shapeToggle.checked = prefs.flags.shapesOn;
   config.schemeSelector.selectedIndex = prefs.scheme;

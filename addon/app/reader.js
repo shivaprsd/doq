@@ -1,12 +1,13 @@
 
 import { DOQ } from "./config.js";
-import { updatePreference } from "./prefs.js";
+import { updatePreference, readOptions } from "./prefs.js";
 import { wrapCanvas, setCanvasTheme } from "../lib/engine.js";
 import { redrawAnnotation } from "../lib/annots.js";
 
 function initReader() {
-  wrapCanvas();
+  const options = readOptions();
   const ctxp = CanvasRenderingContext2D.prototype;
+  wrapCanvas(options.softwareRender);
   const wrappedDrawImage = ctxp.drawImage;
 
   ctxp.drawImage = function() {

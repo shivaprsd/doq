@@ -3,7 +3,7 @@ import { DOQ } from "../lib/engine.js";
 Object.assign(DOQ, {
   config: {},
   preferences: {},
-  options: { autoReader: true, dynamicTheme: true }
+  options: { autoReader: true, dynamicTheme: true, softwareRender: false }
 });
 
 function getDefaultPrefs() {
