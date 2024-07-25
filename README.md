@@ -66,6 +66,8 @@ directly to `doq.options` in Local storage (example follows):
   theme at launch. Default `true`.
 - `dynamicTheme` [Boolean]: Whether to save separate last-used preferences for
   OS light/dark themes. Default `true`.
+- `softwareRender` [Boolean]: Whether to disable GPU acceleration of the canvas
+  and force CPU rendering. Default `false`.
 
 ```js
 /* Options have to be set before loading doq */
