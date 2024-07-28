@@ -71,10 +71,18 @@ directly to `doq.options` in Local storage (example follows):
 
 - `autoReader` [Boolean]: Whether to automatically apply the last-used reader
   theme at launch. Default `true`.
+
 - `dynamicTheme` [Boolean]: Whether to save separate last-used preferences for
   OS light/dark themes. Default `true`.
+
 - `softwareRender` [Boolean]: Whether to disable GPU acceleration of the canvas
   and force CPU rendering. Default `false`.
+
+- `filterCSS` [String]: CSS property value to use for the Filter mode. Allowed
+  filter functions are `brightness`, `contrast`, `grayscale`, `hue-rotate`,
+  `invert`, `saturate` and `sepia`. Default `"invert(86%) hue-rotate(180deg)"`.
+
+#### Example:
 
 ```js
 /* Options have to be set before loading doq */
@@ -92,8 +100,8 @@ localStorage.setItem("doq.options", JSON.stringify(doqOptions));
 - **Blend images**: make images in the document blend with the new background
   (or text color in the case of dark themes).
 
-- **Invert mode**: to simply invert the (original) document colors if that is
-  all you need (and you don't mind negative images).
+- **Filter mode**: simply apply a CSS filter to the PDF if that is all you want
+  (faster but less pretty, especially with images).
 
 - **Intelligent application**: *doq* does not blindly change text color, but
   tries to ensure the legibility of the text against the background in which it
@@ -111,13 +119,10 @@ localStorage.setItem("doq.options", JSON.stringify(doqOptions));
 ### Performance
 
 *doq* recalculates the colors when the page is being rendered by PDF.js. This
-incurs a small overhead, slightly reducing the renderer's performance. *doq*
-tries to minimize this overhead with many optimizations (like caching the
-calculation results) so that speed improves after the initial render. External
-benchmark tests are welcome.
-
-This does not apply to the quick-invert mode as no processing is done there; it
-is implemented as a simple CSS filter, and hence, is fast.
+incurs a small overhead, slightly reducing the renderer's performance (this
+does not apply to the Filter mode as no processing is done there). *doq* tries
+to minimize this overhead with many optimizations (like caching the calculation
+results) so that speed improves after the initial render.
 
 (I guess this can be avoided altogether by implementing the logic directly
 within the PDF.js library by modifying the source. But that requires digging

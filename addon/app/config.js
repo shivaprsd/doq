@@ -1,10 +1,20 @@
 
 import { DOQ } from "../lib/engine.js";
+
 Object.assign(DOQ, {
   config: {},
   preferences: {},
-  options: { autoReader: true, dynamicTheme: true, softwareRender: false }
+  options: {
+    autoReader: true,
+    dynamicTheme: true,
+    softwareRender: false,
+    filterCSS: ""
+  }
 });
+
+/* CSS filter syntax: BOL [<filter-function>(<args>)<spaces-or-eol>]+ EOL */
+const filterRegEx =
+  /^((brightness|contrast|grayscale|hue-rotate|invert|saturate|sepia)\([^\)]+\)(\s+|$))+$/;
 
 function getDefaultPrefs() {
   return {
@@ -47,4 +57,4 @@ function getAddonConfig() {
   };
 }
 
-export { DOQ, initConfig, getDefaultPrefs };
+export { DOQ, initConfig, getDefaultPrefs, filterRegEx };

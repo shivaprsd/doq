@@ -29,14 +29,14 @@ function updateReaderColors(e) {
 
   if (pick == 0) {
     disableReader(redraw);
-    disableInvert();
+    disableFilter();
   } else if (pick == picker.elements.length - 1) {
-    enableInvert(redraw);
+    enableFilter(redraw);
   } else {
     const readerTone = setCanvasTheme(sel, +pick - 1);
     const isDarkTone = readerTone.colors.bg.lightness < 50;
     config.docStyle.setProperty("--reader-bg", readerTone.background);
-    disableInvert();
+    disableFilter();
     enableReader(redraw, isDarkTone);
   }
   updatePreference("tone", pick);
@@ -64,15 +64,15 @@ function disableReader(redraw) {
   }
 }
 
-function enableInvert(redraw) {
+function enableFilter(redraw) {
   if (DOQ.flags.engineOn) {
     disableReader(redraw);
   }
-  DOQ.config.viewerClassList.add("invert");
+  DOQ.config.viewerClassList.add("filter");
 }
 
-function disableInvert() {
-  DOQ.config.viewerClassList.remove("invert");
+function disableFilter() {
+  DOQ.config.viewerClassList.remove("filter");
 }
 
 function toggleFlags(e) {
