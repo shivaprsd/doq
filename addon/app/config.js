@@ -31,8 +31,8 @@ function initConfig() {
 
   /* Legacy PDF.js support */
   const pdfjsVer = pdfjsLib.version.split(".").map(Number);
-  if (pdfjsVer[0] < 3) {
-    if (pdfjsVer[0] < 2 || pdfjsVer[1] < 10) {
+  if (pdfjsVer[0] < 4 || pdfjsVer[1] < 7) {
+    if (pdfjsVer[0] < 3) {
       console.warn("doq: unsupported PDF.js version " + pdfjsLib.version);
     }
     config.viewReader.classList.add("pdfjsLegacy");

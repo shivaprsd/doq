@@ -31,6 +31,9 @@ export function toggleToolbar() {
   config.viewReader.setAttribute("aria-expanded", !hidden);
   if (hidden) {
     toggleOptions(/*collapse = */true);
+  } else {
+    const activeEditor = "#editorModeButtons .toggled";
+    document.querySelector(activeEditor)?.dispatchEvent(new Event("click"));
   }
 }
 
@@ -39,12 +42,4 @@ export function toggleOptions(collapse) {
   const panel = config.readerToolbar.querySelector(".optionsPanel");
   const collapsed = panel.classList.toggle("collapsed", collapse);
   config.optionsToggle.checked = !collapsed;
-}
-
-export default function updateToolbarPos() {
-  const { config } = DOQ;
-  const docWidth = document.documentElement.clientWidth;
-  const btnRight = config.viewReader.getBoundingClientRect().right;
-  const offset = docWidth - Math.ceil(window.pageXOffset + btnRight);
-  config.readerToolbar.style.right = `${offset + 2}px`;
 }

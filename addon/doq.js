@@ -7,7 +7,7 @@ import { DOQ, initConfig } from "./app/config.js";
 import { migratePrefs } from "./app/prefs.js";
 import { updateReaderState, updateColorScheme } from "./app/theme.js";
 import { initReader, updateReaderColors, toggleFlags } from "./app/reader.js";
-import updateToolbarPos, * as Toolbar from "./app/toolbar.js";
+import * as Toolbar from "./app/toolbar.js";
 
 /* Initialisation */
 if (typeof window !== "undefined" && globalThis === window) {
@@ -45,8 +45,6 @@ function installUI(html) {
   const docFrag = document.createRange().createContextualFragment(html);
   const toolbar = document.getElementById("toolbarViewerRight");
   toolbar.prepend(docFrag.getElementById("toolbarAddon").content);
-  const findbar = document.getElementById("findbar");
-  findbar.after(docFrag.getElementById("mainAddon").content);
 }
 
 function load(colorSchemes) {
@@ -55,7 +53,6 @@ function load(colorSchemes) {
   initConfig();
   migratePrefs();       /* TEMPORARY */
   updateReaderState();
-  updateToolbarPos();
   bindEvents();
 }
 
@@ -79,10 +76,4 @@ function bindEvents() {
   window.addEventListener("afterprint", e => flags.isPrinting = false);
   window.addEventListener("click", Toolbar.closeToolbar);
   window.addEventListener("keydown", Toolbar.handleKeyDown);
-  window.addEventListener("resize", updateToolbarPos);
-
-  new MutationObserver(updateToolbarPos).observe(
-    config.viewReader.parentElement,
-    { subtree: true, attributeFilter: ["style", "class", "hidden"] }
-  );
 }

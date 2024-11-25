@@ -1,51 +1,53 @@
 <template id="toolbarAddon">
-  <button id="viewReader" class="toolbarButton" title="Reader Mode options"
-          aria-expanded="false" aria-controls="readerToolbar" tabindex="29">
-    <span>Reader Mode</span>
-  </button>
-</template>
+  <div class="toolbarButtonWithContainer">
+    <button id="viewReader" class="toolbarButton" title="Reader Mode options"
+            aria-expanded="false" aria-controls="readerToolbar" tabindex="0">
+      <span>Reader Mode</span>
+    </button>
 
-<template id="mainAddon">
-  <div id="readerToolbar" class="secondaryToolbar doorHangerRight hidden">
-    <div class="mainPanel">
-      <div>
-        <form id="tonePicker" role="radiogroup" aria-label="Choose reader theme">
-          <template>
-          <input type="radio" name="readerTone" tabindex="30" id value aria-label>
-          <label class="colorSwatch" aria-hidden="true" for title style></label>
-          </template>
-        </form>
-      </div>
-      <div>
-        <span id="schemeSelectContainer" class="dropdownToolbarButton">
-          <select id="schemeSelect" class="toolbarField" title="Color Scheme"
-                  tabindex="30">
-          </select>
-        </span>
-        <span id="optionsToggleContainer">
-          <input type="checkbox" id="optionsToggle" class="toolbarField"
-                 tabindex="30" aria-label="Show additional options">
+    <div id="readerToolbar" class="editorParamsToolbar doorHangerRight hidden">
+      <div class="editorParamsToolbarContainer">
+        <div class="mainPanel">
           <div>
-            <label for="optionsToggle" class="maskIcon" aria-hidden="true"
-                   title="Options">
-            </label>
+            <form id="tonePicker" role="radiogroup" aria-label="Choose reader theme">
+              <template>
+              <input type="radio" name="readerTone" tabindex="0" id value aria-label>
+              <label class="colorSwatch" aria-hidden="true" for title style></label>
+              </template>
+            </form>
           </div>
-        </span>
-      </div>
-    </div>
+          <div>
+            <span id="schemeSelectContainer" class="dropdownToolbarButton">
+              <select id="schemeSelect" class="toolbarField" title="Color Scheme"
+                      tabindex="0">
+              </select>
+            </span>
+            <span id="optionsToggleContainer" class="toggleButton">
+              <input type="checkbox" id="optionsToggle" tabindex="0"
+                     aria-label="Show additional options">
+              <div>
+                <label for="optionsToggle" class="maskIcon" aria-hidden="true"
+                       title="Options">
+                </label>
+              </div>
+            </span>
+          </div>
+        </div>
 
-    <div class="optionsPanel collapsed">
-      <div>
-        <input type="checkbox" id="shapeEnable" class="toolbarField" tabindex="30"
-               aria-label="Apply theme to lines and shapes">
-        <label for="shapeEnable" class="toolbarLabel" aria-hidden="true"
-               title="Apply theme to lines and shapes">Apply to Shapes</label>
-      </div>
-      <div>
-        <input type="checkbox" id="imageEnable" class="toolbarField" tabindex="30"
-               aria-label="Blend images with reader theme">
-        <label for="imageEnable" class="toolbarLabel" aria-hidden="true"
-               title="Blend images with reader theme">Blend Images</label>
+        <div class="optionsPanel collapsed">
+          <div class="toggleButton">
+            <input type="checkbox" id="shapeEnable" tabindex="0"
+                   aria-label="Apply theme to lines and shapes">
+            <label for="shapeEnable" class="toolbarLabel" aria-hidden="true"
+                   title="Apply theme to lines and shapes">Apply to Shapes</label>
+          </div>
+          <div class="toggleButton">
+            <input type="checkbox" id="imageEnable" tabindex="0"
+                   aria-label="Blend images with reader theme">
+            <label for="imageEnable" class="toolbarLabel" aria-hidden="true"
+                   title="Blend images with reader theme">Blend Images</label>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -59,7 +59,7 @@
 
 /* Toolbar layout */
 #readerToolbar {
-  right: 194px;
+  width: max-content;
   font-size: 0;
   background-color: var(--toolbar-bg-color);
   -webkit-user-select: none;
@@ -68,17 +68,14 @@
 #readerToolbar::after {
   border-bottom-color: var(--toolbar-bg-color);
 }
-#readerToolbar > :first-child {
-  margin-bottom: 10px;
-}
-#readerToolbar > :last-child {
-  margin-bottom: -10px;
+#readerToolbar > div {
+  padding: 6px;
 }
 
 /* Panel layouts */
 .mainPanel {
   max-width: 170px;
-  padding: 0 6px;
+  padding-bottom: 4px;
 }
 .mainPanel > :first-child {
   margin-bottom: 6px;
@@ -90,7 +87,7 @@
   padding-right: 2px;
 }
 .optionsPanel {
-  padding: 0 8px;
+  padding: 0 4px;
   height: 74px;
   overflow-y: hidden;
   transition-property: height, opacity, visibility;
@@ -102,11 +99,15 @@
   visibility: hidden;
 }
 .optionsPanel > div {
+  display: block;
   position: relative;
-  margin-bottom: 6px;
+}
+.optionsPanel > :first-child {
+  margin-top: 8px;
 }
 .optionsPanel > :last-child {
-  margin-bottom: 10px;
+  margin-top: 6px;
+  margin-bottom: 4px;
 }
 
 /* Main panel */
@@ -125,9 +126,11 @@
   width: 100%;
 }
 #optionsToggleContainer {
+  --button-hover-color: transparent;
+  --toggled-btn-bg-color: transparent;
   position: relative;
   flex-shrink: 0;
-  margin-left: 8px;
+  margin-inline-start: 8px;
 }
 #optionsToggle {
   margin: 3px;
@@ -141,8 +144,12 @@
 }
 /* Options Panel */
 .optionsPanel .toolbarLabel {
-  display: block;
-  text-align: center;
+  display: flex;
+  width: 100%;
+  padding: 7px;
+}
+.optionsPanel .toggleButton {
+  border-radius: 2px;
 }
 
 /* Icons */
@@ -170,24 +177,31 @@
 #readerToolbar input[type="checkbox"] {
   pointer-events: none;
 }
-#readerToolbar input[type="checkbox"] + label:hover,
-#readerToolbar input[type="checkbox"]:focus-visible + label {
-  background-color: var(--button-hover-color);
-}
-#readerToolbar input[type="checkbox"]:checked + label {
-  background-color: var(--toggled-btn-bg-color);
-}
+
 /* Accessibility */
 .tabMode #schemeSelectContainer:focus-within,
 #readerToolbar input:focus-visible + :is(label, div) {
   outline: 5px auto;
 }
 
-/* For PDF.js legacy (< 3.x) versions */
-.pdfjsLegacy #schemeSelect {
-  width: calc(100% + 22px);
-}
+/* For PDF.js legacy (< 4.7) versions */
 .pdfjsLegacy#viewReader::before {
-  -webkit-mask-image: url(images/readerIcon-legacy.svg);
-  mask-image: url(images/readerIcon-legacy.svg);
+  top: unset;
+}
+.pdfjsLegacy .editorParamsToolbarContainer {
+  width: max-content;
+}
+.pdfjsLegacy input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+}
+.pdfjsLegacy .toolbarLabel {
+  box-sizing: border-box;
+  justify-content: center;
+}
+.pdfjsLegacy :is(.toolbarLabel:hover, :focus-visible + label) {
+  background-color: var(--button-hover-color);
+}
+.pdfjsLegacy :checked + .toolbarLabel {
+  background-color: var(--toggled-btn-bg-color);
 }

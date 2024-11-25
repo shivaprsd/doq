@@ -16,7 +16,7 @@
   "main": "lib/doq.js",
   "version": "2.4",
   "pdfjs_version": {
-    "minimum": "2.10.377",
-    "target": "4.1.392"
+    "minimum": "3.2.146",
+    "target": "4.8.69"
   }
 }
