@@ -6,17 +6,7 @@ import { redrawAnnotation } from "../lib/annots.js";
 
 function initReader() {
   const options = readOptions();
-  const ctxp = CanvasRenderingContext2D.prototype;
   wrapCanvas(options.softwareRender);
-  const wrappedDrawImage = ctxp.drawImage;
-
-  ctxp.drawImage = function() {
-    if (this.canvas.closest(".page")) {
-      wrappedDrawImage.apply(this, arguments);
-    } else {
-      ctxp.origDrawImage.apply(this, arguments);
-    }
-  }
   DOQ.initialized = true;
 }
 
