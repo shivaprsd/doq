@@ -5,6 +5,15 @@ import { wrapCanvas, setCanvasTheme } from "../lib/engine.js";
 import { redrawAnnotation } from "../lib/annots.js";
 
 function initReader() {
+  const cvsp = HTMLCanvasElement.prototype;
+  const origGetContext = cvsp.getContext;
+  cvsp.getContext = function() {
+    const pageNum = this.closest(".page")?.dataset.pageNumber;
+    if (pageNum) {
+      this.setAttribute("data-cache-id", "page" + pageNum);
+    }
+    return origGetContext.apply(this, arguments);
+  };
   const options = readOptions();
   wrapCanvas(options.softwareRender);
   DOQ.initialized = true;
