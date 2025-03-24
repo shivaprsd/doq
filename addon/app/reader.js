@@ -1,6 +1,6 @@
 
 import { DOQ } from "./config.js";
-import { updatePreference, readOptions } from "./prefs.js";
+import { updatePreference } from "./prefs.js";
 import { wrapCanvas, setCanvasTheme } from "../lib/engine.js";
 import { redrawAnnotation } from "../lib/annots.js";
 
@@ -14,8 +14,7 @@ function initReader() {
     }
     return origGetContext.apply(this, arguments);
   };
-  const options = readOptions();
-  wrapCanvas(options.softwareRender);
+  wrapCanvas();
   DOQ.initialized = true;
 }
 

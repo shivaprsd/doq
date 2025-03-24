@@ -13,12 +13,6 @@
             "type": "boolean",
             "default": true
         },
-        "softwareRender": {
-            "title": "Force software rendering",
-            "description": "Whether to disable GPU acceleration of the canvas and force CPU rendering.",
-            "type": "boolean",
-            "default": false
-        },
         "filterCSS": {
             "title": "Filter mode CSS",
             "description": "CSS property value to use for the Filter mode. Accepted filters: 'brightness', 'contrast', 'grayscale', 'hue-rotate', 'invert', 'saturate', and 'sepia'.",

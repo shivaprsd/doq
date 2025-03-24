@@ -75,9 +75,6 @@ directly to `doq.options` in Local storage (example follows):
 - `dynamicTheme` [Boolean]: Whether to save separate last-used preferences for
   OS light/dark themes. Default `true`.
 
-- `softwareRender` [Boolean]: Whether to disable GPU acceleration of the canvas
-  and force CPU rendering. Default `false`.
-
 - `filterCSS` [String]: CSS property value to use for the Filter mode. Allowed
   filter functions are `brightness`, `contrast`, `grayscale`, `hue-rotate`,
   `invert`, `saturate` and `sepia`. Default `"invert(86%) hue-rotate(180deg)"`.

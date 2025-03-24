@@ -1,10 +1,11 @@
 
 import { DOQ, filterRegEx } from "./config.js";
 import { updateReaderColors } from "./reader.js";
-import { readPreferences, updatePreference } from "./prefs.js";
+import { readOptions, readPreferences, updatePreference } from "./prefs.js";
 
 function updateReaderState(e) {
-  const { config, options } = DOQ;
+  const { config } = DOQ;
+  const options = readOptions();
   const prefs = readPreferences();
 
   Object.assign(DOQ.flags, prefs.flags);

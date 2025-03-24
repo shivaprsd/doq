@@ -7,7 +7,6 @@ Object.assign(DOQ, {
   options: {
     autoReader: true,
     dynamicTheme: true,
-    softwareRender: false,
     filterCSS: ""
   }
 });
