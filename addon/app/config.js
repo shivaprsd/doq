@@ -30,7 +30,7 @@ function initConfig() {
 
   /* Legacy PDF.js support */
   const pdfjsVer = pdfjsLib.version.split(".").map(Number);
-  if (pdfjsVer[0] < 4 || pdfjsVer[1] < 7) {
+  if (isLegacy(pdfjsVer, "4.7")) {
     if (pdfjsVer[0] < 3) {
       console.warn("doq: unsupported PDF.js version " + pdfjsLib.version);
     }
@@ -38,6 +38,14 @@ function initConfig() {
     config.readerToolbar.classList.add("pdfjsLegacy");
   }
   DOQ.config = config;
+}
+
+function isLegacy(libVer, minVer) {
+  minVer = minVer.split(".").map(Number);
+  if (libVer[0] === minVer[0]) {
+    return libVer[1] < minVer[1];
+  }
+  return libVer[0] < minVer[0];
 }
 
 function getAddonConfig() {
