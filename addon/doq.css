@@ -10,8 +10,11 @@
   --free-text-color: #000000;
   color: var(--free-text-color) !important;
 }
-.reader.dark .canvasWrapper > .highlight {
+.reader.dark .canvasWrapper > .highlight:not(.free) {
   --blend-mode: overlay;
+}
+.reader.dark .canvasWrapper > .highlight.free {
+  --blend-mode: hard-light;
 }
 .filter :is(.page, .thumbnailImage), .colorSwatch.filter {
   filter: var(--filter-css);
