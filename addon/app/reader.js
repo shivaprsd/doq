@@ -2,7 +2,7 @@
 import { DOQ } from "./config.js";
 import { updatePreference } from "./prefs.js";
 import { wrapCanvas, setCanvasTheme } from "../lib/engine.js";
-import { redrawAnnotation } from "../lib/annots.js";
+import * as Annots from "../lib/annots.js";
 
 function initReader() {
   const cvsp = HTMLCanvasElement.prototype;
@@ -84,15 +84,21 @@ function toggleFlags(e) {
   }
 }
 
+function handleAnnotations(e) {
+  const { canvas, annotationEditorLayer, eventBus } = e.source;
+  Annots.monitorAnnotations(canvas?.parentElement);
+  Annots.monitorEditorEvents(annotationEditorLayer.div, eventBus);
+}
+
 function forceRedraw() {
   const { pdfViewer, pdfThumbnailViewer } = window.PDFViewerApplication;
   const annotations = pdfViewer.pdfDocument?.annotationStorage.getAll();
 
-  Object.values(annotations || {}).forEach(redrawAnnotation);
+  Object.values(annotations || {}).forEach(Annots.redrawAnnotation);
   pdfViewer._pages.filter(e => e.renderingState).forEach(e => e.reset());
   pdfThumbnailViewer._thumbnails.filter(e => e.renderingState)
                                 .forEach(e => e.reset());
   window.PDFViewerApplication.forceRendering();
 }
 
-export { initReader, updateReaderColors, toggleFlags };
+export { initReader, updateReaderColors, toggleFlags, handleAnnotations };
