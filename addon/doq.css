@@ -16,6 +16,11 @@
 .reader.dark .canvasWrapper > .highlight.free {
   --blend-mode: hard-light;
 }
+.reader.dark .textLayer .highlight {
+  --highlight-backdrop-filter: invert() hue-rotate(180deg);
+  --highlight-selected-backdrop-filter: invert() hue-rotate(180deg);
+  display: inline-block;    /* needed for WebKit/Blink */
+}
 .filter :is(.page, .thumbnailImage), .colorSwatch.filter {
   filter: var(--filter-css);
 }
