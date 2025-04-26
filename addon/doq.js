@@ -1,12 +1,12 @@
 
 import * as doqAPI from "./lib/api.js";
 import { addColorScheme } from "./lib/engine.js";
-import { monitorAnnotationParams, handleInput } from "./lib/annots.js";
 
 import { DOQ, initConfig } from "./app/config.js";
 import { migratePrefs } from "./app/prefs.js";
 import { updateReaderState, updateColorScheme } from "./app/theme.js";
-import { initReader, updateReaderColors, toggleFlags } from "./app/reader.js";
+import { getViewerEventBus } from "./app/utils.js";
+import * as Reader from "./app/reader.js";
 import * as Toolbar from "./app/toolbar.js";
 
 /* Initialisation */
@@ -49,7 +49,7 @@ function installUI(html) {
 
 function load(colorSchemes) {
   colorSchemes.forEach(addColorScheme);
-  initReader();
+  Reader.initReader();
   initConfig();
   migratePrefs();       /* TEMPORARY */
   updateReaderState();
@@ -61,16 +61,17 @@ function bindEvents() {
   const { config, flags } = DOQ;
   config.sysTheme.onchange = updateReaderState;
   config.schemeSelector.onchange = updateColorScheme;
-  config.tonePicker.onchange = updateReaderColors;
-  config.shapeToggle.onchange = config.imageToggle.onchange = toggleFlags;
-  monitorAnnotationParams();
+  config.tonePicker.onchange = Reader.updateReaderColors;
+  config.shapeToggle.onchange = config.imageToggle.onchange = Reader.toggleFlags;
+  getViewerEventBus().then(eventBus => {
+    eventBus.on("annotationeditorlayerrendered", Reader.handleAnnotations);
+  });
 
   config.viewReader.onclick = Toolbar.toggleToolbar;
   config.optionsToggle.onchange = e => Toolbar.toggleOptions();
   config.schemeSelector.onclick = e => {
     config.readerToolbar.classList.remove("tabMode");
   };
-  config.viewer.addEventListener("input", handleInput);
 
   window.addEventListener("beforeprint", e => flags.isPrinting = true);
   window.addEventListener("afterprint", e => flags.isPrinting = false);
