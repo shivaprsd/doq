@@ -92,9 +92,15 @@ function handleAnnotations(e) {
 
 function forceRedraw() {
   const { pdfViewer, pdfThumbnailViewer } = window.PDFViewerApplication;
-  const annotations = pdfViewer.pdfDocument?.annotationStorage.getAll();
+  const annotStore = pdfViewer.pdfDocument?.annotationStorage;
+  let annotations;
 
-  Object.values(annotations || {}).forEach(Annots.redrawAnnotation);
+  try {
+    annotations = Object.values(annotStore.getAll() || {});   /* PDF.js < 5.2 */
+  } catch (e) {
+    annotations = [...annotStore].map(e => e[1]);
+  }
+  annotations.forEach(Annots.redrawAnnotation);
   pdfViewer._pages.filter(e => e.renderingState).forEach(e => e.reset());
   pdfThumbnailViewer._thumbnails.filter(e => e.renderingState)
                                 .forEach(e => e.reset());
