@@ -67,6 +67,7 @@
 
 /* Toolbar layout */
 #readerToolbar {
+  --editor-toolbar-min-width: 140px;
   width: max-content;
   font-size: 0;
   background-color: var(--toolbar-bg-color);
