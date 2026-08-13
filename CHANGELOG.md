@@ -1,3 +1,27 @@
+# v2.6 (2026-08-13)
+
+- Fix: avoid TypeError in redrawHighlights handler
+- Fix: ignore textBg if text is outside the canvas
+- Fix: update text when gradients/patterns are present
+- Improvement: simplify image blending in drawImage handler
+- Improvement: make free, find highlights more visible in dark
+- Refactor: rewrite and refactor annotation handling
+- Update: annotation, color picker handling for PDF.js 5.2+
+- Update: legacy comparison for PDF.js 5.x
+
+
+# v2.5 (2025-04-26)
+
+- Fix: make SVG icons visible in Chromium browsers
+- Fix: fast GPU rendering with improved canvas caching
+- Fix: blending image annotations during theme change
+- Fix: stop blending intermediate offscreen canvases
+- Update: adapt for PDF.js v4.7+, drop v2.x support
+- Feature: replace Invert mode with custom CSS Filter
+- Improvement: new schema file for extension options
+- New theme: Chrome Reading mode color scheme
+
+
 # v2.4 (2024-07-07)
 
 - Update: target PDF.js v4.1: support Stamps and Highlights
@@ -11,8 +35,6 @@
 
 # v2.3 (2023-02-08)
 
-### Release version 2.3
-
 - Update: target PDF.js 3.2, but retain legacy compatibility
 - Update: new reader icon to match the revamped PDF.js UI
 - Improvement: optimize saving canvas for faster rendering
@@ -23,8 +45,6 @@
 
 # v2.2 (2022-10-30)
 
-### Release version 2.2
-
 - Update: target PDF.js version 2.16
 - Improvement: handle transparent canvas styles
 - Improvement: color calc based on BG of the text centre
@@ -34,8 +54,6 @@
 
 
 # v2.1 (2022-05-21)
-
-### Release version 2.1
 
 - Update: target PDF.js version 2.13
 - Add themes: Nord and Firefox reader view
@@ -49,11 +67,9 @@
 
 # v2.0 (2021-11-05)
 
-### Release version 2.0
-
 Major update, almost a complete rewrite. See c941877, 4b42993.
 
-#### Changes
+### Changes
 
 - Name, logo, core functionality: convert to Reader mode
 - Stop tweaking the text layer; act directly on the canvas
@@ -66,8 +82,6 @@ Major update, almost a complete rewrite. See c941877, 4b42993.
 
 # v1.2 (2021-01-25)
 
-### Release version 1.2
-
 - Feature: support multiple color schemes
 - Feature: gestures for toggling toolbar and scrolling
 - Improvement: change font resize buttons to html slider
@@ -77,8 +91,6 @@ Major update, almost a complete rewrite. See c941877, 4b42993.
 
 
 # v1.1 (2020-12-19)
-
-### Release version 1.1
 
 - Fix: make font resize persistent across page loads
 - Feature: make Terminal Mode and Lights Off mutually exclusive

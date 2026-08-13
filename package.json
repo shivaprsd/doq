@@ -14,9 +14,9 @@
   "type": "module",
   "target": "@mozilla/pdf.js",
   "main": "lib/doq.js",
-  "version": "2.4",
+  "version": "2.6",
   "pdfjs_version": {
     "minimum": "3.2.146",
-    "target": "4.8.69"
+    "target": "6.0.227"
   }
 }
