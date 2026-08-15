@@ -2,12 +2,15 @@
 import { DOQ } from "./config.js";
 
 export function handleKeyDown(e) {
+  const hasModifiers = e.altKey || e.ctrlKey || e.metaKey || e.shiftKey;
   if (e.code === "Tab") {
     DOQ.config.readerToolbar.classList.add("tabMode");
-  } else if (e.code === "Escape") {
-    closeToolbar();
-    e.target.blur();
-    e.preventDefault();
+  } else if (e.code === "Escape" && !hasModifiers) {
+    const closed = closeToolbar();
+    if (closed) {
+      e.target.blur();
+      e.preventDefault();
+    }
   }
 }
 
@@ -20,6 +23,7 @@ export function closeToolbar(e) {
   }
   if (!toolbar.classList.contains("hidden")) {
     toggleToolbar();
+    return true;
   }
 }
 
