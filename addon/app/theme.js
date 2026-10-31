@@ -11,7 +11,13 @@ function updateReaderState(e) {
   Object.assign(DOQ.flags, prefs.flags);
   config.imageToggle.checked = prefs.flags.imagesOn;
   config.shapeToggle.checked = prefs.flags.shapesOn;
-  config.schemeSelector.selectedIndex = prefs.scheme;
+  // A stored scheme index may no longer match colorSchemes (e.g. after
+  // schemes were added/removed); fall back to the first scheme instead of
+  // leaving the selector at -1 and crashing in updateColorScheme().
+  const schemeIndex = prefs.scheme >= 0 && prefs.scheme < DOQ.colorSchemes.length
+    ? prefs.scheme
+    : 0;
+  config.schemeSelector.selectedIndex = schemeIndex;
 
   const { dynamicTheme, filterCSS } = options;
   if (filterRegEx.test(filterCSS) && CSS.supports("filter", filterCSS)) {
@@ -27,9 +33,9 @@ function updateReaderState(e) {
 function updateColorScheme(e) {
   const { config, options, preferences, colorSchemes } = DOQ;
   const index = config.schemeSelector.selectedIndex;
-  const scheme = colorSchemes[index];
+  const scheme = colorSchemes[index] ?? colorSchemes[0];
 
-  if (!scheme.tones || !scheme.tones.length) {
+  if (!scheme?.tones || !scheme.tones.length) {
     return;
   }
   if (scheme.tones.length > 3) {
